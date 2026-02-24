@@ -5,8 +5,10 @@
 </div>
 
 <div align="center">
-  <p>Este repositório contém o frontend do projeto HortiControl, um sistema web desenvolvido como projeto acadêmico com o objetivo de apoiar a digitalização dos processos da empresa Alto Tietê Hortaliças. A solução foi idealizada para substituir fluxos operacionais manuais e descentralizados — atualmente realizados por meio de WhatsApp, anotações em papel e controles informais — por uma plataforma integrada capaz de centralizar e padronizar o cadastro de clientes e produtos, o registro e acompanhamento de pedidos, o controle de estoque, a emissão e organização de notas por entrega e o monitoramento de pagamentos realizados. O sistema organiza todo o ciclo operacional da empresa, desde o pedido até a cobrança, garantindo maior rastreabilidade das informações, redução de erros, diminuição de retrabalho e maior confiabilidade na gestão de dados. Desenvolvido como um MVP ao longo do semestre, o projeto aplica conceitos de engenharia de software, modelagem de processos e desenvolvimento web, além de propor uma solução escalável com potencial de expansão futura para outras empresas do setor hortifrúti que enfrentam desafios semelhantes no processo de transformação digital.</p>
+  <p align="justify">Este repositório contém o frontend do projeto HortiControl, um sistema web desenvolvido como projeto acadêmico com o objetivo de apoiar a digitalização dos processos da empresa Alto Tietê Hortaliças. A solução foi idealizada para substituir fluxos operacionais manuais e descentralizados — atualmente realizados por meio de WhatsApp, anotações em papel e controles informais — por uma plataforma integrada capaz de centralizar e padronizar o cadastro de clientes e produtos, o registro e acompanhamento de pedidos, o controle de estoque, a emissão e organização de notas por entrega e o monitoramento de pagamentos realizados. O sistema organiza todo o ciclo operacional da empresa, desde o pedido até a cobrança, garantindo maior rastreabilidade das informações, redução de erros, diminuição de retrabalho e maior confiabilidade na gestão de dados. Desenvolvido como um MVP ao longo do semestre, o projeto aplica conceitos de engenharia de software, modelagem de processos e desenvolvimento web, além de propor uma solução escalável com potencial de expansão futura para outras empresas do setor hortifrúti que enfrentam desafios semelhantes no processo de transformação digital.</p>
 </div>
+
+</br>
 
 <p align=center>
 
@@ -19,6 +21,8 @@
 - Dashboard gerencial com indicadores
 
 </p>
+
+</br>
   
 <p align=center>
 
