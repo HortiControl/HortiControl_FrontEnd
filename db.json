@@ -1,0 +1,12 @@
+{
+    "produtos": [
+        {
+            "id": 1,
+            "nome": "Alface",
+            "tipo": "Lavado",
+            "tipoUnidade":"KG",
+            "preco": 9.0,
+            "embalagem": "bandeja"
+        }
+    ]
+}
