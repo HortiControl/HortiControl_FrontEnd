@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>HortiControl - Produtos</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">
+            <img src="logo.svg"class="logo-circulo" alt="logo-horticontrol">
+            <h2>HORTICONTROL</h2>
+        </div>
+
+        <ul>
+            <li>Dashboard</li>
+            <li>Mercados</li>
+            <li class="active">Produtos</li>
+            <li>Pedidos</li>
+            <li>Notas</li>
+            <li>Relatórios</li>
+            <li>Configurações</li>
+        </ul>
+
+        <div class="logout">Sair</div>
+    </aside>
+
+
+    <!-- CONTEÚDO -->
+    <main class="content">
+
+        <div class="header">
+            <div>
+                <h1>Produtos</h1>
+                <p>Gerencie seu catálogo de produtos e preços</p>
+            </div>
+            <button class="btn-primary" id="btnAdicionar">
+                + Adicionar Produto
+            </button>
+        </div>
+
+
+        <div class="card">
+            <h3>Todos os Produtos (6)</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Unidade</th>
+                        <th>Preço</th>
+                        <th>Embalagem</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Alface Crespa</td>
+                        <td><span class="tag blue">Pré-lavado</span></td>
+                        <td>un</td>
+                        <td>R$ 9.00</td>
+                        <td><span class="tag orange">Bandeja</span></td>
+                        <td class="actions">
+                            <button class="btn-edit">✏️</button>
+                            <button class="btn-delete">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Alface Lisa</td>
+                        <td><span class="tag blue">Pré-lavado</span></td>
+                        <td>un</td>
+                        <td>R$ 9.00</td>
+                        <td><span class="tag purple">Pote</span></td>
+                        <td class="actions">
+                            <button class="btn-edit">✏️</button>
+                            <button class="btn-delete">🗑️</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+</div>
+
+
+<!-- MODAL -->
+<div class="overlay" id="modal">
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <h2 id="modalTitle">Adicionar Produto</h2>
+            <span class="close" id="btnClose">×</span>
+        </div>
+
+        <form>
+
+            <label>Nome do Produto</label>
+            <input type="text" id="inputNome">
+
+            <label>Tipo</label>
+            <select>
+                <option>Pré-lavado</option>
+                <option>Não lavado</option>
+            </select>
+
+            <label>Embalagem</label>
+            <select>
+                <option>Bandeja</option>
+                <option>Pote</option>
+                <option>Saco</option>
+            </select>
+
+            <label>Unidade</label>
+            <input type="text">
+
+            <label>Preço Atual (R$)</label>
+            <input type="text">
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="btnCancelar">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-primary">
+                    Salvar
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
