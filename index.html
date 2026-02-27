@@ -96,40 +96,42 @@
             <span class="close" id="btnClose">×</span>
         </div>
 
-        <form>
+        <div class="form">
 
             <label>Nome do Produto</label>
             <input type="text" id="inputNome">
 
             <label>Tipo</label>
-            <select>
+            <select id="selectTipo">
                 <option>Pré-lavado</option>
                 <option>Não lavado</option>
             </select>
 
             <label>Embalagem</label>
-            <select>
+            <select id="selectEmbalagem">
                 <option>Bandeja</option>
                 <option>Pote</option>
                 <option>Saco</option>
             </select>
 
-            <label>Unidade</label>
-            <input type="text">
+            <label>Embalagem</label>
+            <select id="selectUnidade">
+                <option>Kg</option>
+                <option>Un</option>
+            </select>
 
             <label>Preço Atual (R$)</label>
-            <input type="text">
+            <input type="text" id="inputPreco">
 
             <div class="modal-actions">
                 <button type="button" class="btn-secondary" id="btnCancelar">
                     Cancelar
                 </button>
-                <button type="submit" class="btn-primary">
+                <button onclick="cadastrarProduto()" class="btn-primary">
                     Salvar
                 </button>
             </div>
-
-        </form>
+        </div class="form">
 
     </div>
 </div>

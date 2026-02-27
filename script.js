@@ -34,18 +34,50 @@ window.addEventListener("click", (e) => {
     }
 });
 
-function tamanhoVetor(vetor){
+function tamanhoVetor(vetor) {
     return vetor.length
 }
 
-async function buscarDados(){
+
+
+async function buscarDados() {
     const resposta = await fetch("http://localhost:3000/produtos");
     console.log("resposta", resposta)
 
-    const dadosVisiveis = await resposta.json();
-    console.log(tamanhoVetor(dadosVisiveis))
-    // console.log("Dados", dadosVisiveis[0].nome);
-    
+    const dados = await resposta.json();
+    console.log(tamanhoVetor(dados))
+    // console.log("Dados", dados[0].nome);
+    qtdProdutos.innerHTML = tamanhoVetor(dados)
+}
+
+async function adicionar() {
+    await fetch("http://localhost:3000/usuarios", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            nome: input_nome.value,
+        }),
+    });
+}
+
+async function cadastrarProduto() {
+    await fetch("http://localhost:3000/produtos", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            nome: inputNome.value,
+            tipo: selectTipo.value,
+            tipoUnidade: selectUnidade.value,
+            preco: inputPreco.value,
+            embalagem: selectEmbalagem.value,
+        })
+    });
+
+    buscarDados();
 }
 
 buscarDados();

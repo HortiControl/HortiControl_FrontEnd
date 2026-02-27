@@ -1,12 +1,28 @@
 {
-    "produtos": [
-        {
-            "id": 1,
-            "nome": "Alface",
-            "tipo": "Lavado",
-            "tipoUnidade":"KG",
-            "preco": 9.0,
-            "embalagem": "Bandeja"
-        }
-    ]
+  "produtos": [
+    {
+      "id": 1,
+      "nome": "Alface",
+      "tipo": "Lavado",
+      "tipoUnidade": "KG",
+      "preco": 9,
+      "embalagem": "Bandeja"
+    },
+    {
+      "nome": "slaa",
+      "tipo": "Pré-lavado",
+      "tipoUnidade": "KG",
+      "preco": "12",
+      "embalagem": "Bandeja",
+      "id": 2
+    },
+    {
+      "nome": "Sla",
+      "tipo": "Pré-lavado",
+      "tipoUnidade": "Kg",
+      "preco": "12",
+      "embalagem": "Bandeja",
+      "id": 3
+    }
+  ]
 }
