@@ -33,3 +33,19 @@ window.addEventListener("click", (e) => {
         fecharModal();
     }
 });
+
+function tamanhoVetor(vetor){
+    return vetor.length
+}
+
+async function buscarDados(){
+    const resposta = await fetch("http://localhost:3000/produtos");
+    console.log("resposta", resposta)
+
+    const dadosVisiveis = await resposta.json();
+    console.log(tamanhoVetor(dadosVisiveis))
+    // console.log("Dados", dadosVisiveis[0].nome);
+    
+}
+
+buscarDados();
