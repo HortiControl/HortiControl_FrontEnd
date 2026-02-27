@@ -3,23 +3,12 @@ const btnAdicionar = document.getElementById("btnAdicionar");
 const btnCancelar = document.getElementById("btnCancelar");
 const btnClose = document.getElementById("btnClose");
 const modalTitle = document.getElementById("modalTitle");
-const btnsEdit = document.querySelectorAll(".btn-edit");
 
-// Abrir como adicionar
 btnAdicionar.addEventListener("click", () => {
     modalTitle.textContent = "Adicionar Produto";
     modal.style.display = "flex";
 });
 
-// Abrir como editar
-btnsEdit.forEach(btn => {
-    btn.addEventListener("click", () => {
-        modalTitle.textContent = "Editar Produto";
-        modal.style.display = "flex";
-    });
-});
-
-// Fechar modal
 function fecharModal() {
     modal.style.display = "none";
 }
@@ -27,7 +16,6 @@ function fecharModal() {
 btnCancelar.addEventListener("click", fecharModal);
 btnClose.addEventListener("click", fecharModal);
 
-// Fechar clicando fora
 window.addEventListener("click", (e) => {
     if (e.target === modal) {
         fecharModal();
@@ -38,9 +26,21 @@ function tamanhoVetor(vetor) {
     return vetor.length
 }
 
+// function formatarMoeda(valor){
+//     let valorFormato = valor;
+//     if(/[,.]/.test(valor)){
+//         valorFormato = valor.replace(/\,/, ".")
+//     }else{
+//         valorFormato+= ".00"
+//     }
 
+//     return Number(valorFormato).toFixed(2);
+// }
 
 async function buscarDados() {
+    let listaProduto = document.getElementById("listaProdutos")
+    listaProduto.innerHTML = "";
+
     const resposta = await fetch("http://localhost:3000/produtos");
     console.log("resposta", resposta)
 
@@ -48,18 +48,50 @@ async function buscarDados() {
     console.log(tamanhoVetor(dados))
     // console.log("Dados", dados[0].nome);
     qtdProdutos.innerHTML = tamanhoVetor(dados)
-}
 
-async function adicionar() {
-    await fetch("http://localhost:3000/usuarios", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            nome: input_nome.value,
-        }),
+    dados.forEach(produto => {
+        let corEmbalagem = "";
+        let corTipo = "";
+
+        if (produto.embalagem == "Bandeja") {
+            corEmbalagem = "bandeja"
+        } else if (produto.embalagem == "Pote") {
+            corEmbalagem = "pote"
+        } else {
+            corEmbalagem = "saco"
+        }
+
+        if (produto.tipo == "Pré-lavado") {
+            corTipo = "preLavado"
+        } else {
+            corTipo = "naoLavado"
+        }
+
+        listaProduto.innerHTML += `
+        <tr>
+                        <td>${produto.nome}</td>
+                        <td><span class="tag ${corTipo}">${produto.tipo}</span></td>
+                        <td>${produto.tipoUnidade}</td>
+                        <td>${produto.preco}</td>
+                        <td><span class="tag ${corEmbalagem}">${produto.embalagem}</span></td>
+                        <td class="actions">
+                            <button class="btn-edit">✏️</button>
+                            <button class="btn-delete">🗑️</button>
+                        </td>
+                    </tr>
+        `
     });
+
+    const btnsEdit = document.querySelectorAll(".btn-edit");
+    
+    btnsEdit.forEach(btn => {
+        btn.addEventListener("click", () => {
+            modalTitle.textContent = "Editar Produto";
+            modal.style.display = "flex";
+        });
+    });
+
+
 }
 
 async function cadastrarProduto() {
@@ -78,6 +110,10 @@ async function cadastrarProduto() {
     });
 
     buscarDados();
+}
+
+async function atualizar() {
+
 }
 
 buscarDados();

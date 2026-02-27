@@ -23,6 +23,22 @@
       "preco": "12",
       "embalagem": "Bandeja",
       "id": 3
+    },
+    {
+      "nome": "Juan",
+      "tipo": "Não lavado",
+      "tipoUnidade": "Un",
+      "preco": "12",
+      "embalagem": "Pote",
+      "id": 4
+    },
+    {
+      "nome": "Gustavo",
+      "tipo": "Não lavado",
+      "tipoUnidade": "Un",
+      "preco": "1",
+      "embalagem": "Pote",
+      "id": 5
     }
   ]
 }

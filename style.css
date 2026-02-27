@@ -111,9 +111,12 @@ th, td {
     font-weight: 500;
 }
 
-.blue { background: #dbeafe; color: #2563eb; }
-.orange { background: #ffedd5; color: #ea580c; }
-.purple { background: #ede9fe; color: #7c3aed; }
+.preLavado { background-color: #DBEAFE ; color:#1D4ED8 ;}
+.naoLavado { background-color: #ECEEF2 ; color:#030213 ;}
+
+.saco { background: #CCFBF1; color: #0F766E; }
+.bandeja { background: #FFEDD5; color: #C2410C; }
+.pote { background: #F3E8FF; color: #6B21A8; }
 
 /* BUTTONS */
 
