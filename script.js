@@ -3,14 +3,24 @@ const btnAdicionar = document.getElementById("btnAdicionar");
 const btnCancelar = document.getElementById("btnCancelar");
 const btnClose = document.getElementById("btnClose");
 const modalTitle = document.getElementById("modalTitle");
+const btnAction = document.getElementById("btn-action");
+var idProdutoGlobal = 0;
 
 btnAdicionar.addEventListener("click", () => {
     modalTitle.textContent = "Adicionar Produto";
     modal.style.display = "flex";
 });
 
+function limparFormulario() {
+    inputNome.value = "";
+    selectTipo.value = "";
+    selectEmbalagem.value = "";
+    selectUnidade.value = "";
+    inputPreco.value = "";
+}
 function fecharModal() {
     modal.style.display = "none";
+    limparFormulario();
 }
 
 btnCancelar.addEventListener("click", fecharModal);
@@ -19,6 +29,17 @@ btnClose.addEventListener("click", fecharModal);
 window.addEventListener("click", (e) => {
     if (e.target === modal) {
         fecharModal();
+    }
+});
+
+function teste() {
+    console.log("pábens")
+}
+btnAction.addEventListener("click", () => {
+    if (modalTitle.textContent == "Adicionar Produto") {
+        cadastrarProduto();
+    } else {
+        atualizarProduto(idProdutoGlobal);
     }
 });
 
@@ -45,8 +66,6 @@ async function buscarDados() {
     console.log("resposta", resposta)
 
     const dados = await resposta.json();
-    console.log(tamanhoVetor(dados))
-    // console.log("Dados", dados[0].nome);
     qtdProdutos.innerHTML = tamanhoVetor(dados)
 
     dados.forEach(produto => {
@@ -75,7 +94,7 @@ async function buscarDados() {
                         <td>${produto.preco}</td>
                         <td><span class="tag ${corEmbalagem}">${produto.embalagem}</span></td>
                         <td class="actions">
-                            <button class="btn-edit">✏️</button>
+                            <button class="btn-edit" data-id = "${produto.id}">✏️</button>
                             <button class="btn-delete">🗑️</button>
                         </td>
                     </tr>
@@ -83,15 +102,46 @@ async function buscarDados() {
     });
 
     const btnsEdit = document.querySelectorAll(".btn-edit");
-    
+
     btnsEdit.forEach(btn => {
         btn.addEventListener("click", () => {
+            const id = btn.dataset.id;
             modalTitle.textContent = "Editar Produto";
             modal.style.display = "flex";
+            onclick = exibirDadosModal(id);
         });
     });
+}
 
+async function exibirDadosModal(idRecebido) {
+    const resposta = await fetch(`http://localhost:3000/produtos/${idRecebido}`);
+    const produto = await resposta.json();
 
+    inputNome.value = produto.nome;
+    selectTipo.value = produto.tipo;
+    selectEmbalagem.value = produto.embalagem;
+    selectUnidade.value = produto.tipoUnidade;
+    inputPreco.value = produto.preco;
+    idProdutoGlobal = produto.id;
+
+}
+
+async function atualizarProduto(idRecebido) {
+    await fetch(`http://localhost:3000/produtos/${idRecebido}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            nome: inputNome.value,
+            tipo: selectTipo.value,
+            tipoUnidade: selectUnidade.value,
+            preco: inputPreco.value,
+            embalagem: selectEmbalagem.value,
+        })
+    });
+
+    buscarDados();
 }
 
 async function cadastrarProduto() {
@@ -112,8 +162,5 @@ async function cadastrarProduto() {
     buscarDados();
 }
 
-async function atualizar() {
-
-}
 
 buscarDados();

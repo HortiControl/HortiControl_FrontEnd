@@ -1,44 +1,28 @@
 {
   "produtos": [
     {
-      "id": 1,
-      "nome": "Alface",
-      "tipo": "Lavado",
-      "tipoUnidade": "KG",
-      "preco": 9,
-      "embalagem": "Bandeja"
+      "nome": "Editado",
+      "tipo": "Não lavado",
+      "tipoUnidade": "Un",
+      "preco": "9999999",
+      "embalagem": "Pote",
+      "id": 1
     },
     {
-      "nome": "slaa",
+      "nome": "adds",
       "tipo": "Pré-lavado",
-      "tipoUnidade": "KG",
-      "preco": "12",
+      "tipoUnidade": "Kg",
+      "preco": "1",
       "embalagem": "Bandeja",
       "id": 2
     },
     {
-      "nome": "Sla",
-      "tipo": "Pré-lavado",
-      "tipoUnidade": "Kg",
-      "preco": "12",
-      "embalagem": "Bandeja",
+      "nome": "",
+      "tipo": "",
+      "tipoUnidade": "",
+      "preco": "",
+      "embalagem": "",
       "id": 3
-    },
-    {
-      "nome": "Juan",
-      "tipo": "Não lavado",
-      "tipoUnidade": "Un",
-      "preco": "12",
-      "embalagem": "Pote",
-      "id": 4
-    },
-    {
-      "nome": "Gustavo",
-      "tipo": "Não lavado",
-      "tipoUnidade": "Un",
-      "preco": "1",
-      "embalagem": "Pote",
-      "id": 5
     }
   ]
 }

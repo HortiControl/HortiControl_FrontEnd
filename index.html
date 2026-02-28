@@ -1,130 +1,121 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <title>HortiControl - Produtos</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<div class="layout">
+    <div class="layout">
 
-    <aside class="sidebar">
-        <div class="logo">
-            <img src="logo.svg"class="logo-circulo" alt="logo-horticontrol">
-            <h2>HORTICONTROL</h2>
-        </div>
-
-        <ul>
-            <li>Dashboard</li>
-            <li>Mercados</li>
-            <li class="active">Produtos</li>
-            <li>Pedidos</li>
-            <li>Notas</li>
-            <li>Relatórios</li>
-            <li>Configurações</li>
-        </ul>
-
-        <div class="logout">Sair</div>
-    </aside>
-
-
-    <main class="content">
-
-        <div class="header">
-            <div>
-                <h1>Produtos</h1>
-                <p>Gerencie seu catálogo de produtos e preços</p>
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="logo.svg" class="logo-circulo" alt="logo-horticontrol">
+                <h2>HORTICONTROL</h2>
             </div>
-            <button class="btn-primary" id="btnAdicionar">
-                + Adicionar Produto
-            </button>
-        </div>
+
+            <ul>
+                <li>Dashboard</li>
+                <li>Mercados</li>
+                <li class="active">Produtos</li>
+                <li>Pedidos</li>
+                <li>Notas</li>
+                <li>Relatórios</li>
+                <li>Configurações</li>
+            </ul>
+
+            <div class="logout">Sair</div>
+        </aside>
 
 
-        <div class="card">
-            <h3>Todos os Produtos (<span id="qtdProdutos"></span>)</h3>
+        <main class="content">
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Tipo</th>
-                        <th>Unidade</th>
-                        <th>Preço</th>
-                        <th>Embalagem</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="listaProdutos">
-                    <tr>
-                        <td>Alface Lisa</td>
-                        <td><span class="tag blue">Pré-lavado</span></td>
-                        <td>un</td>
-                        <td>R$ 9.00</td>
-                        <td><span class="tag purple">Pote</span></td>
-                        <td class="actions">
-                            <button class="btn-edit">✏️</button>
-                            <button class="btn-delete">🗑️</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-    </main>
-</div>
-
-
-<div class="overlay" id="modal">
-    <div class="modal-box">
-
-        <div class="modal-header">
-            <h2 id="modalTitle">Adicionar Produto</h2>
-            <span class="close" id="btnClose">×</span>
-        </div>
-
-        <div class="form">
-
-            <label>Nome do Produto</label>
-            <input type="text" id="inputNome">
-
-            <label>Tipo</label>
-            <select id="selectTipo">
-                <option>Pré-lavado</option>
-                <option>Não lavado</option>
-            </select>
-
-            <label>Embalagem</label>
-            <select id="selectEmbalagem">
-                <option>Bandeja</option>
-                <option>Pote</option>
-                <option>Saco</option>
-            </select>
-
-            <label>Embalagem</label>
-            <select id="selectUnidade">
-                <option>Kg</option>
-                <option>Un</option>
-            </select>
-
-            <label>Preço Atual (R$)</label>
-            <input type="text" id="inputPreco">
-
-            <div class="modal-actions">
-                <button type="button" class="btn-secondary" id="btnCancelar">
-                    Cancelar
-                </button>
-                <button onclick="cadastrarProduto()" class="btn-primary">
-                    Salvar
+            <div class="header">
+                <div>
+                    <h1>Produtos</h1>
+                    <p>Gerencie seu catálogo de produtos e preços</p>
+                </div>
+                <button class="btn-primary" id="btnAdicionar">
+                    + Adicionar Produto
                 </button>
             </div>
-        </div class="form">
 
+
+            <div class="card">
+                <h3>Todos os Produtos (<span id="qtdProdutos"></span>)</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Unidade</th>
+                            <th>Preço</th>
+                            <th>Embalagem</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaProdutos">
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
     </div>
-</div>
 
-<script src="script.js"></script>
+
+    <div class="overlay" id="modal">
+        <div class="modal-box">
+
+            <div class="modal-header">
+                <h2 id="modalTitle">Adicionar Produto</h2>
+                <span class="close" id="btnClose">×</span>
+            </div>
+
+            <div class="form">
+
+                <label>Nome do Produto</label>
+                <input type="text" id="inputNome">
+
+                <label>Tipo</label>
+                <select id="selectTipo">
+                    <option>Pré-lavado</option>
+                    <option>Não lavado</option>
+                </select>
+
+                <label>Embalagem</label>
+                <select id="selectEmbalagem">
+                    <option>Bandeja</option>
+                    <option>Pote</option>
+                    <option>Saco</option>
+                </select>
+
+                <label>Unidade</label>
+                <select id="selectUnidade">
+                    <option>Kg</option>
+                    <option>Un</option>
+                </select>
+
+                <label>Preço(R$)</label>
+                <input type="number" id="inputPreco">
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="btnCancelar">
+                        Cancelar
+                    </button>
+                    <button class="btn-primary" id="btn-action">
+                        Salvar
+                    </button>
+                </div>
+            </div class="form">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
+
 </html>
