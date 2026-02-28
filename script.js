@@ -95,17 +95,24 @@ async function buscarDados() {
                         <td><span class="tag ${corEmbalagem}">${produto.embalagem}</span></td>
                         <td class="actions">
                             <button class="btn-edit" data-id = "${produto.id}">✏️</button>
-                            <button class="btn-delete">🗑️</button>
+                            <button class="btn-delete" data-id = "${produto.id}">🗑️</button>
                         </td>
                     </tr>
         `
     });
 
     const btnsEdit = document.querySelectorAll(".btn-edit");
+    const btnsDelete = document.querySelectorAll(".btn-delete");
+    btnsDelete.forEach(btn => {
+        btn.addEventListener("click", () => {
+            let id = btn.dataset.id;
+            onclick = deletarProduto(id);
+        });
+    });
 
     btnsEdit.forEach(btn => {
         btn.addEventListener("click", () => {
-            const id = btn.dataset.id;
+            let id = btn.dataset.id;
             modalTitle.textContent = "Editar Produto";
             modal.style.display = "flex";
             onclick = exibirDadosModal(id);
@@ -123,7 +130,14 @@ async function exibirDadosModal(idRecebido) {
     selectUnidade.value = produto.tipoUnidade;
     inputPreco.value = produto.preco;
     idProdutoGlobal = produto.id;
+}
 
+async function deletarProduto(idRecebido) {
+    await fetch(`http://localhost:3000/produtos/${idRecebido}`, {
+        method: "DELETE"
+    })
+    
+    buscarDados();
 }
 
 async function atualizarProduto(idRecebido) {

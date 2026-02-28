@@ -1,28 +1,3 @@
 {
-  "produtos": [
-    {
-      "nome": "Editado",
-      "tipo": "Não lavado",
-      "tipoUnidade": "Un",
-      "preco": "9999999",
-      "embalagem": "Pote",
-      "id": 1
-    },
-    {
-      "nome": "adds",
-      "tipo": "Pré-lavado",
-      "tipoUnidade": "Kg",
-      "preco": "1",
-      "embalagem": "Bandeja",
-      "id": 2
-    },
-    {
-      "nome": "",
-      "tipo": "",
-      "tipoUnidade": "",
-      "preco": "",
-      "embalagem": "",
-      "id": 3
-    }
-  ]
+  "produtos": []
 }
