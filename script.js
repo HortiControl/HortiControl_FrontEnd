@@ -4,7 +4,7 @@ const btnCancelar = document.getElementById("btnCancelar");
 const btnClose = document.getElementById("btnClose");
 const modalTitle = document.getElementById("modalTitle");
 const btnAction = document.getElementById("btn-action");
-var idProdutoGlobal = 0;
+let idProdutoGlobal = 0;
 
 btnAdicionar.addEventListener("click", () => {
     modalTitle.textContent = "Adicionar Produto";
@@ -18,6 +18,18 @@ function limparFormulario() {
     selectUnidade.value = "";
     inputPreco.value = "";
 }
+
+function isInputVazio(modalRecebido) {
+    let inputsAll = modalRecebido.querySelectorAll(".type-input");
+
+    for (let input of inputsAll) {
+        if (input.value == null || input.value == "") {
+            return true;
+        }
+        return false;
+    }
+}
+
 function fecharModal() {
     modal.style.display = "none";
     limparFormulario();
@@ -32,9 +44,7 @@ window.addEventListener("click", (e) => {
     }
 });
 
-function teste() {
-    console.log("pábens")
-}
+
 btnAction.addEventListener("click", () => {
     if (modalTitle.textContent == "Adicionar Produto") {
         cadastrarProduto();
@@ -43,20 +53,37 @@ btnAction.addEventListener("click", () => {
     }
 });
 
-function tamanhoVetor(vetor) {
-    return vetor.length
+function formatarMoeda(valor) {
+    let valorFormato = valor;
+    if (/[,.]/.test(valor)) {
+        valorFormato = valor.replace(/\,/, ".")
+    } else {
+        valorFormato += ".00"
+    }
+
+    return Number(valorFormato).toFixed(2);
 }
 
-// function formatarMoeda(valor){
-//     let valorFormato = valor;
-//     if(/[,.]/.test(valor)){
-//         valorFormato = valor.replace(/\,/, ".")
-//     }else{
-//         valorFormato+= ".00"
-//     }
+function definirCordEmbalagem(embalagem) {
+    switch (embalagem) {
+        case "Bandeja":
+            return "bandeja";
+        case "Pote":
+            return "pote";
+        case "Saco":
+            return "saco";
+    }
+}
 
-//     return Number(valorFormato).toFixed(2);
-// }
+function definirCorTipo(tipo) {
+    switch (tipo) {
+        case "Pré-lavado":
+            return "preLavado";
+
+        case "Não lavado":
+            return "naoLavado";
+    }
+}
 
 async function buscarDados() {
     let listaProduto = document.getElementById("listaProdutos")
@@ -66,33 +93,16 @@ async function buscarDados() {
     console.log("resposta", resposta)
 
     const dados = await resposta.json();
-    qtdProdutos.innerHTML = tamanhoVetor(dados)
+    qtdProdutos.innerHTML = dados.length;
 
     dados.forEach(produto => {
-        let corEmbalagem = "";
-        let corTipo = "";
-
-        if (produto.embalagem == "Bandeja") {
-            corEmbalagem = "bandeja"
-        } else if (produto.embalagem == "Pote") {
-            corEmbalagem = "pote"
-        } else {
-            corEmbalagem = "saco"
-        }
-
-        if (produto.tipo == "Pré-lavado") {
-            corTipo = "preLavado"
-        } else {
-            corTipo = "naoLavado"
-        }
-
         listaProduto.innerHTML += `
         <tr>
                         <td>${produto.nome}</td>
-                        <td><span class="tag ${corTipo}">${produto.tipo}</span></td>
+                        <td><span class="tag ${definirCorTipo(produto.tipo)}">${produto.tipo}</span></td>
                         <td>${produto.tipoUnidade}</td>
                         <td>${produto.preco}</td>
-                        <td><span class="tag ${corEmbalagem}">${produto.embalagem}</span></td>
+                        <td><span class="tag ${definirCordEmbalagem(produto.embalagem)}">${produto.embalagem}</span></td>
                         <td class="actions">
                             <button class="btn-edit" data-id = "${produto.id}">✏️</button>
                             <button class="btn-delete" data-id = "${produto.id}">🗑️</button>
@@ -103,6 +113,7 @@ async function buscarDados() {
 
     const btnsEdit = document.querySelectorAll(".btn-edit");
     const btnsDelete = document.querySelectorAll(".btn-delete");
+
     btnsDelete.forEach(btn => {
         btn.addEventListener("click", () => {
             let id = btn.dataset.id;
@@ -136,7 +147,7 @@ async function deletarProduto(idRecebido) {
     await fetch(`http://localhost:3000/produtos/${idRecebido}`, {
         method: "DELETE"
     })
-    
+
     buscarDados();
 }
 
@@ -156,24 +167,30 @@ async function atualizarProduto(idRecebido) {
     });
 
     buscarDados();
+    fecharModal();
 }
 
 async function cadastrarProduto() {
-    await fetch("http://localhost:3000/produtos", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            nome: inputNome.value,
-            tipo: selectTipo.value,
-            tipoUnidade: selectUnidade.value,
-            preco: inputPreco.value,
-            embalagem: selectEmbalagem.value,
-        })
-    });
+    if (isInputVazio(modal)) {
+        alert("Preencha tudo")
+    } else {
+        await fetch("http://localhost:3000/produtos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                nome: inputNome.value,
+                tipo: selectTipo.value,
+                tipoUnidade: selectUnidade.value,
+                preco: inputPreco.value,
+                embalagem: selectEmbalagem.value,
+            })
+        });
 
-    buscarDados();
+        buscarDados();
+        fecharModal();
+    }
 }
 
 
