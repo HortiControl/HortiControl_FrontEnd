@@ -1,20 +1,12 @@
 {
   "produtos": [
     {
-      "nome": "Juan",
+      "nome": "Gustavo",
       "tipo": "Pré-lavado",
       "tipoUnidade": "Kg",
       "preco": "1",
       "embalagem": "Bandeja",
       "id": 1
-    },
-    {
-      "nome": "Juan",
-      "tipo": "Pré-lavado",
-      "tipoUnidade": "Kg",
-      "preco": "",
-      "embalagem": "Bandeja",
-      "id": 2
     }
   ]
 }

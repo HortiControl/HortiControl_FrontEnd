@@ -30,20 +30,19 @@ function isInputVazio(modalRecebido) {
     }
 }
 
-function fecharModal() {
-    modal.style.display = "none";
+function fecharModal(modalRecebido) {
+    modalRecebido.style.display = "none";
     limparFormulario();
 }
 
-btnCancelar.addEventListener("click", fecharModal);
-btnClose.addEventListener("click", fecharModal);
+btnCancelar.addEventListener("click",() => fecharModal(modal));
+btnClose.addEventListener("click", () => fecharModal(modal));
 
 window.addEventListener("click", (e) => {
     if (e.target === modal) {
-        fecharModal();
+        fecharModal(modal);
     }
 });
-
 
 btnAction.addEventListener("click", () => {
     if (modalTitle.textContent == "Adicionar Produto") {
@@ -167,7 +166,7 @@ async function atualizarProduto(idRecebido) {
     });
 
     buscarDados();
-    fecharModal();
+    fecharModal(modal);
 }
 
 async function cadastrarProduto() {
@@ -189,9 +188,8 @@ async function cadastrarProduto() {
         });
 
         buscarDados();
-        fecharModal();
+        fecharModal(modal);
     }
 }
-
 
 buscarDados();
