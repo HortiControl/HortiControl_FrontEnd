@@ -19,21 +19,6 @@ function limparFormulario() {
     inputPreco.value = "";
 }
 
-function isInputVazio(modalRecebido) {
-    let inputsAll = modalRecebido.querySelectorAll(".type-input");
-
-    for (let input of inputsAll) {
-        if (input.value == null || input.value == "") {
-            return true;
-        }
-    }
-    return false;
-}
-
-function fecharModal(modalRecebido) {
-    modalRecebido.style.display = "none";
-    limparFormulario();
-}
 
 btnCancelar.addEventListener("click", () => fecharModal(modal));
 btnClose.addEventListener("click", () => fecharModal(modal));
@@ -60,6 +45,22 @@ function formatarMoeda(valor) {
         valorFormato += ".00"
     }
     return Number(valorFormato).toFixed(2);
+}
+
+function fecharModal(modalRecebido) {
+    modalRecebido.style.display = "none";
+    limparFormulario();
+}
+
+function isInputVazio(modalRecebido) {
+    let inputsAll = modalRecebido.querySelectorAll(".type-input");
+
+    for (let input of inputsAll) {
+        if (input.value == null || input.value == "") {
+            return true;
+        }
+    }
+    return false;
 }
 
 function definirCordEmbalagem(embalagem) {
@@ -150,22 +151,26 @@ async function deletarProduto(idRecebido) {
 }
 
 async function atualizarProduto(idRecebido) {
-    await fetch(`http://localhost:3000/produtos/${idRecebido}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            nome: inputNome.value,
-            tipo: selectTipo.value,
-            tipoUnidade: selectUnidade.value,
-            preco: formatarMoeda(inputPreco.value),
-            embalagem: selectEmbalagem.value,
-        })
-    });
+    if (isInputVazio(modal)) {
+        alert("Preencha tudo")
+    } else {
+        await fetch(`http://localhost:3000/produtos/${idRecebido}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nome: inputNome.value,
+                tipo: selectTipo.value,
+                tipoUnidade: selectUnidade.value,
+                preco: formatarMoeda(inputPreco.value),
+                embalagem: selectEmbalagem.value,
+            })
+        });
 
-    buscarDados();
-    fecharModal(modal);
+        buscarDados();
+        fecharModal(modal);
+    }
 }
 
 async function cadastrarProduto() {

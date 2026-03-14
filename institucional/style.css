@@ -57,8 +57,8 @@ body {
 }
 
 .header-buttons {
+    visibility: hidden;
     font-family: 'Montserrat', sans-serif;
-    display: flex;
     gap: 10px;
     margin-top: -40px;
 }
