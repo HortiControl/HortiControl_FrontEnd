@@ -3,26 +3,10 @@
     {
       "nome": "Alface",
       "tipo": "Pré-lavado",
-      "tipoUnidade": "Un",
-      "preco": "12.00",
-      "embalagem": "Bandeja",
-      "id": 6
-    },
-    {
-      "nome": "as",
-      "tipo": "Pré-lavado",
       "tipoUnidade": "Kg",
       "preco": "1.00",
       "embalagem": "Bandeja",
-      "id": 7
-    },
-    {
-      "nome": "Alface",
-      "tipo": "Não lavado",
-      "tipoUnidade": "Kg",
-      "preco": "1.00",
-      "embalagem": "Bandeja",
-      "id": 8
+      "id": 13
     }
   ]
 }
