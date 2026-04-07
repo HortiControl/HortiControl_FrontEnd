@@ -1,16 +1,34 @@
-# React + Vite
+# HortiControl_FrontEnd
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<div align="center">
+  <strong>Modernização e Inovação Tecnológica Aplicadas à Gestão de Hortaliças🥬</strong>
+</div>
 
-Currently, two official plugins are available:
+</br>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+<div align="center">
+  <p align="justify">Este repositório contém o frontend do projeto HortiControl, um sistema web desenvolvido como projeto acadêmico com o objetivo de apoiar a digitalização dos processos da empresa Alto Tietê Hortaliças. A solução foi idealizada para substituir fluxos operacionais manuais e descentralizados — atualmente realizados por meio de WhatsApp, anotações em papel e controles informais — por uma plataforma integrada capaz de centralizar e padronizar o cadastro de clientes e produtos, o registro e acompanhamento de pedidos, o controle de estoque, a emissão e organização de notas por entrega e o monitoramento de pagamentos realizados. O sistema organiza todo o ciclo operacional da empresa, desde o pedido até a cobrança, garantindo maior rastreabilidade das informações, redução de erros, diminuição de retrabalho e maior confiabilidade na gestão de dados. Desenvolvido como um MVP ao longo do semestre, o projeto aplica conceitos de engenharia de software, modelagem de processos e desenvolvimento web, além de propor uma solução escalável com potencial de expansão futura para outras empresas do setor hortifrúti que enfrentam desafios semelhantes no processo de transformação digital.</p>
+</div>
 
-## React Compiler
+</br>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+<p align=center>
 
-## Expanding the ESLint configuration
+## ⚙️ Funcionalidades do sistema:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Cadastro de clientes e produtos
+- Registro e acompanhamento de pedidos
+- Histórico de pedidos
+- Dashboard gerencial com indicadores
+
+</p>
+
+</br>
+  
+<p align=center>
+
+## 🔍 Visão Geral
+
+O HortiControl é um sistema web interno desenvolvido como projeto acadêmico para digitalizar e organizar os processos da Alto Tietê Hortaliças. A plataforma centraliza o fluxo completo da operação — do pedido à cobrança — substituindo controles manuais e descentralizados por uma solução integrada que aumenta a rastreabilidade, reduz erros e fortalece a gestão administrativa e financeira da empresa. 
+
+</p>
