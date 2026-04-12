@@ -1,6 +1,6 @@
 import { LayoutDashboard, Store, Carrot, ShoppingCart, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import logoImg from '../assets/logo.png';
+import logoImg from '../assets/HortiControlLogo.png';
 
 export function Sidebar({ activeItem }) {
   // Lista de itens do menu para facilitar a renderização sem repetir código
@@ -12,11 +12,11 @@ export function Sidebar({ activeItem }) {
   ];
 
   return (
-    <aside className="w-64 bg-[#0d6b41] text-white flex flex-col min-h-screen">
+    <aside className="w-64 bg-[#e9f4ef] text-black flex flex-col min-h-screen">
       {/* Logo Area */}
       <div className="p-6 flex flex-col items-center justify-center">
         {/* Usando a tag img, definindo uma largura maior (w-32) e sem fundo */}
-        <img src={logoImg} alt="HortiControl" className="w-32 h-auto" />
+        <img src={logoImg} alt="HortiControl" className="w-24 h-auto" />
       </div>
 
       {/* Navegação */}
@@ -31,8 +31,8 @@ export function Sidebar({ activeItem }) {
               to={item.path}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive 
-                  ? 'bg-[#00a859] text-white font-semibold' 
-                  : 'text-green-100 hover:bg-[#0a4f30]' 
+                  ? 'bg-[#00a859] text-black font-semibold' 
+                  : 'text-black hover:bg-[#118551]' 
               }`}
             >
               <Icon size={20} />

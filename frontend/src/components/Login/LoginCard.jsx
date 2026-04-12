@@ -1,4 +1,5 @@
 import { Mail, Lock, EyeOff } from 'lucide-react';
+import { Button } from "../Button";
 import banner from "../../assets/banner.png";
 import logo from "../../assets/HortiControlLogo.png";
 
@@ -40,9 +41,12 @@ const LoginCard = () => {
                         </div>
                     </div>
 
-                    <button className="w-full py-3.5 bg-[#009951] text-white font-bold rounded-xl hover:bg-[#007d42] transition-colors shadow-md text-lg">
+                    <Button
+                        type="submit"
+                        className="w-full py-3.5 rounded-xl text-lg bg-[#009951]! hover:bg-[#007d42]! text-white!"
+                    >
                         Entrar
-                    </button>
+                    </Button>
                 </form>
 
                 <p className="mt-6 text-sm text-gray-600">

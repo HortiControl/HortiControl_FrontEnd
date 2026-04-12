@@ -4,10 +4,9 @@ import './index.css'
 import App from './App.jsx'
 import Login from './Login.jsx'
 import Cadastro from './Cadastro.jsx'
-import Institucional from './Institucional.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Institucional />
+    <Login />
   </StrictMode>,
 )
