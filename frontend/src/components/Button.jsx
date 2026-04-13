@@ -6,6 +6,8 @@ export function Button({ children, variant = 'primary', icon: Icon, ...props }) 
   const variants = {
     primary: "bg-[#00a859] hover:bg-[#008f4c] text-white",
     outline: "bg-[#00a859]/10 text-[#00a859] hover:bg-[#00a859]/20",
+    secondary: "bg-gray-100 hover:bg-gray-200 text-gray-700",
+    danger: "bg-red-600 hover:bg-red-700 text-white",
   };
 
   return (
