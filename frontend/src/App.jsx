@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from './layouts/AppLayout';
 import { Mercados } from './pages/Mercados';
 import { Produtos } from './pages/Produtos';
+import { GerenciamentoPedidos } from './pages/GerenciamentoPedidos';
 
 function App() {
   return (
@@ -29,6 +30,12 @@ function App() {
             </AppLayout>
           } 
         />
+
+        <Route path="/pedidos" 
+        element={<AppLayout activePage="pedidos">
+          <GerenciamentoPedidos />
+          </AppLayout>} />
+
       </Routes>
     </BrowserRouter>
   );

@@ -1,7 +1,7 @@
 import { X } from 'lucide-react';
 
 // Ele recebe isOpen (para saber se aparece ou não) e onClose (função para fechar)
-export function Modal({ isOpen, onClose, title, subtitle, children, isDanger }) {
+export function Modal({ isOpen, onClose, title, subtitle, children, isDanger, maxWidth = 'max-w-md' }) {
   if (!isOpen) return null;
 
   return (
@@ -9,7 +9,7 @@ export function Modal({ isOpen, onClose, title, subtitle, children, isDanger }) 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
 
       {/* A Caixa Branca do Modal */}
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden flex flex-col">
+      <div className={`bg-white rounded-2xl shadow-xl w-full ${maxWidth} mx-4 overflow-hidden flex flex-col`}>
 
         {/* Cabeçalho do Modal */}
         <div className="px-6 py-5 flex justify-between items-start">

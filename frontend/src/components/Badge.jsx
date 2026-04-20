@@ -8,6 +8,8 @@ export function Badge({ text }) {
     'Pote': 'bg-blue-100 text-blue-700',
     'Bandeja': 'bg-orange-100 text-orange-700',
     'Saco': 'bg-green-100 text-green-700',
+    'Concluído': 'bg-green-50 text-green-600 border border-green-200',
+    'Cancelado': 'bg-red-50 text-red-600 border border-red-200',
   };
 
   // Se o texto não estiver no mapa, usa cinza por padrão
