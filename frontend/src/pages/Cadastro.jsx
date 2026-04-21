@@ -1,4 +1,4 @@
-import CadastroCard from "./components/Login/CadastroCard";
+import CadastroCard from "../components/Login/CadastroCard";
 
 function Cadastro() {
     return (

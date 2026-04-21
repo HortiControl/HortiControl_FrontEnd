@@ -1,12 +1,21 @@
 import { LayoutDashboard, Store, Carrot, ShoppingCart, LogOut, CirclePlus } from 'lucide-react';
 
-import { Link } from 'react-router-dom';
+import { Link, replace } from 'react-router-dom';
 
 import logoImg from '../assets/logo.png';
+import { useNavigate } from 'react-router-dom';
 
 
 
 export function Sidebar({ activeItem }) {
+
+  const navigate = useNavigate();
+
+  function logOff(){
+    localStorage.removeItem("token");
+    navigate("/login", {replace:true})
+  }
+
   const menuItems = [
     // { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { id: 'mercados', label: 'Mercados', icon: Store, path: '/mercados' },
@@ -47,7 +56,7 @@ export function Sidebar({ activeItem }) {
       <div className="p-4 border-t border-green-800">
         <button className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-[#0a4f30] rounded-lg transition-colors">
           <LogOut size={20} />
-          <span>Sair</span>
+          <span onClick={logOff}>Sair</span>
         </button>
       </div>
     </aside>

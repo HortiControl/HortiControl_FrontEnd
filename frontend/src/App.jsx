@@ -5,12 +5,21 @@ import { Produtos } from './pages/Produtos';
 import { GerenciamentoPedidos } from './pages/GerenciamentoPedidos';
 import CriarPedidos from './pages/CriarPedidos';
 import Perfil from './pages/Perfil';
-
+import Cadastro from './pages/Cadastro';
+import Login from './pages/Login';
 
 function App() {
   return (
     <BrowserRouter>
+
+
+
       <Routes>
+
+        <Route path="/login" element={<Login />} />
+
+        <Route path="/cadastro" element={<Cadastro />} />  
+
         {/* Se o usuário entrar na raiz pura ("/"), redirecionamos para mercados */}
         <Route path="/" element={<Navigate to="/mercados" replace />} />
 
@@ -48,6 +57,8 @@ function App() {
           element={<AppLayout activePage="perfil">
             <Perfil />
           </AppLayout>} />
+
+            
 
       </Routes>
     </BrowserRouter>
