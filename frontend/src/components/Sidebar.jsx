@@ -54,9 +54,9 @@ export function Sidebar({ activeItem }) {
       </nav>
 
       <div className="p-4 border-t border-green-800">
-        <button className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-[#0a4f30] rounded-lg transition-colors">
+        <button onClick={logOff} className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-[#0a4f30] rounded-lg transition-colors">
           <LogOut size={20} />
-          <span onClick={logOff}>Sair</span>
+          <span>Sair</span>
         </button>
       </div>
     </aside>
