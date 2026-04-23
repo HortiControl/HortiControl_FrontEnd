@@ -8,6 +8,8 @@ import Perfil from "./pages/Perfil";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+
 
 function App() {
   return (
