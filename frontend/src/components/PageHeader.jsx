@@ -6,7 +6,7 @@ export function PageHeader({ title, subtitle, buttonText }) {
     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
       <div>
         <h1 className="text-3xl font-semibold text-gray-800">{title}</h1>
-        <p className="text-gray-500 mt-1 text-sm">{subtitle}</p>
+        <p className="text-gray-500 mt-1 font-medium">{subtitle}</p>
       </div>
       
       {/* Só renderiza o botão se passarmos um texto para ele */}

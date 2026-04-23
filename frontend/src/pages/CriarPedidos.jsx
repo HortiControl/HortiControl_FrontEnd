@@ -203,7 +203,7 @@ export default function CriarPedidos() {
                 </div>
 
                 <div className="lg:col-span-1 h-full flex flex-col overflow-hidden">
-                    <div className="bg-white rounded-4xl shadow-sm border border-gray-200 p-8 flex flex-col h-full overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 flex flex-col h-full overflow-hidden">
                         <div className="flex items-center gap-3 mb-8 shrink-0">
                             <div className="bg-black text-white p-2 rounded-lg"><ShoppingCart size={20} /></div>
                             <h2 className="text-xl font-bold text-gray-800">Resumo do Pedido</h2>

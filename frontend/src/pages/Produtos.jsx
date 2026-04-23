@@ -77,7 +77,7 @@ export function Produtos() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-semibold text-gray-800">Produtos</h1>
-          <p className="text-gray-500 mt-1 text-sm">Gerencie seu catálogo de produtos e preços</p>
+          <p className="text-gray-500 mt-1 font-medium">Gerencie seu catálogo de produtos e preços</p>
         </div>
         <Button onClick={() => abrirModal('add')}>+ Adicionar Produto</Button>
       </div>
