@@ -38,16 +38,16 @@ const LoginCard = () => {
         },
       );
 
-      console.log(response.data);
+      console.log("Resposta do servidor:", response.data);
 
-      // if (!response.ok) throw new Error();
-      const token = response.data;
+      const dadosLogin = response.data;
 
-      // Se precisar do token, dê um localStorage.getItem("token");
-      localStorage.setItem("token", token);
-      // console.log(token);
+      localStorage.setItem("token", dadosLogin.token);
+      localStorage.setItem("userId", dadosLogin.idUsuario);
+      
       alert("Login realizado com sucesso!");
       navigate("/mercados", { replace: true });
+
     } catch (error) {
       console.log(error.message);
       alert("Erro ao realizar o login");

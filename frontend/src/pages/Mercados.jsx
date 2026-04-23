@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Filter, Pencil, Trash2 } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { ContentCard } from '../components/ContentCard';
@@ -8,22 +8,52 @@ import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
 import { Input } from '../components/Input';
 import { Select } from '../components/Select';
+import axios from 'axios';
 
 export function Mercados() {
 
-  const [mercadosData, setMercadosData] = useState([
-    { id: 1, nome: 'MJ4', tipo: 'Normal', obs: '-' },
-    { id: 2, nome: 'MJ3', tipo: 'Normal', obs: '-' },
-    { id: 3, nome: 'Mercado São Paulo', tipo: 'Consignado', obs: '-' },
-    { id: 4, nome: 'Casa Verde', tipo: 'Consignado', obs: '-' },
-  ]);
+  const [mercadosData, setMercadosData] = useState([]);
 
   const [modalAtivo, setModalAtivo] = useState(null);
   const [mercadoSelecionado, setMercadoSelecionado] = useState(null);
 
+  const [formData, setFormData] = useState({
+    nome: '',
+    tipo: 'NORMAL',
+    obs: ''
+  });
+
+  const token = localStorage.getItem('token');
+
+  const carregarMercados = () => {
+    axios.get("http://localhost:8080/mercados", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => {
+        const mercadosFormatados = response.data.map(mercado => ({
+          id: mercado.id,
+          nome: mercado.nome,
+          tipo: mercado.tipoMercado,
+          obs: mercado.observacao
+        }));
+        setMercadosData(mercadosFormatados);
+      })
+      .catch(error => console.error("Erro ao carregar mercados:", error));
+  };
+
+  useEffect(() => {
+    if (token) carregarMercados();
+  }, [token]);
+
   const abrirModal = (tipo, mercado = null) => {
     setMercadoSelecionado(mercado);
     setModalAtivo(tipo);
+
+    if (tipo === 'edit' && mercado) {
+      setFormData({ nome: mercado.nome, tipo: mercado.tipo, obs: mercado.obs || '' });
+    } else if (tipo === 'add') {
+      setFormData({ nome: '', tipo: 'NORMAL', obs: '' });
+    }
   };
 
   const fecharModal = () => {
@@ -31,7 +61,57 @@ export function Mercados() {
     setMercadoSelecionado(null);
   };
 
-  // Componente de Filtro (Dropdown) que aparece no card
+  const handleSalvar = async () => {
+    const dadosDoForms = {
+      nome: formData.nome,
+      tipoMercado: formData.tipo,
+      observacao: formData.obs
+    };
+
+    try {
+
+      if (modalAtivo === 'add') {
+        
+        await axios.post("http://localhost:8080/mercados", dadosDoForms, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Mercado adicionado com sucesso!");
+
+      } else if (modalAtivo === 'edit') {
+       
+        await axios.put(`http://localhost:8080/mercados/${mercadoSelecionado.id}`, dadosDoForms, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Mercado atualizado com sucesso!");
+
+      }
+
+      fecharModal();
+      carregarMercados();
+
+    } catch (error) {
+      console.error("Erro ao salvar mercado:", error);
+      alert("Erro ao salvar. Verifique os dados.");
+    }
+  };
+
+  const handleExcluir = async () => {
+    try {
+
+      await axios.delete(`http://localhost:8080/mercados/${mercadoSelecionado.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      alert("Mercado excluído com sucesso!");
+      fecharModal();
+      carregarMercados();
+
+    } catch (error) {
+      console.error("Erro ao excluir mercado:", error);
+      alert("Erro ao excluir. Este mercado pode possuir pedidos vinculados.");
+    }
+  };
+
   const FiltroMercados = (
     <div className="flex items-center gap-2 text-sm">
       <Filter size={18} className="text-gray-700" />
@@ -81,29 +161,45 @@ export function Mercados() {
         </Table>
       </ContentCard>
 
-      {/* Modais (Adicionar/Editar, Excluir, Reajustar) permanecem iguais aos anteriores */}
       <Modal
         isOpen={modalAtivo === 'add' || modalAtivo === 'edit'}
         onClose={fecharModal}
         title={modalAtivo === 'add' ? 'Adicionar Novo Mercado' : 'Editar Mercado'}
       >
-        <Input label="Nome do Mercado:" placeholder="Ex: MJ4" defaultValue={mercadoSelecionado?.nome} />
+        <Input
+          label="Nome do Mercado:"
+          placeholder="Ex: MJ4"
+          value={formData.nome}
+          onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+        />
+
         <Select
           label="Tipo de Mercado"
-          options={['Normal', 'Consignado']}
-          defaultValue={mercadoSelecionado?.tipo}
+          options={['NORMAL', 'CONSIGNADO']}
+          value={formData.tipo}
+          onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
         />
+
+        <Input
+          label="Observações:"
+          placeholder="Ex: Mercado da esquina"
+          value={formData.obs}
+          onChange={(e) => setFormData({ ...formData, obs: e.target.value })}
+        />
+
         <div className="flex justify-end gap-3 mt-8">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
-          <Button variant="primary">{modalAtivo === 'add' ? 'Salvar' : 'Salvar Alterações'}</Button>
+          <Button variant="primary" onClick={handleSalvar}>
+            {modalAtivo === 'add' ? 'Salvar' : 'Salvar Alterações'}
+          </Button>
         </div>
       </Modal>
-
+      
       <Modal isOpen={modalAtivo === 'delete'} onClose={fecharModal} title="Confirmar Exclusão" isDanger={true}>
         <p className="text-gray-700">Tem certeza que deseja excluir <span className="font-bold">{mercadoSelecionado?.nome}</span>?</p>
         <div className="flex justify-center gap-3 mt-8">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
-          <Button variant="danger">Excluir Mercado</Button>
+          <Button variant="danger" onClick={handleExcluir}>Excluir Mercado</Button>
         </div>
       </Modal>
 
