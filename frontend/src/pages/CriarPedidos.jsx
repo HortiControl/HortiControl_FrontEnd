@@ -8,43 +8,6 @@ export default function CriarPedidos() {
     const [abaAberta, setAbaAberta] = useState('');
 
     const produtosData = {
-        verduras: [
-            { id: 101, nome: "Acelga", embalagem: "Unidade", preco: 9.00 },
-            { id: 102, nome: "Alho Poró", embalagem: "Maço", preco: 9.00 },
-            { id: 103, nome: "Agrião Hidropônico", embalagem: "Maço", preco: 9.00 },
-            { id: 104, nome: "Brócolis Comum", embalagem: "Unidade", preco: 9.00 },
-            { id: 105, nome: "Brócolis Ninja", embalagem: "Unidade", preco: 9.00 },
-            { id: 106, nome: "Catalonha", embalagem: "Maço", preco: 9.00 },
-            { id: 107, nome: "Couve Flor", embalagem: "Unidade", preco: 9.00 },
-            { id: 108, nome: "Couve Manteiga", embalagem: "Maço", preco: 9.00 },
-            { id: 109, nome: "Espinafre", embalagem: "Maço", preco: 9.00 },
-            { id: 110, nome: "Mostarda", embalagem: "Maço", preco: 9.00 },
-            { id: 111, nome: "Nabo", embalagem: "Unidade", preco: 9.00 },
-            { id: 112, nome: "Rabanete", embalagem: "Maço", preco: 9.00 },
-            { id: 113, nome: "Repolho Verde", embalagem: "Unidade", preco: 9.00 },
-            { id: 114, nome: "Repolho Roxo", embalagem: "Unidade", preco: 9.00 },
-            { id: 115, nome: "Rúcula Hidropônica", embalagem: "Maço", preco: 9.00 },
-            { id: 116, nome: "Salsão", embalagem: "Maço", preco: 9.00 },
-            { id: 117, nome: "Alface Americana", embalagem: "Unidade", preco: 9.00 },
-            { id: 118, nome: "Alface Crespa", embalagem: "Unidade", preco: 9.00 },
-            { id: 119, nome: "Alface Escarola", embalagem: "Unidade", preco: 9.00 },
-            { id: 120, nome: "Alface Lisa", embalagem: "Unidade", preco: 9.00 },
-            { id: 121, nome: "Alface Mimosa", embalagem: "Unidade", preco: 9.00 },
-            { id: 122, nome: "Alface Crespa Hidrop.", embalagem: "Unidade", preco: 9.00 },
-            { id: 123, nome: "Alface Crespa Roxa Hidrop.", embalagem: "Unidade", preco: 9.00 },
-            { id: 124, nome: "Alface Mista Hidrop.", embalagem: "Unidade", preco: 9.00 },
-            { id: 125, nome: "Cebolinha", embalagem: "Maço", preco: 9.00 },
-            { id: 126, nome: "Coentro", embalagem: "Maço", preco: 9.00 },
-            { id: 127, nome: "Salsa", embalagem: "Maço", preco: 9.00 },
-            { id: 128, nome: "Alecrim", embalagem: "Maço", preco: 5.00 },
-            { id: 129, nome: "Arruda", embalagem: "Maço", preco: 5.00 },
-            { id: 130, nome: "Capim Santo", embalagem: "Maço", preco: 5.00 },
-            { id: 131, nome: "Louro", embalagem: "Maço", preco: 5.00 },
-            { id: 132, nome: "Hortelã", embalagem: "Maço", preco: 5.00 },
-            { id: 133, nome: "Manjericão", embalagem: "Maço", preco: 5.00 },
-            { id: 134, nome: "Orégano", embalagem: "Maço", preco: 5.00 },
-            { id: 135, nome: "Tomilho", embalagem: "Maço", preco: 5.00 }
-        ],
         nao_lavados: [
             { id: 201, nome: "Acelga (Não Lavada)", embalagem: "Saco", preco: 9.00 },
             { id: 202, nome: "Almeirão (Não Lavado)", embalagem: "Saco", preco: 9.00 },
@@ -231,12 +194,10 @@ export default function CriarPedidos() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 overflow-hidden">
 
                 <div className="lg:col-span-2 flex flex-col overflow-y-auto pr-2">
-                    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm mb-6 shrink-0">
-                        <label className="text-[11px] font-bold text-gray-400 uppercase mb-3 block tracking-widest">Selecione o Cliente</label>
-                        <Select label="Mercado" options={mercadosMock} />
+                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 flex items-center gap-4 px-6 pt-3.5">
+                        <label className="text-[11px] font-bold text-gray-700 uppercase mb-3 tracking-widest pr-2">Selecione o Cliente:</label>
+                        <div className='w-135'><Select options={mercadosMock} /></div>
                     </div>
-
-                    <SecaoSanfona id="verduras" titulo="Verduras Comum" icon={Sprout} produtos={produtosData.verduras} />
                     <SecaoSanfona id="nao_lavados" titulo="Produtos Não Lavados" icon={Leaf} produtos={produtosData.nao_lavados} />
                     <SecaoSanfona id="pre_lavados" titulo="Produtos Pré-Lavados" icon={WashingMachine} produtos={produtosData.pre_lavados} />
                 </div>
