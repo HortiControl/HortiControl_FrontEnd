@@ -16,7 +16,8 @@ export function Mercados() {
   // Componente de Filtro (Dropdown) que aparece no card
   const FiltroMercados = (
     <div className="flex items-center gap-2 text-sm">
-      <Filter size={18} className="text-gray-400" />
+      <Filter size={18} className="text-gray-700" />
+      <span>Filtros |</span>
       <span className="text-gray-500">Tipo</span>
       <select className="bg-gray-100 border-none text-gray-700 rounded-md px-3 py-1.5 outline-none">
         <option>Todos</option>
@@ -28,15 +29,15 @@ export function Mercados() {
 
   return (
     <div>
-      <PageHeader 
-        title="Mercados" 
-        subtitle="Gerencie os mercados parceiros da Alto Tietê" 
+      <PageHeader
+        title="Mercados"
+        subtitle="Gerencie os mercados parceiros da Alto Tietê"
         buttonText="Adicionar Mercado"
       />
 
-      <ContentCard 
-        title="Todos os mercados" 
-        count={mercadosData.length} 
+      <ContentCard
+        title="Todos os mercados"
+        count={mercadosData.length}
         filters={FiltroMercados}
       >
         <Table headers={['Nome', 'Tipo', 'Observações']}>

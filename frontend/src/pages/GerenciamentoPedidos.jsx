@@ -55,7 +55,8 @@ export function GerenciamentoPedidos() {
     <div className="flex flex-col">
       <span className="text-[10px] text-gray-500 font-medium mb-1 uppercase tracking-wider">Mercado</span>
       <div className="flex items-center gap-2 text-sm">
-        <Filter size={16} className="text-gray-400" />
+        <Filter size={16} className="text-gray-700" />
+          <span>Filtro |</span>
         <select className="bg-gray-100 border-none text-gray-700 rounded-md px-3 py-1.5 outline-none min-w-30">
           <option>Todos</option>
           <option>MJ4</option>

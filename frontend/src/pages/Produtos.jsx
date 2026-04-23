@@ -49,7 +49,8 @@ export function Produtos() {
 
       <div className="flex items-center gap-4 ml-auto">
         <div className="flex items-center gap-2 text-sm">
-          <Filter size={18} className="text-gray-400" />
+          <Filter size={18} className="text-gray-700" />
+          <span>Filtros |</span>
           <span className="text-gray-500">Tipo</span>
           <select className="bg-gray-100 border-none text-gray-700 rounded-md px-3 py-1.5 outline-none">
             <option>Todos</option>
