@@ -221,10 +221,10 @@ export default function CriarPedidos() {
     )
 
     return (
-        <div className="h-full max-h-screen flex flex-col overflow-hidden p-4 lg:p-4">
+        <div className="h-full max-h-screen flex flex-col overflow-hidden ">
 
             <header className="mb-2 shrink-0">
-                <h1 className="text-3xl font-bold text-gray-800 tracking-tight">Criar Novo Pedido</h1>
+                <h1 className="text-3xl font-semibold text-gray-800">Criar Novo Pedido</h1>
                 <p className="text-gray-500 font-medium">Lance manualmente um pedido para um mercado</p>
             </header>
 

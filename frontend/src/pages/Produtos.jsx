@@ -72,7 +72,7 @@ export function Produtos() {
   );
 
   return (
-    <div className="p-6">
+    <div >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-semibold text-gray-800">Produtos</h1>
