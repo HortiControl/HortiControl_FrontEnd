@@ -14,20 +14,18 @@ export function Sidebar({ activeItem }) {
   const navigate = useNavigate();
 
   async function logOff() {
-    try {
-      await axios.post(
-        "http://localhost:8080/usuarios/logout",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-    } finally {
-      localStorage.removeItem("token");
-      navigate("/login", { replace: true })
-    }
+    axios.get("http://localhost:8080/usuarios/logout", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then(response => {
+        const aviso = response.data
+        console.log(aviso);
+        localStorage.removeItem("token");
+        navigate("/login", { replace: true })
+      })
+      .catch(error => console.error("Erro ao carregar mercados:", error));
   }
 
   const menuItems = [
