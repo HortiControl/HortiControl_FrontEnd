@@ -1,4 +1,6 @@
-import { LayoutDashboard, Store, Carrot, ShoppingCart, LogOut, CirclePlus } from 'lucide-react';
+import { LayoutDashboard, Store, Carrot, ShoppingCart, LogOut, CirclePlus }
+  from 'lucide-react';
+import axios from 'axios';
 
 import { Link, replace } from 'react-router-dom';
 
@@ -11,9 +13,21 @@ export function Sidebar({ activeItem }) {
 
   const navigate = useNavigate();
 
-  function logOff(){
-    localStorage.removeItem("token");
-    navigate("/login", {replace:true})
+  async function logOff() {
+    try {
+      await axios.post(
+        "http://localhost:8080/usuarios/logout",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    } finally {
+      localStorage.removeItem("token");
+      navigate("/login", { replace: true })
+    }
   }
 
   const menuItems = [
