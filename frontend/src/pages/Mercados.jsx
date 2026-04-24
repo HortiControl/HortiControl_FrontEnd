@@ -30,13 +30,17 @@ export function Mercados() {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
-        const mercadosFormatados = response.data.map(mercado => ({
-          id: mercado.id,
-          nome: mercado.nome,
-          tipo: mercado.tipoMercado,
-          obs: mercado.observacao
-        }));
-        setMercadosData(mercadosFormatados);
+        if (response.data.length == 0) {
+          console.log("vazio")
+        } else {
+          const mercadosFormatados = response.data.map(mercado => ({
+            id: mercado.id,
+            nome: mercado.nome,
+            tipo: mercado.tipoMercado,
+            obs: mercado.observacao
+          }));
+          setMercadosData(mercadosFormatados);
+        }
       })
       .catch(error => console.error("Erro ao carregar mercados:", error));
   };
@@ -71,23 +75,21 @@ export function Mercados() {
     try {
 
       if (modalAtivo === 'add') {
-        
+
         await axios.post("http://localhost:8080/mercados", dadosDoForms, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Mercado adicionado com sucesso!");
 
       } else if (modalAtivo === 'edit') {
-       
+
         await axios.put(`http://localhost:8080/mercados/${mercadoSelecionado.id}`, dadosDoForms, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Mercado atualizado com sucesso!");
-
       }
-
-      fecharModal();
       carregarMercados();
+      fecharModal();
 
     } catch (error) {
       console.error("Erro ao salvar mercado:", error);
@@ -102,9 +104,12 @@ export function Mercados() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      setMercadosData(prev =>
+      prev.filter(m => m.id !== mercadoSelecionado.id)
+    );
+
       alert("Mercado excluído com sucesso!");
       fecharModal();
-      carregarMercados();
 
     } catch (error) {
       console.error("Erro ao excluir mercado:", error);
@@ -194,7 +199,7 @@ export function Mercados() {
           </Button>
         </div>
       </Modal>
-      
+
       <Modal isOpen={modalAtivo === 'delete'} onClose={fecharModal} title="Confirmar Exclusão" isDanger={true}>
         <p className="text-gray-700">Tem certeza que deseja excluir <span className="font-bold">{mercadoSelecionado?.nome}</span>?</p>
         <div className="flex justify-center gap-3 mt-8">
