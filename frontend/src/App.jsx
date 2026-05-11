@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./layouts/AppLayout";
+import { Dashboard } from "./pages/Dashboard"; // <-- Importe a Dashboard aqui
 import { Mercados } from "./pages/Mercados";
 import { Produtos } from "./pages/Produtos";
 import { GerenciamentoPedidos } from "./pages/GerenciamentoPedidos";
@@ -9,7 +10,6 @@ import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
-
 
 function App() {
   return (
@@ -26,8 +26,17 @@ function App() {
 
         <Route path="/cadastro" element={<Cadastro />} />
 
-        {/* Se o usuário entrar na raiz pura ("/"), redirecionamos para mercados */}
-        <Route path="/" element={<Navigate to="/mercados" replace />} />
+        {/* Rota da Dashboard (Raiz do sistema) */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout activePage="dashboard">
+                <Dashboard />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Rota de Mercados */}
         <Route
