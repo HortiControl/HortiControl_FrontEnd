@@ -7,7 +7,7 @@ export function Sidebar({ activeItem }) {
   const navigate = useNavigate();
 
   async function logOff() {
-    axios.get("http://localhost:8080/usuarios/logout", {
+    axios.get("http://localhost:5173/usuarios/logout", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
