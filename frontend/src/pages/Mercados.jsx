@@ -8,13 +8,14 @@ import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
 import { Input } from '../components/Input';
 import { Select } from '../components/Select';
-import axios from 'axios';
+import api from '../provider/api';
 
 export function Mercados() {
 
   const [mercadosData, setMercadosData] = useState([]);
 
   const [modalAtivo, setModalAtivo] = useState(null);
+
   const [mercadoSelecionado, setMercadoSelecionado] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -26,7 +27,7 @@ export function Mercados() {
   const token = localStorage.getItem('token');
 
   const carregarMercados = () => {
-    axios.get("http://localhost:8080/mercados", {
+    api.get("/mercados", {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
@@ -71,19 +72,17 @@ export function Mercados() {
       tipoMercado: formData.tipo,
       observacao: formData.obs
     };
-
     try {
-
       if (modalAtivo === 'add') {
 
-        await axios.post("http://localhost:8080/mercados", dadosDoForms, {
+        await api.post("/mercados", dadosDoForms, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Mercado adicionado com sucesso!");
 
       } else if (modalAtivo === 'edit') {
 
-        await axios.put(`http://localhost:8080/mercados/${mercadoSelecionado.id}`, dadosDoForms, {
+        await api.put(`/mercados/${mercadoSelecionado.id}`, dadosDoForms, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Mercado atualizado com sucesso!");
@@ -100,7 +99,7 @@ export function Mercados() {
   const handleExcluir = async () => {
     try {
 
-      await axios.delete(`http://localhost:8080/mercados/${mercadoSelecionado.id}`, {
+      await api.delete(`/mercados/${mercadoSelecionado.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

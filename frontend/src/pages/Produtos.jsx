@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter, Pencil, Trash2, RefreshCw, Droplets, Leaf } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { ContentCard } from '../components/ContentCard';
@@ -8,28 +8,135 @@ import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
 import { Input } from '../components/Input';
 import { Select } from '../components/Select';
+import api from '../provider/api';
 
 export function Produtos() {
-  const [produtosData, setProdutosData] = useState([
-    { id: 1, nome: 'Alface Crespa', embalagem: 'Pote', preco: 'R$ 9,00', tipo: 'Lavado' },
-    { id: 2, nome: 'Alface Crespa', embalagem: 'Bandeja', preco: 'R$ 9,00', tipo: 'Não Lavado' },
-    { id: 3, nome: 'Alface Crespa', embalagem: 'Saco', preco: 'R$ 9,00', tipo: 'Lavado' },
-    { id: 4, nome: 'Alface Americana', embalagem: 'Bandeja', preco: 'R$ 9,00', tipo: 'Não Lavado' },
-    { id: 5, nome: 'Cebolinha', embalagem: 'Bandeja', preco: 'R$ 9,00', tipo: 'Lavado' },
-    { id: 6, nome: 'Shimeji', embalagem: 'Pote', preco: 'R$ 4,50', tipo: 'Não Lavado' },
-  ]);
-
+  const [produtosData, setProdutosData] = useState([]);
   const [modalAtivo, setModalAtivo] = useState(null);
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
+  const [valorGlobal,setValorGlobal] = useState(0);
+  const [formData, setFormData] = useState({
+    preco: '',
+    nome: '',
+    embalagem: 'BANDEJA',
+    tipo: 'PRE_LAVADO'
+  });
+
+  const token = localStorage.getItem('token');
+
+  const carregarProdutos = () => {
+    api.get("/produtos", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => {
+        if (response.data.length == 0) {
+          console.log("vazio pae")
+        } else {
+          const produtosFormatados = response.data.map(produto => ({
+            id: produto.id,
+            preco: produto.preco,
+            nome: produto.nome,
+            embalagem: produto.tipoEmbalagem,
+            tipo: produto.tipoProduto
+          }))
+          setProdutosData(produtosFormatados)
+        }
+      })
+      .catch(error => console.error("Erro ao carregar produtos: ", error))
+  }
+
+  useEffect(() => {
+    if (token) carregarProdutos();
+  }, [token]);
 
   const abrirModal = (tipo, produto = null) => {
     setProdutoSelecionado(produto);
     setModalAtivo(tipo);
+
+    if (tipo === 'edit' && produto) {
+      setFormData({
+        preco: produto.preco,
+        nome: produto.nome,
+        embalagem: produto.embalagem,
+        tipo: produto.tipo ||
+          ''
+      });
+    } else if (tipo === 'add') {
+      setFormData({
+        preco: '',
+        nome: '',
+        embalagem: 'BANDEJA',
+        tipo: 'PRE_LAVADO'
+      });
+    }
   };
 
   const fecharModal = () => {
     setModalAtivo(null);
     setProdutoSelecionado(null);
+  };
+
+  const handleSalvar = async () => {
+    const dadosDoForms = {
+      nome: formData.nome,
+      preco: Number(formData.preco),
+      tipoEmbalagem: formData.embalagem,
+      tipoProduto: formData.tipo
+    };
+    try {
+      if (modalAtivo === 'add') {
+        console.log(dadosDoForms)
+        await api.post("/produtos", dadosDoForms, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        alert("Produto adicionado com sucesso!");
+      } else if (modalAtivo === 'edit') {
+        await api.put(`/produtos/${produtoSelecionado.id}`, dadosDoForms, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        alert("Produto atualizado com sucesso!");
+      }
+      carregarProdutos()
+      fecharModal();
+    } catch (error) {
+      console.error("Erro ao salvar produto: ", error)
+      alert("Erro ao salvar. Verifique os dados.")
+    }
+  };
+
+
+
+  const handleAtualizarGlobal = async () => {
+    try{
+      await api.patch(`/produtos/reajuste-global?novoPreco=${valorGlobal}`,{},{
+          headers: { Authorization: `Bearer ${token}` }
+      })
+      alert("Atualizado com sucesso!!")
+      carregarProdutos();
+      fecharModal();
+    }catch(error){
+      console.error("Erro ao atualizar valor global de produtos: ", error)
+      alert("Erro ao atualizar valor global de produtos. Verifique os dados.")
+    }
+  }
+
+  const handleExcluir = async () => {
+    try {
+
+      await api.delete(`/produtos/${produtoSelecionado.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setProdutosData(prev =>
+        prev.filter(m => m.id !== produtoSelecionado.id)
+      );
+
+      alert("Produto excluído com sucesso!");
+      fecharModal();
+    } catch (error) {
+      console.error("Erro ao excluir Produto:", error);
+      alert("Erro ao excluir Produto");
+    }
   };
 
   const FiltrosProdutos = (
@@ -90,11 +197,11 @@ export function Produtos() {
               <td className="px-6 py-4 font-medium text-gray-800">{produto.nome}</td>
 
               <td className="px-6 py-4">
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${produto.tipo === 'Lavado'
-                    ? 'bg-blue-50 text-blue-600 border border-blue-100'
-                    : 'bg-orange-50 text-orange-600 border border-orange-100'
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${produto.tipo === 'PRE_LAVADO'
+                  ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                  : 'bg-orange-50 text-orange-600 border border-orange-100'
                   }`}>
-                  {produto.tipo === 'Lavado' ? <Droplets size={12} /> : <Leaf size={12} />}
+                  {produto.tipo === 'PRE_LAVADO' ? <Droplets size={12} /> : <Leaf size={12} />}
                   {produto.tipo}
                 </span>
               </td>
@@ -129,19 +236,39 @@ export function Produtos() {
         onClose={fecharModal}
         title={modalAtivo === 'add' ? 'Adicionar Novo Produto' : 'Editar Produto'}
       >
-        <Input label="Nome do Produto:" placeholder="Ex: Alface Lisa" defaultValue={produtoSelecionado?.nome} />
+        <Input 
+        label="Nome do Produto:" 
+        placeholder="Ex: Alface Lisa" 
+        value={formData.nome} 
+        onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+        />
+
         <Select
           label="Tipo de Processamento"
-          options={['Lavado', 'Não Lavado']}
-          defaultValue={produtoSelecionado?.tipo || 'Lavado'}
+          options={['PRE_LAVADO', 'NAO_LAVADO']}
+          value={formData.tipo}
+          onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
         />
+
         <div className="grid grid-cols-2 gap-4 mt-4">
-          <Select label="Embalagem" options={['Pote', 'Bandeja', 'Saco']} defaultValue={produtoSelecionado?.embalagem || 'Bandeja'} />
-          <Input label="Preço Atual (R$)" placeholder="0,00" defaultValue={produtoSelecionado?.preco?.replace('R$ ', '')} />
+          <Select 
+          label="Embalagem"
+          options={['POTE', 'BANDEJA', 'SACO']} 
+          value={formData.embalagem}
+          onChange={(e) => setFormData({ ...formData, embalagem: e.target.value })}
+          />
+
+          <Input 
+          label="Preço Atual (R$)"
+          placeholder="0,00" 
+          value={formData.preco}
+          onChange={(e) => setFormData({ ...formData, preco: e.target.value })}
+           />
         </div>
         <div className="flex justify-end gap-3 mt-8">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
-          <Button variant="primary">{modalAtivo === 'add' ? 'Salvar' : 'Salvar Alterações'}</Button>
+          <Button variant="primary" onClick={handleSalvar}>
+            {modalAtivo === 'add' ? 'Salvar' : 'Salvar Alterações'}</Button>
         </div>
       </Modal>
 
@@ -149,15 +276,18 @@ export function Produtos() {
         <p className="text-gray-700">Tem certeza que deseja excluir <span className="font-bold">{produtoSelecionado?.nome}</span>?</p>
         <div className="flex justify-center gap-3 mt-8">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
-          <Button variant="danger">Excluir Produto</Button>
+          <Button variant="danger" onClick={handleExcluir} >Excluir Produto</Button>
         </div>
       </Modal>
 
       <Modal isOpen={modalAtivo === 'reajustar'} onClose={fecharModal} title="Reajustar Preços">
-        <Input label="Novo Valor (R$)" placeholder="Ex: 9,00" />
+        <Input label="Novo Valor (R$)" 
+        placeholder="Ex: 9,00" 
+        onChange={(e) => setValorGlobal(e.target.value)}
+        />
         <div className="flex justify-center gap-3 mt-6">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
-          <Button variant="primary">Aplicar Reajuste</Button>
+          <Button variant="primary" onClick={handleAtualizarGlobal}>Aplicar Reajuste</Button>
         </div>
       </Modal>
     </div>

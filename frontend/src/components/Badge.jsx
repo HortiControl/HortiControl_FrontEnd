@@ -5,11 +5,9 @@ export function Badge({ text }) {
     'Normal': 'bg-gray-200 text-gray-700',
     'Consignado': 'bg-[#00a859] text-white',
     // Produtos
-    'Pote': 'bg-blue-100 text-blue-700',
-    'Bandeja': 'bg-orange-100 text-orange-700',
-    'Saco': 'bg-green-100 text-green-700',
-    'Concluído': 'bg-green-50 text-green-600 border border-green-200',
-    'Cancelado': 'bg-red-50 text-red-600 border border-red-200',
+    'POTE': 'bg-blue-100 text-blue-700',
+    'BANDEJA': 'bg-orange-100 text-orange-700',
+    'SACO': 'bg-green-100 text-green-700',
   };
 
   // Se o texto não estiver no mapa, usa cinza por padrão
