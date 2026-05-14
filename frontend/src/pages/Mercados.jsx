@@ -13,10 +13,9 @@ import api from '../provider/api';
 export function Mercados() {
 
   const [mercadosData, setMercadosData] = useState([]);
-
   const [modalAtivo, setModalAtivo] = useState(null);
-
   const [mercadoSelecionado, setMercadoSelecionado] = useState(null);
+  const [filtroSelecionado, setFiltroSelecionado] = useState("Todos");
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -25,49 +24,46 @@ export function Mercados() {
 
   const token = localStorage.getItem('token');
 
-  const carregarMercados = (event) => {
-    const valorSelecionado = event.target.value;
+  const carregarMercados = (event = null) => {
 
-    // if (valorSelecionado == "Normal") {
+    let valorSelecionado = "Todos";
 
-    // }
-
-    // else 
-      if (valorSelecionado == "Consignado") {
-      api.get("/mercados/consignados", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(response => {
-          if (response.data.length == 0) {
-            console.log("vazio")
-          } else {
-            const mercadosFormatados = response.data.map(mercado => ({
-              id: mercado.id,
-              nome: mercado.nome,
-              tipo: mercado.tipoMercado
-            }));
-            setMercadosData(mercadosFormatados);
-          }
-        })
-        .catch(error => console.error("Erro ao carregar mercados:", error));
-    } else {
-      api.get("/mercados", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(response => {
-          if (response.data.length == 0) {
-            console.log("vazio")
-          } else {
-            const mercadosFormatados = response.data.map(mercado => ({
-              id: mercado.id,
-              nome: mercado.nome,
-              tipo: mercado.tipoMercado
-            }));
-            setMercadosData(mercadosFormatados);
-          }
-        })
-        .catch(error => console.error("Erro ao carregar mercados:", error));
+    if (event) {
+      valorSelecionado = event.target.value;
+      setFiltroSelecionado(valorSelecionado);
     }
+
+    let endpoint = "/mercados";
+
+    if (valorSelecionado === "Normal") {
+      endpoint = "/mercados/normais";
+    }
+
+    else if (valorSelecionado === "Consignado") {
+      endpoint = "/mercados/consignados";
+    }
+
+    api.get(endpoint, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => {
+
+        if (response.data.length === 0) {
+          console.log("vazio");
+        }
+
+        const mercadosFormatados = response.data.map(mercado => ({
+          id: mercado.id,
+          nome: mercado.nome,
+          tipo: mercado.tipoMercado
+        }));
+
+        setMercadosData(mercadosFormatados);
+
+      })
+      .catch(error =>
+        console.error("Erro ao carregar mercados:", error)
+      );
   };
 
   useEffect(() => {
@@ -111,7 +107,8 @@ export function Mercados() {
         alert("Mercado atualizado com sucesso!");
       }
 
-      carregarMercados(event);
+      setFiltroSelecionado("Todos")
+      carregarMercados();
       fecharModal();
 
     } catch (error) {
@@ -147,7 +144,8 @@ export function Mercados() {
       <span>Filtros |</span>
       <span className="text-gray-500">Tipo</span>
       <select className="bg-gray-100 border-none text-gray-700 rounded-md px-3 py-1.5 outline-none"
-        onChange={carregarMercados(event)}>
+        value={filtroSelecionado}
+        onChange={carregarMercados}>
         <option>Todos</option>
         <option>Normal</option>
         <option>Consignado</option>
