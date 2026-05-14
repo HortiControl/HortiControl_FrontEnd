@@ -20,9 +20,8 @@ export function Mercados() {
 
   const [formData, setFormData] = useState({
     nome: '',
-    tipo: 'NORMAL',
-    obs: ''
-  });
+    tipo: 'NORMAL'
+    });
 
   const token = localStorage.getItem('token');
 
@@ -37,8 +36,7 @@ export function Mercados() {
           const mercadosFormatados = response.data.map(mercado => ({
             id: mercado.id,
             nome: mercado.nome,
-            tipo: mercado.tipoMercado,
-            obs: mercado.observacao
+            tipo: mercado.tipoMercado
           }));
           setMercadosData(mercadosFormatados);
         }
@@ -55,9 +53,9 @@ export function Mercados() {
     setModalAtivo(tipo);
 
     if (tipo === 'edit' && mercado) {
-      setFormData({ nome: mercado.nome, tipo: mercado.tipo, obs: mercado.obs || '' });
+      setFormData({ nome: mercado.nome, tipo: mercado.tipo || '' });
     } else if (tipo === 'add') {
-      setFormData({ nome: '', tipo: 'NORMAL', obs: '' });
+      setFormData({ nome: '', tipo: 'NORMAL' });
     }
   };
 
@@ -70,7 +68,6 @@ export function Mercados() {
     const dadosDoForms = {
       nome: formData.nome,
       tipoMercado: formData.tipo,
-      observacao: formData.obs
     };
     try {
       if (modalAtivo === 'add') {
@@ -91,6 +88,7 @@ export function Mercados() {
       fecharModal();
 
     } catch (error) {
+      console.log(dadosDoForms)
       console.error("Erro ao salvar mercado:", error);
       alert("Erro ao salvar. Verifique os dados.");
     }
@@ -104,8 +102,8 @@ export function Mercados() {
       });
 
       setMercadosData(prev =>
-      prev.filter(m => m.id !== mercadoSelecionado.id)
-    );
+        prev.filter(m => m.id !== mercadoSelecionado.id)
+      );
 
       alert("Mercado excluído com sucesso!");
       fecharModal();
@@ -144,15 +142,12 @@ export function Mercados() {
         count={mercadosData.length}
         filters={FiltroMercados}
       >
-        <Table headers={['Nome', 'Tipo', 'Observações']}>
+        <Table headers={['Nome', 'Tipo']}>
           {mercadosData.map((mercado) => (
             <tr key={mercado.id} className="hover:bg-gray-50 transition-colors">
               <td className="px-6 py-4 font-medium text-gray-800">{mercado.nome}</td>
               <td className="px-6 py-4">
                 <Badge text={mercado.tipo} />
-              </td>
-              <td className="px-6 py-4 text-gray-500 text-sm max-w-xs truncate">
-                {mercado.obs}
               </td>
               <td className="px-6 py-4">
                 <div className="flex items-center justify-end gap-3 text-gray-400">
@@ -182,13 +177,6 @@ export function Mercados() {
           options={['NORMAL', 'CONSIGNADO']}
           value={formData.tipo}
           onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
-        />
-
-        <Input
-          label="Observações:"
-          placeholder="Ex: Mercado da esquina"
-          value={formData.obs}
-          onChange={(e) => setFormData({ ...formData, obs: e.target.value })}
         />
 
         <div className="flex justify-end gap-3 mt-8">

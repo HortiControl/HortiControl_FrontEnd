@@ -104,8 +104,6 @@ export function Produtos() {
     }
   };
 
-
-
   const handleAtualizarGlobal = async () => {
     try{
       await api.patch(`/produtos/reajuste-global?novoPreco=${valorGlobal}`,{},{
