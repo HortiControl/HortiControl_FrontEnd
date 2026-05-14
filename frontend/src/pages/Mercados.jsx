@@ -21,31 +21,57 @@ export function Mercados() {
   const [formData, setFormData] = useState({
     nome: '',
     tipo: 'NORMAL'
-    });
+  });
 
   const token = localStorage.getItem('token');
 
-  const carregarMercados = () => {
-    api.get("/mercados", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(response => {
-        if (response.data.length == 0) {
-          console.log("vazio")
-        } else {
-          const mercadosFormatados = response.data.map(mercado => ({
-            id: mercado.id,
-            nome: mercado.nome,
-            tipo: mercado.tipoMercado
-          }));
-          setMercadosData(mercadosFormatados);
-        }
+  const carregarMercados = (event) => {
+    const valorSelecionado = event.target.value;
+
+    // if (valorSelecionado == "Normal") {
+
+    // }
+
+    // else 
+      if (valorSelecionado == "Consignado") {
+      api.get("/mercados/consignados", {
+        headers: { Authorization: `Bearer ${token}` }
       })
-      .catch(error => console.error("Erro ao carregar mercados:", error));
+        .then(response => {
+          if (response.data.length == 0) {
+            console.log("vazio")
+          } else {
+            const mercadosFormatados = response.data.map(mercado => ({
+              id: mercado.id,
+              nome: mercado.nome,
+              tipo: mercado.tipoMercado
+            }));
+            setMercadosData(mercadosFormatados);
+          }
+        })
+        .catch(error => console.error("Erro ao carregar mercados:", error));
+    } else {
+      api.get("/mercados", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(response => {
+          if (response.data.length == 0) {
+            console.log("vazio")
+          } else {
+            const mercadosFormatados = response.data.map(mercado => ({
+              id: mercado.id,
+              nome: mercado.nome,
+              tipo: mercado.tipoMercado
+            }));
+            setMercadosData(mercadosFormatados);
+          }
+        })
+        .catch(error => console.error("Erro ao carregar mercados:", error));
+    }
   };
 
   useEffect(() => {
-    if (token) carregarMercados();
+    if (token) carregarMercados(event);
   }, [token]);
 
   const abrirModal = (tipo, mercado = null) => {
@@ -84,7 +110,8 @@ export function Mercados() {
         });
         alert("Mercado atualizado com sucesso!");
       }
-      carregarMercados();
+
+      carregarMercados(event);
       fecharModal();
 
     } catch (error) {
@@ -119,7 +146,8 @@ export function Mercados() {
       <Filter size={18} className="text-gray-700" />
       <span>Filtros |</span>
       <span className="text-gray-500">Tipo</span>
-      <select className="bg-gray-100 border-none text-gray-700 rounded-md px-3 py-1.5 outline-none">
+      <select className="bg-gray-100 border-none text-gray-700 rounded-md px-3 py-1.5 outline-none"
+        onChange={carregarMercados(event)}>
         <option>Todos</option>
         <option>Normal</option>
         <option>Consignado</option>
