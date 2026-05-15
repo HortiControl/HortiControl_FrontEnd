@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import { Search, Filter, Pencil, Trash2, RefreshCw, Droplets, Leaf } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { ContentCard } from '../components/ContentCard';
@@ -14,7 +14,8 @@ export function Produtos() {
   const [produtosData, setProdutosData] = useState([]);
   const [modalAtivo, setModalAtivo] = useState(null);
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
-  const [valorGlobal,setValorGlobal] = useState(0);
+  const [valorGlobal, setValorGlobal] = useState(0);
+  const [busca, setBusca] = useState('');
   const [formData, setFormData] = useState({
     preco: '',
     nome: '',
@@ -24,13 +25,22 @@ export function Produtos() {
 
   const token = localStorage.getItem('token');
 
-  const carregarProdutos = () => {
-    api.get("/produtos", {
+  const carregarProdutos = (filtro = '') => {
+
+    let url = '/produtos'
+
+    if (filtro != '') {
+      url = `/produtos/busca?nome=${filtro}`
+    }
+
+    api.get(url, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
-        if (response.data.length == 0) {
-          console.log("vazio pae")
+        if (response.data.length == 0 || response.status == 204) {
+          console.log("Erro! Nenhum produto encontrado.")
+          setProdutosData([])
+          return;
         } else {
           const produtosFormatados = response.data.map(produto => ({
             id: produto.id,
@@ -42,12 +52,25 @@ export function Produtos() {
           setProdutosData(produtosFormatados)
         }
       })
-      .catch(error => console.error("Erro ao carregar produtos: ", error))
+      .catch(error =>
+        console.error("Erro ao carregar produtos: ", error)
+      )
   }
 
   useEffect(() => {
-    if (token) carregarProdutos();
-  }, [token]);
+    if (!token) return;
+
+    if (busca.trim() == '') {
+      carregarProdutos();
+      return;
+    }
+
+    const delayDeBusca = setTimeout(() => {
+      carregarProdutos(busca);
+    }, 400);
+
+    return () => clearTimeout(delayDeBusca);
+  }, [busca, token]);
 
   const abrirModal = (tipo, produto = null) => {
     setProdutoSelecionado(produto);
@@ -105,14 +128,14 @@ export function Produtos() {
   };
 
   const handleAtualizarGlobal = async () => {
-    try{
-      await api.patch(`/produtos/reajuste-global?novoPreco=${valorGlobal}`,{},{
-          headers: { Authorization: `Bearer ${token}` }
+    try {
+      await api.patch(`/produtos/reajuste-global?novoPreco=${valorGlobal}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
       })
       alert("Atualizado com sucesso!!")
       carregarProdutos();
       fecharModal();
-    }catch(error){
+    } catch (error) {
       console.error("Erro ao atualizar valor global de produtos: ", error)
       alert("Erro ao atualizar valor global de produtos. Verifique os dados.")
     }
@@ -145,6 +168,8 @@ export function Produtos() {
           type="text"
           placeholder="Buscar por nome..."
           className="w-full pl-9 pr-4 py-2 bg-gray-100 border-none rounded-md text-sm outline-none focus:ring-2 focus:ring-[#00a859]/20 transition-all"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
         />
       </div>
 
@@ -234,11 +259,11 @@ export function Produtos() {
         onClose={fecharModal}
         title={modalAtivo === 'add' ? 'Adicionar Novo Produto' : 'Editar Produto'}
       >
-        <Input 
-        label="Nome do Produto:" 
-        placeholder="Ex: Alface Lisa" 
-        value={formData.nome} 
-        onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+        <Input
+          label="Nome do Produto:"
+          placeholder="Ex: Alface Lisa"
+          value={formData.nome}
+          onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
         />
 
         <Select
@@ -249,19 +274,19 @@ export function Produtos() {
         />
 
         <div className="grid grid-cols-2 gap-4 mt-4">
-          <Select 
-          label="Embalagem"
-          options={['POTE', 'BANDEJA', 'SACO']} 
-          value={formData.embalagem}
-          onChange={(e) => setFormData({ ...formData, embalagem: e.target.value })}
+          <Select
+            label="Embalagem"
+            options={['POTE', 'BANDEJA', 'SACO']}
+            value={formData.embalagem}
+            onChange={(e) => setFormData({ ...formData, embalagem: e.target.value })}
           />
 
-          <Input 
-          label="Preço Atual (R$)"
-          placeholder="0,00" 
-          value={formData.preco}
-          onChange={(e) => setFormData({ ...formData, preco: e.target.value })}
-           />
+          <Input
+            label="Preço Atual (R$)"
+            placeholder="0,00"
+            value={formData.preco}
+            onChange={(e) => setFormData({ ...formData, preco: e.target.value })}
+          />
         </div>
         <div className="flex justify-end gap-3 mt-8">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
@@ -279,9 +304,9 @@ export function Produtos() {
       </Modal>
 
       <Modal isOpen={modalAtivo === 'reajustar'} onClose={fecharModal} title="Reajustar Preços">
-        <Input label="Novo Valor (R$)" 
-        placeholder="Ex: 9,00" 
-        onChange={(e) => setValorGlobal(e.target.value)}
+        <Input label="Novo Valor (R$)"
+          placeholder="Ex: 9,00"
+          onChange={(e) => setValorGlobal(e.target.value)}
         />
         <div className="flex justify-center gap-3 mt-6">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
