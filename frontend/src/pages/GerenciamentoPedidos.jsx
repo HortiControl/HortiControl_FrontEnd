@@ -10,37 +10,38 @@ import { Button } from '../components/Button';
 
 export function GerenciamentoPedidos() {
   // --- ESTADOS PRINCIPAIS ---
-  const [abaAtiva, setAbaAtiva] = useState('ativos'); 
-  const [viewMode, setViewMode] = useState('lista');  
-  
+  const [abaAtiva, setAbaAtiva] = useState('ativos');
+  const [viewMode, setViewMode] = useState('lista');
+
   // --- ESTADOS DE DADOS E MODAIS ---
   const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
-  const [modalAtivo, setModalAtivo] = useState(null); 
+  const [modalAtivo, setModalAtivo] = useState(null);
 
-  // --- DADOS MOCADOS ---
-  const pedidosAtivosData = [
-    { id: 1, mercado: 'MJ4', tipo: 'Normal', data: '29/03/2026', valor: 'R$ 541,00', aPagar: 'R$ 541,00' },
-    { id: 2, mercado: 'MJ2', tipo: 'Normal', data: '23/03/2026', valor: 'R$ 607,00', aPagar: 'R$ 307,00' },
-    { id: 3, mercado: 'Tropical', tipo: 'Normal', data: '20/03/2026', valor: 'R$ 333,00', aPagar: 'R$ 102,00' },
-    { id: 4, mercado: 'MJ4', tipo: 'Normal', data: '27/03/2026', valor: 'R$ 287,00', aPagar: 'R$ 58,00' },
-    { id: 5, mercado: 'Mercado São Paulo', tipo: 'Consignado', data: '29/03/2026', valor: 'R$ 567,00', aPagar: 'R$ 182,00' },
-  ];
 
-  const historicoData = [
-    { id: 6, mercado: 'MJ4', tipo: 'Normal', data: '29/03/2026', valor: 'R$ 541,00', status: 'Concluído' },
-    { id: 7, mercado: 'MJ2', tipo: 'Normal', data: '23/03/2026', valor: 'R$ 607,00', status: 'Concluído' },
-    { id: 8, mercado: 'Tropical', tipo: 'Normal', data: '20/03/2026', valor: 'R$ 333,00', status: 'Cancelado' },
-    { id: 9, mercado: 'MJ4', tipo: 'Normal', data: '27/03/2026', valor: 'R$ 287,00', status: 'Concluído' },
-    { id: 10, mercado: 'Mercado São Paulo', tipo: 'Consignado', data: '29/03/2026', valor: 'R$ 567,00', status: 'Cancelado' },
-  ];
+  const [historicoData, setHistoricoData] = useState([])
+  const [pedidosAtivosData, setPedidosAtivosData] = useState([])
+  const [itensPedidoData, setItensPedidoData] = useState([])
 
-  const itensPedidoMock = [
-    { id: 101, unidade: 5, produto: 'Alface Crespa', tipo: 'NAO_LAVADO', preco: 'R$ 9,00', total: 'R$ 54,00' },
-    { id: 102, unidade: 10, produto: 'Alface Lisa', tipo: 'PRE_LAVADO', preco: 'R$ 9,00', total: 'R$ 67,00' },
-    { id: 103, unidade: 23, produto: 'Alface Americana', tipo: 'NAO_LAVADO', preco: 'R$ 3,00', total: 'R$ 333,00' },
-    { id: 104, unidade: 12, produto: 'Acelga', tipo: 'NAO_LAVADO', preco: 'R$ 5,00', total: 'R$ 287,00' },
-    { id: 105, unidade: 7, produto: 'Repolho', tipo: 'PRE_LAVADO', preco: 'R$ 9,00', total: 'R$ 145,00' },
-  ];
+  const carregarMercados = () => {
+    api.get("/pedidos", { 
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => {
+        if (response.data.length == 0) {
+          console.log("vazio");
+        } else {
+          const mercadosFormatados = response.data.map(mercado => ({
+            id: mercado.id,
+            nome: mercado.nome,
+            // Trava de segurança para evitar tela branca se vier nulo
+            tipo: mercado.tipoMercado || mercado.tipo || 'NORMAL', 
+          }));
+          setMercadosData(mercadosFormatados);
+        }
+      })
+      .catch(error => console.error("Erro ao carregar clientes:", error));
+  };
+
 
   // --- FUNÇÕES DE NAVEGAÇÃO E MODAL ---
   const abrirDetalhes = (pedido) => {
@@ -64,15 +65,15 @@ export function GerenciamentoPedidos() {
 
   return (
     <div>
-      
+
       {viewMode === 'detalhes' && pedidoSelecionado ? (
-        
+
         /* ----------------------------------
           DETALHES DO PEDIDO
            ---------------------------------- */
         <div className="animate-in fade-in duration-300">
-          <button 
-            onClick={voltarParaLista} 
+          <button
+            onClick={voltarParaLista}
             className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 font-medium mb-6 transition-colors cursor-pointer"
           >
             <ArrowLeft size={16} /> Voltar aos Pedidos
@@ -88,8 +89,8 @@ export function GerenciamentoPedidos() {
             </Button>
           </div>
 
-          <ContentCard 
-            title={`Itens do Pedido (${itensPedidoMock.length})`} 
+          <ContentCard
+            title={`Itens do Pedido (${itensPedidoMock.length})`}
             subtitle="Produtos incluídos no pedido do cliente"
             filters={
               <div className="px-4 py-2 border-2 border-[#00a859] text-[#00a859] font-bold rounded-lg text-sm bg-white">
@@ -117,20 +118,19 @@ export function GerenciamentoPedidos() {
                       <td className="px-6 py-4 text-gray-800">{item.unidade}</td>
                       <td className="px-6 py-4 font-medium text-gray-800">{item.produto}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          item.tipo === 'PRE_LAVADO' ? 'bg-[#00a859] text-white' : 'bg-gray-200 text-gray-700'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${item.tipo === 'PRE_LAVADO' ? 'bg-[#00a859] text-white' : 'bg-gray-200 text-gray-700'
+                          }`}>
                           {item.tipo === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
                         </span>
                       </td>
                       <td className="px-6 py-4 font-bold text-gray-800">{item.preco}</td>
                       <td className="px-6 py-4 font-bold text-[#00a859] text-right">{item.total}</td>
-                      
+
                       {abaAtiva === 'ativos' && (
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end">
                             {/* AQUI ESTÁ O CLIQUE QUE ABRE O MODAL */}
-                            <button 
+                            <button
                               onClick={() => abrirModal('delete', pedidoSelecionado)}
                               className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
                             >
@@ -153,29 +153,27 @@ export function GerenciamentoPedidos() {
            LISTA DE PEDIDOS 
            ---------------------------------- */
         <div className="animate-in fade-in duration-300">
-          <PageHeader 
-            title="Gerenciamento de Pedidos" 
-            subtitle="Visualize e gerencie todos os pedidos do sistema" 
+          <PageHeader
+            title="Gerenciamento de Pedidos"
+            subtitle="Visualize e gerencie todos os pedidos do sistema"
           />
 
           <div className="flex bg-white rounded-full p-1 mb-6 border border-gray-200 shadow-sm w-full">
-            <button 
+            <button
               onClick={() => setAbaAtiva('ativos')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer ${
-                abaAtiva === 'ativos' 
-                  ? 'bg-[#00a859] text-white shadow-sm' 
+              className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer ${abaAtiva === 'ativos'
+                  ? 'bg-[#00a859] text-white shadow-sm'
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-              }`}
+                }`}
             >
               Pedidos Ativos ({pedidosAtivosData.length})
             </button>
-            <button 
+            <button
               onClick={() => setAbaAtiva('finalizados')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer ${
-                abaAtiva === 'finalizados' 
-                  ? 'bg-[#00a859] text-white shadow-sm' 
+              className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer ${abaAtiva === 'finalizados'
+                  ? 'bg-[#00a859] text-white shadow-sm'
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-              }`}
+                }`}
             >
               Finalizados
             </button>
@@ -230,7 +228,7 @@ export function GerenciamentoPedidos() {
 
         </div>
       )}
-      
+
       <Modal isOpen={modalAtivo === 'pagamento'} onClose={fecharModal} title="Valor Pago" subtitle="Insira quanto do valor do pedido já foi pago">
         <Input label="Pago (R$)" placeholder="Ex: 100,00" />
         <div className="flex justify-end gap-3 mt-6">
