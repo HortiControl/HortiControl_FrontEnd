@@ -33,7 +33,6 @@ export function Mercados() {
           const mercadosFormatados = response.data.map(mercado => ({
             id: mercado.id,
             nome: mercado.nome,
-            // Trava de segurança para evitar tela branca se vier nulo
             tipo: mercado.tipoMercado || mercado.tipo || 'NORMAL', 
           }));
           setMercadosData(mercadosFormatados);

@@ -54,45 +54,13 @@ export function Dashboard() {
     return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
 
-  // dados mockados
-  // const melhoresClientes = [
-  //   { id: 1, nome: 'Mercado São Paulo', pedidos: 3, valor: '220,00' },
-  //   { id: 2, nome: 'MJ4', pedidos: 1, valor: '200,00' },
-  //   { id: 3, nome: 'MJ2', pedidos: 2, valor: '183,00' },
-  //   { id: 4, nome: 'MJ1', pedidos: 1, valor: '129,00' }
-  // ];
-
-  // const produtosVendidos = [
-  //   { id: 1, nome: 'Alface Lisa', tipo: 'Pré-Lavado', unidades: 54 },
-  //   { id: 2, nome: 'Alface Americana', tipo: 'Não Lavado', unidades: 47 },
-  //   { id: 3, nome: 'Rúcula', tipo: 'Não Lavado', unidades: 26 },
-  //   { id: 4, nome: 'Shimeji', tipo: 'Pré-Lavado', unidades: 14 }
-  // ];
-
-  // Eixo X do gráfico
-  // const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-  // const dataFaturamento = [
-  //   { name: 'Seg.', total: 4200 },
-  //   { name: 'Ter.', total: 2800 },
-  //   { name: 'Qua.', total: 3500 },
-  //   { name: 'Qui.', total: 5100 },
-  // ];
-
-  // const dataEmbalagens = [
-  //   { name: 'Jan', bandejas: 12, potes: 10, sacos: 15 },
-  //   { name: 'Fev', bandejas: 10, potes: 18, sacos: 35 },
-  //   { name: 'Mar', bandejas: 18, potes: 12, sacos: 32 },
-  //   { name: 'Abr', bandejas: 8, potes: 11, sacos: 38 },
-  //   { name: 'Mai', bandejas: 35, potes: 15, sacos: 55 },
-  //   { name: 'Jun', bandejas: 25, potes: 10, sacos: 48 },
-  //   { name: 'Jul', bandejas: 28, potes: 8, sacos: 42 },
-  //   { name: 'Ago', bandejas: 15, potes: 22, sacos: 45 },
-  //   { name: 'Set', bandejas: 12, potes: 45, sacos: 18 },
-  //   { name: 'Out', bandejas: 10, potes: 42, sacos: 12 },
-  //   { name: 'Nov', bandejas: 22, potes: 12, sacos: 10 },
-  //   { name: 'Dez', bandejas: 32, potes: 15, sacos: 25 },
-  // ];
+  const formatarTipoProduto = (tipo) => {
+    const formatos = {
+      'PRE_LAVADO': 'Pré-Lavado',
+      'NAO_LAVADO': 'Não Lavado'
+    };
+    return formatos[tipo] || tipo;
+  };
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -195,28 +163,28 @@ export function Dashboard() {
               {dados.evolucaoFaturamento && dados.evolucaoFaturamento.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={dados.evolucaoFaturamento}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                      <XAxis
-                        dataKey="label"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: '#9ca3af', fontSize: 12, fontWeight: 600 }}
-                        dy={10}
-                      />
-                      <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: '#9ca3af', fontSize: 10 }}
-                        tickFormatter={(value) => `R$ ${value}`}
-                      />
-                      <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f9fafb' }} />
-                      <Bar
-                        dataKey="valor"
-                        fill="#0B623C"
-                        radius={[6, 6, 0, 0]}
-                        barSize={45}
-                      />
-                    </BarChart>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="label"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#9ca3af', fontSize: 12, fontWeight: 600 }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#9ca3af', fontSize: 10 }}
+                      tickFormatter={(value) => `R$ ${value}`}
+                    />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f9fafb' }} />
+                    <Bar
+                      dataKey="valor"
+                      fill="#0B623C"
+                      radius={[6, 6, 0, 0]}
+                      barSize={45}
+                    />
+                  </BarChart>
                 </ResponsiveContainer>
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-400">
@@ -313,13 +281,16 @@ export function Dashboard() {
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-green-50 text-[#00a859] border border-green-100 flex items-center justify-center text-[10px] font-bold">{i + 1}</div>
                     <div>
-                      <p className="text-sm font-bold text-gray-800">{p.nome}</p>
-                      <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded uppercase ${p.tipo === 'Pré-Lavado' ? 'bg-[#00a859] text-white' : 'bg-gray-200 text-gray-500'}`}>
-                        {p.tipo}
+                      <p className="text-lg font-semibold text-gray-800 mb-1.5">{p.nome}</p>
+                      <span className={`text-[9px] font-semibold px-3 py-1.5 rounded-2xl uppercase ${p.tipo === 'PRE_LAVADO'
+                          ? 'bg-[#00a859] text-white border-[#00a859]'
+                          : 'bg-gray-200 text-gray-700'
+                        }`}>
+                        {formatarTipoProduto(p.tipo)}
                       </span>
                     </div>
                   </div>
-                  <div className="bg-gray-100 px-2 py-1 rounded text-[10px] font-bold text-gray-600">
+                  <div className="bg-gray-100 px-2 py-1 rounded text-[13px] font-bold text-gray-600">
                     {p.quantidadeVendida} unidades
                   </div>
                 </div>
