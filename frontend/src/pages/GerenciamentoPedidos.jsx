@@ -24,6 +24,7 @@ export function GerenciamentoPedidos() {
   const [historicoData, setHistoricoData] = useState([])
   const [pedidosAtivosData, setPedidosAtivosData] = useState([])
   const [itensPedidoData, setItensPedidoData] = useState([])
+  const [valorPago, setValorPago] = useState([0])
 
   const carregarPedidosAtivos = () => {
     api.get("/pedidos/ativos", {
@@ -82,6 +83,20 @@ export function GerenciamentoPedidos() {
       alert("Erro ao excluir o pedido. Tente novamente.");
     }
   };
+
+  const handlePagarValor = async () => {
+    try {
+      await api.patch(`/pedidos/${pedidoSelecionado.id}/pagamento?valor=${valorPago}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      alert("Atualizado com sucesso!!")
+      carregarPedidosAtivos();
+      fecharModal();
+    } catch (error) {
+      console.error("Erro ao atualizar valor global de produtos: ", error)
+      alert("Erro ao atualizar valor global de produtos. Verifique os dados.")
+    }
+  }
 
 
   // --- FUNÇÕES DE NAVEGAÇÃO E MODAL ---
@@ -275,10 +290,10 @@ export function GerenciamentoPedidos() {
       )}
 
       <Modal isOpen={modalAtivo === 'pagamento'} onClose={fecharModal} title="Valor Pago" subtitle="Insira quanto do valor do pedido já foi pago">
-        <Input label="Pago (R$)" placeholder="Ex: 100,00" />
+        <Input label="Pago (R$)" placeholder="Ex: 100,00" onChange={(e) => setValorPago(e.target.value)} />
         <div className="flex justify-end gap-3 mt-6">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
-          <Button variant="primary">Registrar</Button>
+          <Button variant="primary" onClick={handlePagarValor}>Registrar</Button>
         </div>
       </Modal>
 
