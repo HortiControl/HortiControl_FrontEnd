@@ -58,6 +58,31 @@ export function GerenciamentoPedidos() {
     if (token) carregarPedidosAtivos();
   }, [token]);
 
+  const handleExcluir = async () => {
+    if (!pedidoSelecionado) return;
+
+    try {
+      await api.delete(`/pedidos/${pedidoSelecionado.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (abaAtiva === 'ativos') {
+        setPedidosAtivosData(prev => prev.filter(p => p.id !== pedidoSelecionado.id));
+      } else {
+        setHistoricoData(prev => prev.filter(p => p.id !== pedidoSelecionado.id));
+      }
+
+      if (viewMode === 'detalhes') {
+        voltarParaLista();
+      }
+
+      fecharModal();
+    } catch (error) {
+      console.error("Erro ao excluir pedido:", error);
+      alert("Erro ao excluir o pedido. Tente novamente.");
+    }
+  };
+
 
   // --- FUNÇÕES DE NAVEGAÇÃO E MODAL ---
   const abrirDetalhes = (pedido) => {
@@ -105,12 +130,12 @@ export function GerenciamentoPedidos() {
           </div>
 
           <ContentCard
-    
+
             title={`Itens do Pedido (${pedidoSelecionado.itens?.length || 0})`}
             subtitle="Produtos incluídos no pedido do cliente"
             filters={
               <div className="px-4 py-2 border-2 border-[#00a859] text-[#00a859] font-bold rounded-lg text-sm bg-white">
-              
+
                 TOTAL: R$ {pedidoSelecionado.valorTotal}
               </div>
             }
@@ -131,10 +156,10 @@ export function GerenciamentoPedidos() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
 
-                 
+
                   {pedidoSelecionado.itens?.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-      
+
                       <td className="px-6 py-4 text-gray-800">{item.quantidade}</td>
                       <td className="px-6 py-4 font-medium text-gray-800">{item.nomeProduto}</td>
                       <td className="px-6 py-4">
@@ -258,10 +283,13 @@ export function GerenciamentoPedidos() {
       </Modal>
 
       <Modal isOpen={modalAtivo === 'delete'} onClose={fecharModal} title="Confirmar Exclusão" isDanger={true}>
-        <p className="text-gray-700">Tem certeza que deseja excluir o pedido de <span className="font-bold">{pedidoSelecionado?.mercado}</span>?</p>
+        <p className="text-gray-700">
+          Tem certeza que deseja excluir o pedido de <span className="font-bold">{pedidoSelecionado?.mercado?.nome}</span>?
+        </p>
         <div className="flex justify-center gap-3 mt-8">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
-          <Button variant="danger">Excluir Pedido</Button>
+          {/* AQUI: Adicionado o onClick chamando a função */}
+          <Button variant="danger" onClick={handleExcluir}>Excluir Pedido</Button>
         </div>
       </Modal>
 
