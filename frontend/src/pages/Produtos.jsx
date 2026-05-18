@@ -1,5 +1,5 @@
-import { useState, useEffect} from 'react';
-import { Search, Filter, Pencil, Trash2, RefreshCw, Droplets, Leaf } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { ContentCard } from '../components/ContentCard';
 import { Table } from '../components/Table';
@@ -16,6 +16,10 @@ export function Produtos() {
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
   const [valorGlobal, setValorGlobal] = useState(0);
   const [busca, setBusca] = useState('');
+  
+  // Controle de qual botão de filtro está clicado
+  const [filtroAtivo, setFiltroAtivo] = useState('TODOS');
+
   const [formData, setFormData] = useState({
     preco: '',
     nome: '',
@@ -26,10 +30,9 @@ export function Produtos() {
   const token = localStorage.getItem('token');
 
   const carregarProdutos = (filtro = '') => {
-
     let url = '/produtos'
 
-    if (filtro != '') {
+    if (filtro !== '') {
       url = `/produtos/busca?nome=${filtro}`
     }
 
@@ -37,7 +40,7 @@ export function Produtos() {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
-        if (response.data.length == 0 || response.status == 204) {
+        if (response.data.length === 0 || response.status === 204) {
           console.log("Erro! Nenhum produto encontrado.")
           setProdutosData([])
           return;
@@ -52,15 +55,13 @@ export function Produtos() {
           setProdutosData(produtosFormatados)
         }
       })
-      .catch(error =>
-        console.error("Erro ao carregar produtos: ", error)
-      )
+      .catch(error => console.error("Erro ao carregar produtos: ", error))
   }
 
   useEffect(() => {
     if (!token) return;
 
-    if (busca.trim() == '') {
+    if (busca.trim() === '') {
       carregarProdutos();
       return;
     }
@@ -81,16 +82,10 @@ export function Produtos() {
         preco: produto.preco,
         nome: produto.nome,
         embalagem: produto.embalagem,
-        tipo: produto.tipo ||
-          ''
+        tipo: produto.tipo || ''
       });
     } else if (tipo === 'add') {
-      setFormData({
-        preco: '',
-        nome: '',
-        embalagem: 'BANDEJA',
-        tipo: 'PRE_LAVADO'
-      });
+      setFormData({ preco: '', nome: '', embalagem: 'BANDEJA', tipo: 'PRE_LAVADO' });
     }
   };
 
@@ -108,15 +103,10 @@ export function Produtos() {
     };
     try {
       if (modalAtivo === 'add') {
-        console.log(dadosDoForms)
-        await api.post("/produtos", dadosDoForms, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        await api.post("/produtos", dadosDoForms, { headers: { Authorization: `Bearer ${token}` } })
         alert("Produto adicionado com sucesso!");
       } else if (modalAtivo === 'edit') {
-        await api.put(`/produtos/${produtoSelecionado.id}`, dadosDoForms, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        await api.put(`/produtos/${produtoSelecionado.id}`, dadosDoForms, { headers: { Authorization: `Bearer ${token}` } })
         alert("Produto atualizado com sucesso!");
       }
       carregarProdutos()
@@ -143,15 +133,8 @@ export function Produtos() {
 
   const handleExcluir = async () => {
     try {
-
-      await api.delete(`/produtos/${produtoSelecionado.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setProdutosData(prev =>
-        prev.filter(m => m.id !== produtoSelecionado.id)
-      );
-
+      await api.delete(`/produtos/${produtoSelecionado.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      setProdutosData(prev => prev.filter(m => m.id !== produtoSelecionado.id));
       alert("Produto excluído com sucesso!");
       fecharModal();
     } catch (error) {
@@ -160,8 +143,17 @@ export function Produtos() {
     }
   };
 
-  const FiltrosProdutos = (
-    <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto">
+  // --- LÓGICA DE FILTRAGEM LOCAL ---
+  const produtosFiltrados = produtosData.filter(produto => {
+    if (filtroAtivo === 'TODOS') return true;
+    if (filtroAtivo === 'PRÉ-LAVADO') return produto.tipo === 'PRE_LAVADO';
+    if (filtroAtivo === 'NÃO LAVADO') return produto.tipo === 'NAO_LAVADO';
+    return true;
+  });
+
+  // --- BLOCO DA ESQUERDA (BUSCA + REAJUSTAR) ---
+  const BuscaEReajuste = (
+    <div className="flex flex-col sm:flex-row items-center gap-3 mt-4">
       <div className="relative flex items-center w-full sm:w-64">
         <Search size={16} className="absolute left-3 text-gray-400" />
         <input
@@ -172,38 +164,36 @@ export function Produtos() {
           onChange={(e) => setBusca(e.target.value)}
         />
       </div>
-
       <Button variant="primary" icon={RefreshCw} onClick={() => abrirModal('reajustar')}>
         Reajustar Preços
       </Button>
+    </div>
+  );
 
-      <div className="flex items-center gap-4 ml-auto">
-        <div className="flex items-center gap-2 text-sm">
-          <Filter size={18} className="text-gray-700" />
-          <span>Filtros |</span>
-          <span className="text-gray-500">Tipo</span>
-          <select className="bg-gray-100 border-none text-gray-700 rounded-md px-3 py-1.5 outline-none">
-            <option>Todos</option>
-            <option>Lavado</option>
-            <option>Não Lavado</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-gray-500">Embalagem</span>
-          <select className="bg-gray-100 border-none text-gray-700 rounded-md px-3 py-1.5 outline-none">
-            <option>Todos</option>
-            <option>Bandeja</option>
-            <option>Pote</option>
-            <option>Saco</option>
-          </select>
-        </div>
+  // --- BLOCO DA DIREITA (BOTÕES DE FILTRO) ---
+  const FiltrosProdutos = (
+    <div className="flex flex-col items-end gap-1 text-sm">
+      <span className="text-gray-500 font-medium text-xs mb-1">Tipo de Produto</span>
+      <div className="flex gap-2">
+        {['TODOS', 'PRÉ-LAVADO', 'NÃO LAVADO'].map(f => (
+          <button
+            key={f}
+            onClick={() => setFiltroAtivo(f)}
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${
+              filtroAtivo === f 
+                ? 'bg-[#00a859] text-white border-[#00a859]' 
+                : 'bg-white text-gray-600 border-gray-400 hover:bg-gray-50'
+            }`}
+          >
+            {f}
+          </button>
+        ))}
       </div>
     </div>
   );
 
   return (
-    <div >
+    <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-semibold text-gray-800">Produtos</h1>
@@ -212,20 +202,24 @@ export function Produtos() {
         <Button onClick={() => abrirModal('add')}>+ Adicionar Produto</Button>
       </div>
 
-      <ContentCard title="Todos os Produtos" count={produtosData.length} filters={FiltrosProdutos}>
-        {/* CORREÇÃO: Passamos apenas os headers de dados. O Table.jsx coloca o "Ações" sozinho */}
+      <ContentCard 
+        title="Todos os Produtos" 
+        count={produtosFiltrados.length} 
+        subtitle={BuscaEReajuste} 
+        filters={FiltrosProdutos} 
+      >
         <Table headers={['Nome', 'Tipo', 'Embalagem', 'Preço']}>
-          {produtosData.map((produto) => (
+          {produtosFiltrados.map((produto) => (
             <tr key={produto.id} className="hover:bg-gray-50 border-b border-gray-100 transition-colors">
               <td className="px-6 py-4 font-medium text-gray-800">{produto.nome}</td>
 
               <td className="px-6 py-4">
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${produto.tipo === 'PRE_LAVADO'
-                  ? 'bg-blue-50 text-blue-600 border border-blue-100'
-                  : 'bg-orange-50 text-orange-600 border border-orange-100'
-                  }`}>
-                  {produto.tipo === 'PRE_LAVADO' ? <Droplets size={12} /> : <Leaf size={12} />}
-                  {produto.tipo}
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  produto.tipo === 'PRE_LAVADO' 
+                    ? 'bg-[#00a859] text-white' 
+                    : 'bg-gray-200 text-gray-700'
+                }`}>
+                  {produto.tipo === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
                 </span>
               </td>
 
@@ -237,14 +231,20 @@ export function Produtos() {
                 {produto.preco}
               </td>
 
-              {/* ALINHAMENTO: 'text-right' na td e 'justify-end' na div para casar com o th do Table.jsx */}
+              {/* Coluna de Ações com os botões desenhados  */}
               <td className="px-6 py-4 text-right">
-                <div className="flex items-center justify-end gap-3 text-gray-400">
-                  <button onClick={() => abrirModal('edit', produto)} className="hover:text-gray-800 cursor-pointer transition-colors">
-                    <Pencil size={18} />
+                <div className="flex items-center justify-end gap-2">
+                  <button 
+                    onClick={() => abrirModal('edit', produto)} 
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
+                  >
+                    <Pencil size={14} /> Editar
                   </button>
-                  <button onClick={() => abrirModal('delete', produto)} className="hover:text-red-500 cursor-pointer transition-colors">
-                    <Trash2 size={18} />
+                  <button 
+                    onClick={() => abrirModal('delete', produto)} 
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
+                  >
+                    <Trash2 size={14} /> Excluir
                   </button>
                 </div>
               </td>
@@ -253,45 +253,16 @@ export function Produtos() {
         </Table>
       </ContentCard>
 
-      {/* Modais (Adicionar/Editar, Excluir, Reajustar) permanecem iguais aos anteriores */}
-      <Modal
-        isOpen={modalAtivo === 'add' || modalAtivo === 'edit'}
-        onClose={fecharModal}
-        title={modalAtivo === 'add' ? 'Adicionar Novo Produto' : 'Editar Produto'}
-      >
-        <Input
-          label="Nome do Produto:"
-          placeholder="Ex: Alface Lisa"
-          value={formData.nome}
-          onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-        />
-
-        <Select
-          label="Tipo de Processamento"
-          options={['PRE_LAVADO', 'NAO_LAVADO']}
-          value={formData.tipo}
-          onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
-        />
-
+      <Modal isOpen={modalAtivo === 'add' || modalAtivo === 'edit'} onClose={fecharModal} title={modalAtivo === 'add' ? 'Adicionar Novo Produto' : 'Editar Produto'}>
+        <Input label="Nome do Produto:" placeholder="Ex: Alface Lisa" value={formData.nome} onChange={(e) => setFormData({ ...formData, nome: e.target.value })} />
+        <Select label="Tipo de Processamento" options={['PRE_LAVADO', 'NAO_LAVADO']} value={formData.tipo} onChange={(e) => setFormData({ ...formData, tipo: e.target.value })} />
         <div className="grid grid-cols-2 gap-4 mt-4">
-          <Select
-            label="Embalagem"
-            options={['POTE', 'BANDEJA', 'SACO']}
-            value={formData.embalagem}
-            onChange={(e) => setFormData({ ...formData, embalagem: e.target.value })}
-          />
-
-          <Input
-            label="Preço Atual (R$)"
-            placeholder="0,00"
-            value={formData.preco}
-            onChange={(e) => setFormData({ ...formData, preco: e.target.value })}
-          />
+          <Select label="Embalagem" options={['POTE', 'BANDEJA', 'SACO']} value={formData.embalagem} onChange={(e) => setFormData({ ...formData, embalagem: e.target.value })} />
+          <Input label="Preço Atual (R$)" placeholder="0,00" value={formData.preco} onChange={(e) => setFormData({ ...formData, preco: e.target.value })} />
         </div>
         <div className="flex justify-end gap-3 mt-8">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
-          <Button variant="primary" onClick={handleSalvar}>
-            {modalAtivo === 'add' ? 'Salvar' : 'Salvar Alterações'}</Button>
+          <Button variant="primary" onClick={handleSalvar}>{modalAtivo === 'add' ? 'Salvar' : 'Salvar Alterações'}</Button>
         </div>
       </Modal>
 
@@ -304,10 +275,7 @@ export function Produtos() {
       </Modal>
 
       <Modal isOpen={modalAtivo === 'reajustar'} onClose={fecharModal} title="Reajustar Preços">
-        <Input label="Novo Valor (R$)"
-          placeholder="Ex: 9,00"
-          onChange={(e) => setValorGlobal(e.target.value)}
-        />
+        <Input label="Novo Valor (R$)" placeholder="Ex: 9,00" onChange={(e) => setValorGlobal(e.target.value)} />
         <div className="flex justify-center gap-3 mt-6">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
           <Button variant="primary" onClick={handleAtualizarGlobal}>Aplicar Reajuste</Button>
