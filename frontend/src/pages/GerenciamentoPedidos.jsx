@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DollarSign, Trash2, ArrowLeft, Printer } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { ContentCard } from '../components/ContentCard';
@@ -7,8 +7,12 @@ import { Badge } from '../components/Badge';
 import { Modal } from '../components/Modal';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
+import api from '../provider/api';
 
 export function GerenciamentoPedidos() {
+
+  const token = localStorage.getItem('token');
+
   // --- ESTADOS PRINCIPAIS ---
   const [abaAtiva, setAbaAtiva] = useState('ativos');
   const [viewMode, setViewMode] = useState('lista');
@@ -17,30 +21,42 @@ export function GerenciamentoPedidos() {
   const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
   const [modalAtivo, setModalAtivo] = useState(null);
 
-
   const [historicoData, setHistoricoData] = useState([])
   const [pedidosAtivosData, setPedidosAtivosData] = useState([])
   const [itensPedidoData, setItensPedidoData] = useState([])
 
-  const carregarMercados = () => {
-    api.get("/pedidos", { 
+  const carregarPedidosAtivos = () => {
+    api.get("/pedidos/ativos", {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
         if (response.data.length == 0) {
           console.log("vazio");
         } else {
-          const mercadosFormatados = response.data.map(mercado => ({
-            id: mercado.id,
-            nome: mercado.nome,
-            // Trava de segurança para evitar tela branca se vier nulo
-            tipo: mercado.tipoMercado || mercado.tipo || 'NORMAL', 
+          const pedidosAtivosFormatado = response.data.map(ativo => ({
+            id: ativo.id,
+            data: ativo.dataSolicitacao,
+            quantidade: ativo.dataSolicitacao,
+            valorTotal: ativo.valorTotal,
+            statusPedido: ativo.statusPedido,
+            valorPago: ativo.valorPago,
+            valorAPagar: ativo.valorAPagar,
+            mercado: {
+              nome: ativo.mercado.nome,
+              tipo: ativo.mercado.tipoMercado
+            },
+            itens: ativo.itens
           }));
-          setMercadosData(mercadosFormatados);
+          setPedidosAtivosData(pedidosAtivosFormatado);
+          console.log(pedidosAtivosFormatado)
         }
       })
-      .catch(error => console.error("Erro ao carregar clientes:", error));
+      .catch(error => console.error("Erro ao carregar pedidos ativos:", error));
   };
+
+  useEffect(() => {
+    if (token) carregarPedidosAtivos();
+  }, [token]);
 
 
   // --- FUNÇÕES DE NAVEGAÇÃO E MODAL ---
@@ -67,7 +83,6 @@ export function GerenciamentoPedidos() {
     <div>
 
       {viewMode === 'detalhes' && pedidoSelecionado ? (
-
         /* ----------------------------------
           DETALHES DO PEDIDO
            ---------------------------------- */
@@ -81,7 +96,7 @@ export function GerenciamentoPedidos() {
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-semibold text-gray-800">{pedidoSelecionado.mercado}</h1>
+              <h1 className="text-3xl font-semibold text-gray-800">{pedidoSelecionado.mercado.nome}</h1>
               <p className="text-gray-500 mt-1 font-medium">Data de Solicitação - {pedidoSelecionado.data}</p>
             </div>
             <Button variant="primary" icon={Printer}>
@@ -90,11 +105,13 @@ export function GerenciamentoPedidos() {
           </div>
 
           <ContentCard
-            title={`Itens do Pedido (${itensPedidoMock.length})`}
+    
+            title={`Itens do Pedido (${pedidoSelecionado.itens?.length || 0})`}
             subtitle="Produtos incluídos no pedido do cliente"
             filters={
               <div className="px-4 py-2 border-2 border-[#00a859] text-[#00a859] font-bold rounded-lg text-sm bg-white">
-                TOTAL: {pedidoSelecionado.valor}
+              
+                TOTAL: R$ {pedidoSelecionado.valorTotal}
               </div>
             }
           >
@@ -113,23 +130,25 @@ export function GerenciamentoPedidos() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {itensPedidoMock.map((item) => (
+
+                 
+                  {pedidoSelecionado.itens?.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-gray-800">{item.unidade}</td>
-                      <td className="px-6 py-4 font-medium text-gray-800">{item.produto}</td>
+      
+                      <td className="px-6 py-4 text-gray-800">{item.quantidade}</td>
+                      <td className="px-6 py-4 font-medium text-gray-800">{item.nomeProduto}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${item.tipo === 'PRE_LAVADO' ? 'bg-[#00a859] text-white' : 'bg-gray-200 text-gray-700'
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${item.tipoProduto === 'PRE_LAVADO' ? 'bg-[#00a859] text-white' : 'bg-gray-200 text-gray-700'
                           }`}>
-                          {item.tipo === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
+                          {item.tipoProduto === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-bold text-gray-800">{item.preco}</td>
-                      <td className="px-6 py-4 font-bold text-[#00a859] text-right">{item.total}</td>
+                      <td className="px-6 py-4 font-bold text-gray-800">R$ {item.precoUnitario}</td>
+                      <td className="px-6 py-4 font-bold text-[#00a859] text-right">R$ {item.subTotal}</td>
 
                       {abaAtiva === 'ativos' && (
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end">
-                            {/* AQUI ESTÁ O CLIQUE QUE ABRE O MODAL */}
                             <button
                               onClick={() => abrirModal('delete', pedidoSelecionado)}
                               className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
@@ -141,6 +160,7 @@ export function GerenciamentoPedidos() {
                       )}
                     </tr>
                   ))}
+
                 </tbody>
               </table>
             </div>
@@ -162,8 +182,8 @@ export function GerenciamentoPedidos() {
             <button
               onClick={() => setAbaAtiva('ativos')}
               className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer ${abaAtiva === 'ativos'
-                  ? 'bg-[#00a859] text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? 'bg-[#00a859] text-white shadow-sm'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
             >
               Pedidos Ativos ({pedidosAtivosData.length})
@@ -171,8 +191,8 @@ export function GerenciamentoPedidos() {
             <button
               onClick={() => setAbaAtiva('finalizados')}
               className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer ${abaAtiva === 'finalizados'
-                  ? 'bg-[#00a859] text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? 'bg-[#00a859] text-white shadow-sm'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
             >
               Finalizados
@@ -184,11 +204,11 @@ export function GerenciamentoPedidos() {
               <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'A pagar']}>
                 {pedidosAtivosData.map((pedido) => (
                   <tr key={pedido.id} onClick={() => abrirDetalhes(pedido)} className="hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer">
-                    <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado}</td>
-                    <td className="px-6 py-4"><Badge text={pedido.tipo} /></td>
+                    <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
+                    <td className="px-6 py-4"><Badge text={pedido.mercado.tipo} /></td>
                     <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                    <td className="px-6 py-4 text-[#00a859] font-bold">{pedido.valor}</td>
-                    <td className="px-6 py-4 text-red-600 font-bold">{pedido.aPagar}</td>
+                    <td className="px-6 py-4 text-[#00a859] font-bold">{pedido.valorTotal}</td>
+                    <td className="px-6 py-4 text-red-600 font-bold">{pedido.valorAPagar}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <button onClick={(e) => { e.stopPropagation(); abrirModal('pagamento', pedido); }} className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer">
