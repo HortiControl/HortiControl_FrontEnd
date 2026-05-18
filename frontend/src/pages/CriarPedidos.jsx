@@ -1,63 +1,139 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Trash2, Plus, ChevronDown, ChevronUp, Leaf, Sprout, WashingMachine, Minus } from 'lucide-react';
 import { Select } from '../components/Select';
 import { Button } from '../components/Button';
+import api from '../provider/api';
 
 export default function CriarPedidos() {
+
     const [carrinho, setCarrinho] = useState([]);
     const [abaAberta, setAbaAberta] = useState('');
+    const [mercadosData, setMercadosData] = useState([]);
+    const [produtosData, setProdutosData] = useState({ nao_lavados: [], pre_lavados: [] });
+    const [mercadoSelecionado, setMercadoSelecionado] = useState('Selecione um mercado');
 
-    const produtosData = {
-        nao_lavados: [
-            { id: 201, nome: "Acelga (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-            { id: 202, nome: "Almeirão (Não Lavado)", embalagem: "Saco", preco: 9.00 },
-            { id: 203, nome: "Beterraba", embalagem: "Saco", preco: 9.00 },
-            { id: 204, nome: "Catalonha (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-            { id: 205, nome: "Cebolinha (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-            { id: 206, nome: "Cenoura", embalagem: "Saco", preco: 9.00 },
-            { id: 207, nome: "Cheiro Verde", embalagem: "Saco", preco: 9.00 },
-            { id: 208, nome: "Coentro (Não Lavado)", embalagem: "Saco", preco: 9.00 },
-            { id: 209, nome: "Couve Manteiga (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-            { id: 210, nome: "Escarola (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-            { id: 211, nome: "Repolho (Não Lavado)", embalagem: "Saco", preco: 9.00 },
-            { id: 212, nome: "Salsa (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-            { id: 213, nome: "Alecrim (Não Lavado)", embalagem: "Saco", preco: 5.00 },
-            { id: 214, nome: "Orégano (Não Lavado)", embalagem: "Saco", preco: 5.00 },
-            { id: 215, nome: "Tomilho (Não Lavado)", embalagem: "Saco", preco: 5.00 },
-            { id: 216, nome: "Manjericão (Não Lavado)", embalagem: "Saco", preco: 5.00 },
-            { id: 217, nome: "Shimeji Branco", embalagem: "Bandeja", preco: 4.50 },
-            { id: 218, nome: "Shimeji Preto", embalagem: "Bandeja", preco: 4.50 }
-        ],
-        pre_lavados: [
-            { id: 301, nome: "Agrião Higienizado", embalagem: "Bandeja", preco: 9.00 },
-            { id: 302, nome: "Alface Crespa Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 303, nome: "Alface Crespa Roxa Hig.", embalagem: "Bandeja", preco: 9.00 },
-            { id: 304, nome: "Alface Lisa Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 305, nome: "Alface Mista Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 306, nome: "Alface Romana Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 307, nome: "Alho Poró Higienizado", embalagem: "Bandeja", preco: 9.00 },
-            { id: 308, nome: "Almeirão Higienizado", embalagem: "Bandeja", preco: 9.00 },
-            { id: 309, nome: "Alface Americana Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 310, nome: "Brócolis Comum Hig.", embalagem: "Bandeja", preco: 9.00 },
-            { id: 311, nome: "Ninja/Flor Higienizado", embalagem: "Bandeja", preco: 9.00 },
-            { id: 312, nome: "Catalonha Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 313, nome: "Couve Flor Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 314, nome: "Escarola Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 315, nome: "Espinafre Higienizado", embalagem: "Bandeja", preco: 9.00 },
-            { id: 316, nome: "Frizze", embalagem: "Bandeja", preco: 9.00 },
-            { id: 317, nome: "Haditi", embalagem: "Bandeja", preco: 9.00 },
-            { id: 318, nome: "Hortelã Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 319, nome: "Kit Salada", embalagem: "Bandeja", preco: 12.00 },
-            { id: 320, nome: "Mini Agrião", embalagem: "Bandeja", preco: 9.00 },
-            { id: 321, nome: "Ninja", embalagem: "Bandeja", preco: 9.00 },
-            { id: 322, nome: "Rúcula Higienizada", embalagem: "Bandeja", preco: 9.00 },
-            { id: 323, nome: "Salada Pote", embalagem: "Pote", preco: 15.00 },
-            { id: 324, nome: "Salsão Higienizado", embalagem: "Bandeja", preco: 9.00 },
-            { id: 325, nome: "Yakissoba", embalagem: "Saco", preco: 15.00 }
-        ]
+    const token = localStorage.getItem('token');
+
+    const carregarMercados = () => {
+        api.get("/mercados", {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(response => {
+                if (response.data.length == 0) {
+                    console.log("vazio");
+                } else {
+                    const mercadosFormatados = response.data.map(mercado => ({
+                        id: mercado.id,
+                        nome: mercado.nome,
+                        tipo: mercado.tipoMercado || mercado.tipo || 'NORMAL',
+                    }));
+                    setMercadosData(mercadosFormatados);
+                }
+            })
+            .catch(error => console.error("Erro ao carregar clientes:", error));
     };
 
-    const mercadosMock = ["Escolha um mercado...", "MJ4", "MJ2", "Tropical", "Mercado São Paulo"];
+    const carregarPreLavados = () => {
+        api.get("/produtos/pre-lavados", {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(response => {
+                if (response.data.length == 0) {
+                    console.log("vazio");
+                } else {
+                    const preLavadosFormatados = response.data.map(preLavado => ({
+                        id: preLavado.id,
+                        nome: preLavado.nome,
+                        embalagem: preLavado.tipoEmbalagem,
+                        preco: preLavado.preco,
+                        tipoProduto: 'PRE_LAVADO'
+                    }));
+                    setProdutosData(prev => ({ ...prev, pre_lavados: preLavadosFormatados }));
+                }
+            })
+            .catch(error => console.error("Erro ao carregar clientes:", error));
+    };
+
+    const carregarNaoLavados = () => {
+        api.get("/produtos/nao-lavados", {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(response => {
+                if (response.data.length == 0) {
+                    console.log("vazio");
+                } else {
+                    const naoLavadosFormatados = response.data.map(naoLavado => ({
+                        id: naoLavado.id,
+                        nome: naoLavado.nome,
+                        embalagem: naoLavado.tipoEmbalagem,
+                        preco: naoLavado.preco,
+                        tipoProduto: 'NAO_LAVADO'
+                    }));
+                    setProdutosData(prev => ({ ...prev, nao_lavados: naoLavadosFormatados }));
+                }
+            })
+            .catch(error => console.error("Erro ao carregar clientes:", error));
+    };
+
+    useEffect(() => {
+        if (token) {
+            carregarMercados()
+            carregarPreLavados()
+            carregarNaoLavados()
+        }
+    }, [token]);
+
+    // const produtosData = {
+    //     nao_lavados: [
+    //         { id: 201, nome: "Acelga (Não Lavada)", embalagem: "Saco", preco: 9.00 },
+    //         { id: 202, nome: "Almeirão (Não Lavado)", embalagem: "Saco", preco: 9.00 },
+    //         { id: 203, nome: "Beterraba", embalagem: "Saco", preco: 9.00 },
+    //         { id: 204, nome: "Catalonha (Não Lavada)", embalagem: "Saco", preco: 9.00 },
+    //         { id: 205, nome: "Cebolinha (Não Lavada)", embalagem: "Saco", preco: 9.00 },
+    //         { id: 206, nome: "Cenoura", embalagem: "Saco", preco: 9.00 },
+    //         { id: 207, nome: "Cheiro Verde", embalagem: "Saco", preco: 9.00 },
+    //         { id: 208, nome: "Coentro (Não Lavado)", embalagem: "Saco", preco: 9.00 },
+    //         { id: 209, nome: "Couve Manteiga (Não Lavada)", embalagem: "Saco", preco: 9.00 },
+    //         { id: 210, nome: "Escarola (Não Lavada)", embalagem: "Saco", preco: 9.00 },
+    //         { id: 211, nome: "Repolho (Não Lavado)", embalagem: "Saco", preco: 9.00 },
+    //         { id: 212, nome: "Salsa (Não Lavada)", embalagem: "Saco", preco: 9.00 },
+    //         { id: 213, nome: "Alecrim (Não Lavado)", embalagem: "Saco", preco: 5.00 },
+    //         { id: 214, nome: "Orégano (Não Lavado)", embalagem: "Saco", preco: 5.00 },
+    //         { id: 215, nome: "Tomilho (Não Lavado)", embalagem: "Saco", preco: 5.00 },
+    //         { id: 216, nome: "Manjericão (Não Lavado)", embalagem: "Saco", preco: 5.00 },
+    //         { id: 217, nome: "Shimeji Branco", embalagem: "Bandeja", preco: 4.50 },
+    //         { id: 218, nome: "Shimeji Preto", embalagem: "Bandeja", preco: 4.50 }
+    //     ],
+    //     pre_lavados: [
+    //         { id: 301, nome: "Agrião Higienizado", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 302, nome: "Alface Crespa Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 303, nome: "Alface Crespa Roxa Hig.", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 304, nome: "Alface Lisa Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 305, nome: "Alface Mista Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 306, nome: "Alface Romana Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 307, nome: "Alho Poró Higienizado", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 308, nome: "Almeirão Higienizado", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 309, nome: "Alface Americana Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 310, nome: "Brócolis Comum Hig.", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 311, nome: "Ninja/Flor Higienizado", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 312, nome: "Catalonha Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 313, nome: "Couve Flor Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 314, nome: "Escarola Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 315, nome: "Espinafre Higienizado", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 316, nome: "Frizze", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 317, nome: "Haditi", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 318, nome: "Hortelã Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 319, nome: "Kit Salada", embalagem: "Bandeja", preco: 12.00 },
+    //         { id: 320, nome: "Mini Agrião", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 321, nome: "Ninja", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 322, nome: "Rúcula Higienizada", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 323, nome: "Salada Pote", embalagem: "Pote", preco: 15.00 },
+    //         { id: 324, nome: "Salsão Higienizado", embalagem: "Bandeja", preco: 9.00 },
+    //         { id: 325, nome: "Yakissoba", embalagem: "Saco", preco: 15.00 }
+    //     ]
+    // };
+
+    // const mercadosMock = ["Escolha um mercado...", "MJ4", "MJ2", "Tropical", "Mercado São Paulo"];
 
     const adicionarAoCarrinho = (produto) => {
         setCarrinho(prev => {
@@ -77,6 +153,49 @@ export default function CriarPedidos() {
 
     const removerItem = (id) => setCarrinho(prev => prev.filter(item => item.id !== id));
     const totalGeral = carrinho.reduce((acc, item) => acc + (item.preco * item.qtd), 0);
+
+    const handleLancarPedido = () => {
+
+        if (!mercadoSelecionado || mercadoSelecionado === 'Selecione um mercado') {
+            alert('Por favor, selecione um mercado válido antes de lançar o pedido.');
+            return;
+        }
+
+        if (carrinho.length === 0) {
+            alert('O carrinho está vazio! Adicione pelo menos um produto.');
+            return;
+        }
+
+        const mercadoEncontrado = mercadosData.find(m => m.nome === mercadoSelecionado);
+        const mercadoId = mercadoEncontrado ? mercadoEncontrado.id : null;
+
+        const novoPedido = {
+            mercadoId: mercadoId,
+            itens: carrinho.map(item => ({
+                produtoId: item.id,
+                quantidade: item.qtd,
+            }))
+        };
+
+        console.log("Enviando dados estruturados para a API:", novoPedido);
+
+        api.post("/pedidos", novoPedido, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(response => {
+                console.log("Resposta da API ao lançar pedido:", response.data);
+                alert("Pedido lançado com sucesso!");
+                setCarrinho([]);
+                setMercadoSelecionado('Selecione um mercado');
+            })
+            .catch(error => {
+                console.error("Erro ao registrar pedido:", error);
+                if (error.response) {
+                    console.log("Detalhes do erro do backend:", error.response.data);
+                }
+                alert("Houve um erro ao registrar o pedido no servidor.");
+            });
+    };
 
     const ProdutoCard = ({ produto }) => {
         const itemNoCarrinho = carrinho.find(item => item.id === produto.id);
@@ -196,7 +315,9 @@ export default function CriarPedidos() {
                 <div className="lg:col-span-2 flex flex-col overflow-y-auto pr-2">
                     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 flex items-center gap-4 px-6 pt-3.5">
                         <label className="text-[11px] font-bold text-gray-700 uppercase mb-3 tracking-widest pr-2">Selecione o Cliente:</label>
-                        <div className='w-135'><Select options={mercadosMock} /></div>
+                        <div className='w-135'><Select options={['Selecione um mercado'].concat(mercadosData.map(m => m.nome))}
+                            value={mercadoSelecionado}
+                            onChange={(e) => setMercadoSelecionado(e.target.value)} /></div>
                     </div>
                     <SecaoSanfona id="nao_lavados" titulo="Produtos Não Lavados" icon={Leaf} produtos={produtosData.nao_lavados} />
                     <SecaoSanfona id="pre_lavados" titulo="Produtos Pré-Lavados" icon={WashingMachine} produtos={produtosData.pre_lavados} />
@@ -237,7 +358,7 @@ export default function CriarPedidos() {
                                 <span className="text-lg font-bold text-gray-800">Total</span>
                                 <span className="text-2xl font-black text-[#00a859]">R$ {totalGeral.toFixed(2).replace('.', ',')}</span>
                             </div>
-                            <button className="w-full bg-[#222] hover:bg-black text-white py-4 rounded-2xl font-bold transition-all shadow-xl active:scale-[0.98]">
+                            <button onClick={handleLancarPedido} className="w-full bg-[#222] hover:bg-black text-white py-4 rounded-2xl font-bold transition-all shadow-xl active:scale-[0.98]">
                                 Lançar Pedido
                             </button>
                         </div>
