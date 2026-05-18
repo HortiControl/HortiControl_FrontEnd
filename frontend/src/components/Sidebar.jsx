@@ -1,4 +1,4 @@
-import { LayoutDashboard, Store, Carrot, ShoppingCart, LogOut, CirclePlus } from 'lucide-react';
+import { LayoutDashboard, Store, Carrot, ShoppingCart, LogOut, CirclePlus, User } from 'lucide-react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import logoImg from '../assets/logo.png';
@@ -19,6 +19,10 @@ export function Sidebar({ activeItem }) {
         navigate("/login", { replace: true })
       })
       .catch(error => console.error("Erro ao fazer logout:", error));
+  }
+
+  function perfil () {
+    navigate("/perfil", { replace: true })
   }
 
   const menuItems = [
@@ -59,6 +63,10 @@ export function Sidebar({ activeItem }) {
       </nav>
 
       <div className="p-4 border-t border-green-800">
+        <button onClick={perfil} className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-[#0a4f30] rounded-lg transition-colors cursor-pointer">
+          <User size={20} />
+          <span>Perfil</span>
+        </button>
         <button onClick={logOff} className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-[#0a4f30] rounded-lg transition-colors cursor-pointer">
           <LogOut size={20} />
           <span>Sair</span>
