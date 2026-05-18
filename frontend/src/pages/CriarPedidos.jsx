@@ -83,58 +83,6 @@ export default function CriarPedidos() {
         }
     }, [token]);
 
-    // const produtosData = {
-    //     nao_lavados: [
-    //         { id: 201, nome: "Acelga (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-    //         { id: 202, nome: "Almeirão (Não Lavado)", embalagem: "Saco", preco: 9.00 },
-    //         { id: 203, nome: "Beterraba", embalagem: "Saco", preco: 9.00 },
-    //         { id: 204, nome: "Catalonha (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-    //         { id: 205, nome: "Cebolinha (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-    //         { id: 206, nome: "Cenoura", embalagem: "Saco", preco: 9.00 },
-    //         { id: 207, nome: "Cheiro Verde", embalagem: "Saco", preco: 9.00 },
-    //         { id: 208, nome: "Coentro (Não Lavado)", embalagem: "Saco", preco: 9.00 },
-    //         { id: 209, nome: "Couve Manteiga (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-    //         { id: 210, nome: "Escarola (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-    //         { id: 211, nome: "Repolho (Não Lavado)", embalagem: "Saco", preco: 9.00 },
-    //         { id: 212, nome: "Salsa (Não Lavada)", embalagem: "Saco", preco: 9.00 },
-    //         { id: 213, nome: "Alecrim (Não Lavado)", embalagem: "Saco", preco: 5.00 },
-    //         { id: 214, nome: "Orégano (Não Lavado)", embalagem: "Saco", preco: 5.00 },
-    //         { id: 215, nome: "Tomilho (Não Lavado)", embalagem: "Saco", preco: 5.00 },
-    //         { id: 216, nome: "Manjericão (Não Lavado)", embalagem: "Saco", preco: 5.00 },
-    //         { id: 217, nome: "Shimeji Branco", embalagem: "Bandeja", preco: 4.50 },
-    //         { id: 218, nome: "Shimeji Preto", embalagem: "Bandeja", preco: 4.50 }
-    //     ],
-    //     pre_lavados: [
-    //         { id: 301, nome: "Agrião Higienizado", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 302, nome: "Alface Crespa Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 303, nome: "Alface Crespa Roxa Hig.", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 304, nome: "Alface Lisa Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 305, nome: "Alface Mista Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 306, nome: "Alface Romana Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 307, nome: "Alho Poró Higienizado", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 308, nome: "Almeirão Higienizado", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 309, nome: "Alface Americana Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 310, nome: "Brócolis Comum Hig.", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 311, nome: "Ninja/Flor Higienizado", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 312, nome: "Catalonha Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 313, nome: "Couve Flor Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 314, nome: "Escarola Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 315, nome: "Espinafre Higienizado", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 316, nome: "Frizze", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 317, nome: "Haditi", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 318, nome: "Hortelã Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 319, nome: "Kit Salada", embalagem: "Bandeja", preco: 12.00 },
-    //         { id: 320, nome: "Mini Agrião", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 321, nome: "Ninja", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 322, nome: "Rúcula Higienizada", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 323, nome: "Salada Pote", embalagem: "Pote", preco: 15.00 },
-    //         { id: 324, nome: "Salsão Higienizado", embalagem: "Bandeja", preco: 9.00 },
-    //         { id: 325, nome: "Yakissoba", embalagem: "Saco", preco: 15.00 }
-    //     ]
-    // };
-
-    // const mercadosMock = ["Escolha um mercado...", "MJ4", "MJ2", "Tropical", "Mercado São Paulo"];
-
     const adicionarAoCarrinho = (produto) => {
         setCarrinho(prev => {
             const itemExiste = prev.find(item => item.id === produto.id);
