@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Trash2, Plus, ChevronDown, ChevronUp, Leaf, Sprout, WashingMachine, Minus } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, ChevronDown, ChevronUp, Leaf, Minus, X } from 'lucide-react';
 import { Select } from '../components/Select';
 import { Button } from '../components/Button';
 import api from '../provider/api';
 
 export default function CriarPedidos() {
-
     const [carrinho, setCarrinho] = useState([]);
-    const [abaAberta, setAbaAberta] = useState('');
+    const [abaAberta, setAbaAberta] = useState('pre_lavados');
     const [mercadosData, setMercadosData] = useState([]);
     const [produtosData, setProdutosData] = useState({ nao_lavados: [], pre_lavados: [] });
     const [mercadoSelecionado, setMercadoSelecionado] = useState('Selecione um mercado');
@@ -77,9 +76,9 @@ export default function CriarPedidos() {
 
     useEffect(() => {
         if (token) {
-            carregarMercados()
-            carregarPreLavados()
-            carregarNaoLavados()
+            carregarMercados();
+            carregarPreLavados();
+            carregarNaoLavados();
         }
     }, [token]);
 
@@ -101,9 +100,9 @@ export default function CriarPedidos() {
 
     const removerItem = (id) => setCarrinho(prev => prev.filter(item => item.id !== id));
     const totalGeral = carrinho.reduce((acc, item) => acc + (item.preco * item.qtd), 0);
+    const totalItens = carrinho.reduce((acc, item) => acc + (Number(item.qtd) || 0), 0);
 
     const handleLancarPedido = () => {
-
         if (!mercadoSelecionado || mercadoSelecionado === 'Selecione um mercado') {
             alert('Por favor, selecione um mercado válido antes de lançar o pedido.');
             return;
@@ -114,7 +113,7 @@ export default function CriarPedidos() {
             return;
         }
 
-        const mercadoEncontrado = mercadosData.find(m => m.nome === mercadoSelecionado);
+        const mercadoEncontrado = marketsData.find(m => m.nome === mercadoSelecionado);
         const mercadoId = mercadoEncontrado ? mercadoEncontrado.id : null;
 
         const novoPedido = {
@@ -145,8 +144,23 @@ export default function CriarPedidos() {
             });
     };
 
-    const ProdutoCard = ({ produto }) => {
+    const renderBadgeEmbalagem = (embalagem) => {
+        const baseClass = "px-3 py-1 rounded-full text-xs font-semibold tracking-wide";
+        switch (embalagem?.toLowerCase()) {
+            case 'pote':
+                return <span className={`${baseClass} bg-[#e6f0ff] text-[#3b82f6]`}>Pote</span>;
+            case 'bandeja':
+                return <span className={`${baseClass} bg-[#ffebe6] text-[#ff5c33]`}>Bandeja</span>;
+            case 'saco':
+                return <span className={`${baseClass} bg-[#e6fcf5] text-[#0ca678]`}>Saco</span>;
+            default:
+                return <span className={`${baseClass} bg-gray-100 text-gray-600`}>{embalagem}</span>;
+        }
+    };
+
+    const LinhaProduto = ({ produto }) => {
         const itemNoCarrinho = carrinho.find(item => item.id === produto.id);
+        const quantidadeAtual = itemNoCarrinho ? itemNoCarrinho.qtd : 0;
 
         const handleInputChange = (e) => {
             const valorDigitado = e.target.value;
@@ -161,9 +175,14 @@ export default function CriarPedidos() {
             const novaQtd = parseInt(valorDigitado);
 
             if (novaQtd > 0) {
-                setCarrinho(prev => prev.map(item =>
-                    item.id === produto.id ? { ...item, qtd: novaQtd } : item
-                ));
+                const itemExiste = carrinho.find(item => item.id === produto.id);
+                if (!itemExiste) {
+                    setCarrinho(prev => [...prev, { ...produto, qtd: novaQtd }]);
+                } else {
+                    setCarrinho(prev => prev.map(item =>
+                        item.id === produto.id ? { ...item, qtd: novaQtd } : item
+                    ));
+                }
             } else {
                 removerItem(produto.id);
             }
@@ -175,141 +194,229 @@ export default function CriarPedidos() {
             }
         };
 
+        const incrementar = () => {
+            const itemExiste = carrinho.find(item => item.id === produto.id);
+            if (!itemExiste) {
+                setCarrinho(prev => [...prev, { ...produto, qtd: 1 }]);
+            } else {
+                atualizarQtd(produto.id, 1);
+            }
+        };
+
+        const decrementar = () => {
+            if (quantidadeAtual <= 1) {
+                removerItem(produto.id);
+            } else {
+                atualizarQtd(produto.id, -1);
+            }
+        };
+
         return (
-            <div className="bg-[#f9f9f9] border border-gray-200 rounded-xl p-4 flex flex-col justify-between hover:border-[#00a859]/30 transition-all">
-                <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-bold text-gray-700 text-sm">{produto.nome}</h3>
-                    <span className="text-[#00a859] font-bold text-sm">R$ {produto.preco.toFixed(2).replace('.', ',')}</span>
-                </div>
-
-                <div className="flex justify-between items-center mb-4 text-[10px] text-gray-400 uppercase font-semibold">
-                    <span>Embalagem: <b className="text-gray-500">{produto.embalagem}</b></span>
-                    <span>uni.</span>
-                </div>
-
-                {itemNoCarrinho ? (
-                    <div className="flex items-center justify-between bg-white border-2 border-[#00a859] rounded-xl overflow-hidden h-9">
+            <tr className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50/50 transition-colors">
+                <td className="py-4 text-sm font-medium text-gray-700">{produto.nome}</td>
+                <td className="py-4">{renderBadgeEmbalagem(produto.embalagem || produto.tipoEmbalagem)}</td>
+                <td className="py-4 text-sm font-semibold text-[#10b981]">R$ {produto.preco.toFixed(2).replace('.', ',')}</td>
+                <td className="py-4">
+                    <div className="flex items-center gap-1.5 justify-end">
                         <button
-                            onClick={() => atualizarQtd(produto.id, -1)}
-                            className="w-10 h-full flex items-center justify-center text-[#00a859] hover:bg-green-50 transition-colors cursor-pointer"
+                            onClick={decrementar}
+                            className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100 transition-colors"
                         >
-                            <Minus size={16} strokeWidth={3} />
+                            <Minus size={14} />
                         </button>
-
                         <input
                             type="text"
                             inputMode="numeric"
-                            className="w-full h-full text-center text-sm font-bold text-gray-700 outline-none"
-                            value={itemNoCarrinho.qtd}
+                            className="w-10 h-7 text-center text-sm font-medium text-gray-700 border border-gray-200 bg-[#f8f9fa] rounded-md outline-none"
+                            value={quantidadeAtual}
                             onChange={handleInputChange}
                             onBlur={handleBlur}
-                            autoFocus={itemNoCarrinho.qtd === 1}
                         />
-
                         <button
-                            onClick={() => atualizarQtd(produto.id, 1)}
-                            className="w-10 h-full flex items-center justify-center text-[#00a859] hover:bg-green-50 transition-colors cursor-pointer"
+                            onClick={incrementar}
+                            className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100 transition-colors"
                         >
-                            <Plus size={16} strokeWidth={3} />
+                            <Plus size={14} />
                         </button>
                     </div>
-                ) : (
-                    <button
-                        onClick={() => adicionarAoCarrinho(produto)}
-                        className="w-full bg-[#00a859] hover:bg-[#008f4c] text-white text-[11px] h-9 rounded-xl flex items-center justify-center gap-2 transition-colors font-bold cursor-pointer"
-                    >
-                        <Plus size={14} strokeWidth={3} /> Adicionar Produto
-                    </button>
+                </td>
+            </tr>
+        );
+    };
+
+    const SecaoSanfona = ({ id, titulo, produtos }) => {
+        const isAberta = abaAberta === id;
+        const totalProdutos = produtos?.length || 0;
+
+        return (
+            <div className="bg-white rounded-2xl border border-gray-200/80 overflow-hidden mb-5">
+                <button
+                    onClick={() => setAbaAberta(isAberta ? '' : id)}
+                    className="w-full flex items-center justify-between p-5 transition-colors hover:bg-gray-50/50"
+                >
+                    <div className="flex items-center gap-3">
+                        {/* Ícones com cores condicionais dinâmicas baseadas no id da seção */}
+                        <div className={`p-2.5 rounded-xl ${id === 'pre_lavados' ? 'bg-[#e6fcf5] text-[#00a859]' : 'bg-[#f4f4f5] text-gray-400'}`}>
+                            <Leaf size={22} />
+                        </div>
+                        <div className="text-left">
+                            <span className="text-base font-bold text-gray-800 block leading-tight">{titulo}</span>
+                            <span className="text-xs text-gray-400 font-medium">{totalProdutos} produtos</span>
+                        </div>
+                    </div>
+                    {isAberta ? <ChevronUp className="text-gray-400" size={20} /> : <ChevronDown className="text-gray-400" size={20} />}
+                </button>
+
+                {isAberta && (
+                    <div className="px-6 pb-4 border-t border-gray-100 bg-white">
+                        <div className="max-h-85 overflow-y-auto pr-1 custom-scrollbar">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                                        <th className="py-3 font-semibold">Produto</th>
+                                        <th className="py-3 font-semibold">Embalagem</th>
+                                        <th className="py-3 font-semibold">Preço</th>
+                                        <th className="py-3 font-semibold text-right pr-2">Quantidade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {produtos?.map(p => <LinhaProduto key={p.id} produto={p} />)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 )}
             </div>
         );
     };
 
-    const SecaoSanfona = ({ id, titulo, icon: Icon, produtos }) => (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-4 shrink-0">
-            <button
-                onClick={() => setAbaAberta(abaAberta === id ? '' : id)}
-                className="w-full flex items-center justify-between p-5 transition-colors hover:bg-gray-50"
-            >
-                <div className="flex items-center gap-3">
-                    {/* ÍCONE FIXO EM VERDE AQUI */}
-                    <div className="p-2 rounded-lg bg-green-50 text-[#00a859]">
-                        <Icon size={20} />
-                    </div>
-                    <span className="text-lg font-semibold text-gray-700">{titulo}</span>
-                </div>
-                {abaAberta === id ? <ChevronUp className="text-gray-400" /> : <ChevronDown className="text-gray-400" />}
-            </button>
-            {abaAberta === id && (
-                <div className="p-6 border-t border-gray-50 bg-white">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-75 overflow-y-auto pr-2 custom-scrollbar">
-                        {produtos?.map(p => <ProdutoCard key={p.id} produto={p} />)}
-                    </div>
-                </div>
-            )}
-        </div>
-    )
-
     return (
-        <div className="h-full max-h-screen flex flex-col overflow-hidden ">
-
-            <header className="mb-2 shrink-0">
-                <h1 className="text-3xl font-semibold text-gray-800">Criar Novo Pedido</h1>
-                <p className="text-gray-500 font-medium">Lance manualmente um pedido para um mercado</p>
+        <div className="min-h-screen bg-[#f8f9fa] p-8 flex flex-col font-sans selection:bg-green-100">
+            {/* Header */}
+            <header className="mb-6">
+                <h1 className="text-[28px] font-bold text-[#1f2937] tracking-tight">Criar Novo Pedido</h1>
+                <p className="text-sm text-gray-500 font-normal mt-0.5">Lance manualmente um pedido para um mercado</p>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 overflow-hidden">
+            {/* Layout Grid Principal */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-                <div className="lg:col-span-2 flex flex-col overflow-y-auto pr-2">
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 flex items-center gap-4 px-6 pt-3.5">
-                        <label className="text-[11px] font-bold text-gray-700 uppercase mb-3 tracking-widest pr-2">Selecione o Cliente:</label>
-                        <div className='w-135'><Select options={['Selecione um mercado'].concat(mercadosData.map(m => m.nome))}
-                            value={mercadoSelecionado}
-                            onChange={(e) => setMercadoSelecionado(e.target.value)} /></div>
+                {/* Coluna da Esquerda (Formulário e Produtos) */}
+                <div className="lg:col-span-2 flex flex-col">
+                    {/* Seleção do Cliente */}
+                    <div className="bg-white rounded-2xl border border-gray-200/80 p-5 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <label className="text-sm font-bold text-gray-700 tracking-tight whitespace-nowrap">Selecione o Cliente:</label>
+                        <div className="w-full sm:w-120">
+                            <Select
+                                options={['Escolha um mercado...'].concat(mercadosData.map(m => m.nome))}
+                                value={mercadoSelecionado === 'Selecione um mercado' ? 'Escolha um mercado...' : mercadoSelecionado}
+                                onChange={(e) => setMercadoSelecionado(e.target.value)}
+                            />
+                        </div>
                     </div>
-                    <SecaoSanfona id="nao_lavados" titulo="Produtos Não Lavados" icon={Leaf} produtos={produtosData.nao_lavados} />
-                    <SecaoSanfona id="pre_lavados" titulo="Produtos Pré-Lavados" icon={WashingMachine} produtos={produtosData.pre_lavados} />
+
+                    <SecaoSanfona id="nao_lavados" titulo="Produtos Não Lavados" produtos={produtosData.nao_lavados} />
+                    <SecaoSanfona id="pre_lavados" titulo="Produtos Pré-Lavados" produtos={produtosData.pre_lavados} />
                 </div>
 
-                <div className="lg:col-span-1 h-full flex flex-col overflow-hidden">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 flex flex-col h-full overflow-hidden">
-                        <div className="flex items-center gap-3 mb-8 shrink-0">
-                            <div className="bg-black text-white p-2 rounded-lg"><ShoppingCart size={20} /></div>
-                            <h2 className="text-xl font-bold text-gray-800">Resumo do Pedido</h2>
+                {/* Coluna da Direita (Resumo do Pedido) */}
+                <div className="lg:col-span-1">
+                    <div className="bg-white rounded-2xl border border-gray-200/80 p-6 flex flex-col min-h-120 shadow-sm">
+
+                        {/* Header do Resumo */}
+                        <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100">
+                            <div className="flex items-center gap-2.5">
+                                <ShoppingCart size={18} className="text-gray-800" strokeWidth={2.5} />
+                                <h2 className="text-base font-bold text-gray-800 tracking-tight">Resumo do Pedido</h2>
+                            </div>
+                            {carrinho.length > 0 && (
+                                <button
+                                    onClick={() => setCarrinho([])}
+                                    className="bg-red-500 text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-md flex items-center gap-1 hover:bg-red-600 transition-colors"
+                                >
+                                    <Trash2 size={10} /> Limpar
+                                </button>
+                            )}
                         </div>
 
-                        <div className="flex-1 overflow-y-auto pr-2 mb-8">
+                        {/* Lista de Itens do Carrinho */}
+                        <div className="flex-1 overflow-y-auto pr-1 max-h-80 custom-scrollbar">
                             {carrinho.length === 0 ? (
-                                <p className="text-center text-gray-400 py-10 text-sm">Nenhum item adicionado.</p>
+                                <div className="h-full flex items-center justify-center py-16">
+                                    <p className="text-center text-sm font-normal text-gray-400">Nenhum item adicionado.</p>
+                                </div>
                             ) : (
                                 carrinho.map(item => (
-                                    <div key={item.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100 mb-3">
-                                        <div className="flex-1">
-                                            <p className="text-sm font-bold text-gray-800">{item.nome}</p>
-                                            <p className="text-[10px] text-gray-400 font-semibold uppercase">R$ {item.preco.toFixed(2)} x {item.qtd}</p>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex items-center bg-white border border-gray-200 rounded-xl px-2 py-1">
-                                                <button onClick={() => atualizarQtd(item.id, -1)} className="p-1"><Minus size={12} /></button>
-                                                <span className="text-xs font-bold px-2">{item.qtd}</span>
-                                                <button onClick={() => atualizarQtd(item.id, 1)} className="p-1"><Plus size={12} /></button>
+                                    <div key={item.id} className="relative group p-3 border border-gray-200 bg-white rounded-xl mb-3 flex flex-col justify-between">
+                                        <button
+                                            onClick={() => removerItem(item.id)}
+                                            className="absolute top-2.5 right-2.5 text-gray-400 hover:text-red-500 transition-colors"
+                                        >
+                                            <X size={14} />
+                                        </button>
+
+                                        <div className="pr-5">
+                                            <div className="flex items-baseline gap-2">
+                                                <h4 className="text-xs font-bold text-gray-800">{item.nome}</h4>
+                                                <span className="text-[10px] text-gray-400 font-medium">R$ {item.preco.toFixed(2).replace('.', ',')}/uni.</span>
                                             </div>
-                                            <button onClick={() => removerItem(item.id)} className="text-red-400"><Trash2 size={18} /></button>
+                                            <div className="flex gap-1.5 mt-1">
+                                                <span className="bg-blue-50 text-[9px] text-blue-500 font-bold px-1.5 py-0.5 rounded">
+                                                    {item.embalagem || item.tipoEmbalagem}
+                                                </span>
+                                                <span className="bg-gray-50 text-[9px] text-gray-400 font-semibold px-1.5 py-0.5 rounded">
+                                                    {item.tipoProduto === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between mt-3 pt-2 border-t border-dashed border-gray-100">
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    onClick={() => atualizarQtd(item.id, -1)}
+                                                    className="w-5 h-5 flex items-center justify-center border border-gray-300 rounded text-gray-500 hover:bg-gray-50"
+                                                >
+                                                    <Minus size={10} />
+                                                </button>
+                                                <span className="text-xs font-bold w-6 text-center text-gray-700 bg-gray-50 py-0.5 rounded">
+                                                    {item.qtd}
+                                                </span>
+                                                <button
+                                                    onClick={() => atualizarQtd(item.id, 1)}
+                                                    className="w-5 h-5 flex items-center justify-center border border-gray-300 rounded text-gray-500 hover:bg-gray-50"
+                                                >
+                                                    <Plus size={10} />
+                                                </button>
+                                            </div>
+                                            <span className="text-xs font-bold text-emerald-600">
+                                                R$ {(item.preco * (Number(item.qtd) || 0)).toFixed(2).replace('.', ',')}
+                                            </span>
                                         </div>
                                     </div>
                                 ))
                             )}
                         </div>
 
-                        <div className="border-t border-gray-100 pt-6 space-y-4 shrink-0">
-                            <div className="flex justify-between items-center">
-                                <span className="text-lg font-bold text-gray-800">Total</span>
-                                <span className="text-2xl font-black text-[#00a859]">R$ {totalGeral.toFixed(2).replace('.', ',')}</span>
+                        {/* Rodapé do Resumo (Valores e Botão Salvar) */}
+                        <div className="border-t border-gray-100 pt-4 mt-4 space-y-4">
+                            <div className="flex items-center justify-between text-xs text-gray-400 font-medium">
+                                <span>Total de itens:</span>
+                                <span className="font-bold text-gray-700">{totalItens}</span>
                             </div>
-                            <button onClick={handleLancarPedido} className="w-full bg-[#222] hover:bg-black text-white py-4 rounded-2xl font-bold transition-all shadow-xl active:scale-[0.98]">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm font-bold text-gray-800">Total</span>
+                                <span className="text-lg font-extrabold text-[#10b981]">
+                                    R$ {totalGeral.toFixed(2).replace('.', ',')}
+                                </span>
+                            </div>
+                            <button
+                                onClick={handleLancarPedido}
+                                className="w-full bg-[#1f2937] hover:bg-black text-white py-3 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-[0.99]"
+                            >
                                 Lançar Pedido
                             </button>
                         </div>
+
                     </div>
                 </div>
 
