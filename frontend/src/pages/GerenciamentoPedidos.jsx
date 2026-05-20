@@ -21,12 +21,13 @@ export function GerenciamentoPedidos() {
   const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
   const [modalAtivo, setModalAtivo] = useState(null);
 
-  const [historicoData, setHistoricoData] = useState([])
+  const [finalizadosData, setfinalizadosData] = useState([])
   const [pedidosAtivosData, setPedidosAtivosData] = useState([])
   const [itensPedidoData, setItensPedidoData] = useState([])
   const [valorPago, setValorPago] = useState([0])
 
   const carregarPedidosAtivos = () => {
+
     api.get("/pedidos/ativos", {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -55,8 +56,39 @@ export function GerenciamentoPedidos() {
       .catch(error => console.error("Erro ao carregar pedidos ativos:", error));
   };
 
+  const carregarPedidosFinalizados = () => {
+
+    api.get("/pedidos/historico", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => {
+        if (response.data.length == 0) {
+          console.log("vazio");
+        } else {
+          const finalizadosFormatado = response.data.map(finalizado => ({
+            id: finalizado.id,
+            data: finalizado.dataSolicitacao,
+            quantidade: finalizado.dataSolicitacao,
+            valorTotal: finalizado.valorTotal,
+            statusPedido: finalizado.statusPedido,
+            valorPago: finalizado.valorPago,
+            valorAPagar: finalizado.valorAPagar,
+            mercado: {
+              nome: finalizado.mercado.nome,
+              tipo: finalizado.mercado.tipoMercado
+            },
+            itens: finalizado.itens
+          }));
+          setfinalizadosData(finalizadosFormatado);
+          console.log(finalizadosFormatado)
+        }
+      })
+      .catch(error => console.error("Erro ao carregar pedidos ativos:", error));
+  };
+
   useEffect(() => {
     if (token) carregarPedidosAtivos();
+    if (token) carregarPedidosFinalizados();
   }, [token]);
 
   const handleExcluir = async () => {
@@ -70,7 +102,7 @@ export function GerenciamentoPedidos() {
       if (abaAtiva === 'ativos') {
         setPedidosAtivosData(prev => prev.filter(p => p.id !== pedidoSelecionado.id));
       } else {
-        setHistoricoData(prev => prev.filter(p => p.id !== pedidoSelecionado.id));
+        setfinalizadosData(prev => prev.filter(p => p.id !== pedidoSelecionado.id));
       }
 
       if (viewMode === 'detalhes') {
@@ -93,8 +125,8 @@ export function GerenciamentoPedidos() {
       carregarPedidosAtivos();
       fecharModal();
     } catch (error) {
-      console.error("Erro ao atualizar valor global de produtos: ", error)
-      alert("Erro ao atualizar valor global de produtos. Verifique os dados.")
+      console.error("Erro ao atualizar valor pago do pedido: ", error)
+      alert("Erro ao atualizar valor pago do pedido. Verifique os dados.")
     }
   }
 
@@ -235,7 +267,7 @@ export function GerenciamentoPedidos() {
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
             >
-              Finalizados
+              Finalizados ({finalizadosData.length})
             </button>
           </div>
 
@@ -264,15 +296,15 @@ export function GerenciamentoPedidos() {
               </Table>
             </ContentCard>
           ) : (
-            <ContentCard title="Pedidos Finalizados" subtitle="Pedidos concluídos ou cancelados" count={historicoData.length}>
+            <ContentCard title="Pedidos Finalizados" subtitle="Pedidos concluídos ou cancelados" count={finalizadosData.length}>
               <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'Status']}>
-                {historicoData.map((pedido) => (
+                {finalizadosData.map((pedido) => (
                   <tr key={pedido.id} onClick={() => abrirDetalhes(pedido)} className="hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer">
-                    <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado}</td>
-                    <td className="px-6 py-4"><Badge text={pedido.tipo} /></td>
+                    <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
+                    <td className="px-6 py-4"><Badge text={pedido.mercado.tipo} /></td>
                     <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                    <td className="px-6 py-4 text-[#00a859] font-bold">{pedido.valor}</td>
-                    <td className="px-6 py-4"><Badge text={pedido.status} /></td>
+                    <td className="px-6 py-4 text-[#00a859] font-bold">{pedido.valorTotal}</td>
+                    <td className="px-6 py-4"><Badge text={pedido.statusPedido} /></td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button onClick={(e) => { e.stopPropagation(); abrirModal('delete', pedido); }} className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer">
