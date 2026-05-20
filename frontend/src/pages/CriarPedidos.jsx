@@ -113,7 +113,7 @@ export default function CriarPedidos() {
             return;
         }
 
-        const mercadoEncontrado = marketsData.find(m => m.nome === mercadoSelecionado);
+        const mercadoEncontrado = mercadosData.find(m => m.nome === mercadoSelecionado);
         const mercadoId = mercadoEncontrado ? mercadoEncontrado.id : null;
 
         const novoPedido = {
@@ -252,7 +252,7 @@ export default function CriarPedidos() {
             <div className="bg-white rounded-2xl border border-gray-200/80 overflow-hidden mb-5">
                 <button
                     onClick={() => setAbaAberta(isAberta ? '' : id)}
-                    className="w-full flex items-center justify-between p-5 transition-colors hover:bg-gray-50/50"
+                    className="w-full flex items-center justify-between p-5 transition-colors hover:bg-gray-50/50 cursor-pointer"
                 >
                     <div className="flex items-center gap-3">
                         {/* Ícones com cores condicionais dinâmicas baseadas no id da seção */}
@@ -260,7 +260,7 @@ export default function CriarPedidos() {
                             <Leaf size={22} />
                         </div>
                         <div className="text-left">
-                            <span className="text-base font-bold text-gray-800 block leading-tight">{titulo}</span>
+                            <span className="text-base font-semibold text-gray-800 block leading-tight">{titulo}</span>
                             <span className="text-xs text-gray-400 font-medium">{totalProdutos} produtos</span>
                         </div>
                     </div>
@@ -291,12 +291,14 @@ export default function CriarPedidos() {
     };
 
     return (
-        <div className="min-h-screen bg-[#f8f9fa] p-8 flex flex-col font-sans selection:bg-green-100">
-            {/* Header */}
-            <header className="mb-6">
-                <h1 className="text-[28px] font-bold text-[#1f2937] tracking-tight">Criar Novo Pedido</h1>
-                <p className="text-sm text-gray-500 font-normal mt-0.5">Lance manualmente um pedido para um mercado</p>
-            </header>
+
+        <div>
+            <div>
+                <header className="mb-6">
+                    <h1 className="text-3xl font-semibold text-gray-800">Criar Novo Pedido</h1>
+                    <p className="text-gray-500 mt-1 font-medium">Lance manualmente um pedido para um mercado</p>
+                </header>
+            </div>
 
             {/* Layout Grid Principal */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -305,7 +307,7 @@ export default function CriarPedidos() {
                 <div className="lg:col-span-2 flex flex-col">
                     {/* Seleção do Cliente */}
                     <div className="bg-white rounded-2xl border border-gray-200/80 p-5 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <label className="text-sm font-bold text-gray-700 tracking-tight whitespace-nowrap">Selecione o Cliente:</label>
+                        <label className="text-1xl font-semibold text-gray-700">Selecione o Cliente:</label>
                         <div className="w-full sm:w-120">
                             <Select
                                 options={['Escolha um mercado...'].concat(mercadosData.map(m => m.nome))}
@@ -324,17 +326,17 @@ export default function CriarPedidos() {
                     <div className="bg-white rounded-2xl border border-gray-200/80 p-6 flex flex-col min-h-120 shadow-sm">
 
                         {/* Header do Resumo */}
-                        <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100">
+                        <div className="flex items-center justify-between mb-5 pb-4 ">
                             <div className="flex items-center gap-2.5">
-                                <ShoppingCart size={18} className="text-gray-800" strokeWidth={2.5} />
-                                <h2 className="text-base font-bold text-gray-800 tracking-tight">Resumo do Pedido</h2>
+                                <ShoppingCart size={22} className="text-gray-800 mr-1" strokeWidth={2.5} />
+                                <h2 className="text-xl font-semibold text-gray-800">Resumo do Pedido</h2>
                             </div>
                             {carrinho.length > 0 && (
                                 <button
                                     onClick={() => setCarrinho([])}
-                                    className="bg-red-500 text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-md flex items-center gap-1 hover:bg-red-600 transition-colors"
+                                    className="bg-red-600 text-white font-semibold text-[11px] uppercase px-2.5 py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-700 transition-colors cursor-pointer"
                                 >
-                                    <Trash2 size={10} /> Limpar
+                                    <Trash2 size={14} /> Limpar
                                 </button>
                             )}
                         </div>
@@ -350,42 +352,42 @@ export default function CriarPedidos() {
                                     <div key={item.id} className="relative group p-3 border border-gray-200 bg-white rounded-xl mb-3 flex flex-col justify-between">
                                         <button
                                             onClick={() => removerItem(item.id)}
-                                            className="absolute top-2.5 right-2.5 text-gray-400 hover:text-red-500 transition-colors"
+                                            className="absolute top-2.5 right-2.5 text-gray-500 hover:text-red-600 transition-colors"
                                         >
-                                            <X size={14} />
+                                            <X size={20} className='cursor-pointer' />
                                         </button>
 
                                         <div className="pr-5">
                                             <div className="flex items-baseline gap-2">
-                                                <h4 className="text-xs font-bold text-gray-800">{item.nome}</h4>
-                                                <span className="text-[10px] text-gray-400 font-medium">R$ {item.preco.toFixed(2).replace('.', ',')}/uni.</span>
+                                                <h4 className="text-[16px] font-semibold text-gray-800">{item.nome}</h4>
+                                                <span className="text-[11px] text-gray-400 font-medium">R$ {item.preco.toFixed(2).replace('.', ',')}/uni.</span>
                                             </div>
                                             <div className="flex gap-1.5 mt-1">
-                                                <span className="bg-blue-50 text-[9px] text-blue-500 font-bold px-1.5 py-0.5 rounded">
-                                                    {item.embalagem || item.tipoEmbalagem}
+                                                <span className="text-[1px] font-bold py-1 rounded mr-2">
+                                                    {renderBadgeEmbalagem(item.embalagem || item.tipoEmbalagem)}
                                                 </span>
-                                                <span className="bg-gray-50 text-[9px] text-gray-400 font-semibold px-1.5 py-0.5 rounded">
+                                                <span className={`font-medium px-1.5 py-1 rounded text-xs ${item.tipoProduto === 'PRE_LAVADO' ? 'bg-[#00a859] text-white' : 'bg-gray-200 text-gray-500'}`}>
                                                     {item.tipoProduto === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between mt-3 pt-2 border-t border-dashed border-gray-100">
+                                        <div className="flex items-center justify-between mt-3 pt-2 border-t border-dashed border-gray-200">
                                             <div className="flex items-center gap-1">
                                                 <button
                                                     onClick={() => atualizarQtd(item.id, -1)}
-                                                    className="w-5 h-5 flex items-center justify-center border border-gray-300 rounded text-gray-500 hover:bg-gray-50"
+                                                    className="w-5 h-5 flex items-center justify-center border border-gray-400 rounded text-gray-600 hover:bg-gray-100 cursor-pointer"
                                                 >
-                                                    <Minus size={10} />
+                                                    <Minus size={14} />
                                                 </button>
-                                                <span className="text-xs font-bold w-6 text-center text-gray-700 bg-gray-50 py-0.5 rounded">
+                                                <span className="text-xs font-bold text-center text-gray-700 bg-gray-100 py-1 px-1.5 rounded w-max">
                                                     {item.qtd}
                                                 </span>
                                                 <button
                                                     onClick={() => atualizarQtd(item.id, 1)}
-                                                    className="w-5 h-5 flex items-center justify-center border border-gray-300 rounded text-gray-500 hover:bg-gray-50"
+                                                    className="w-5 h-5 flex items-center justify-center border border-gray-400 rounded text-gray-600 hover:bg-gray-100 cursor-pointer"
                                                 >
-                                                    <Plus size={10} />
+                                                    <Plus size={14} />
                                                 </button>
                                             </div>
                                             <span className="text-xs font-bold text-emerald-600">
@@ -393,12 +395,14 @@ export default function CriarPedidos() {
                                             </span>
                                         </div>
                                     </div>
+
                                 ))
                             )}
+
                         </div>
 
                         {/* Rodapé do Resumo (Valores e Botão Salvar) */}
-                        <div className="border-t border-gray-100 pt-4 mt-4 space-y-4">
+                        <div div div className="border-t-2 border-gray-200 pt-4 mt-4 space-y-4" >
                             <div className="flex items-center justify-between text-xs text-gray-400 font-medium">
                                 <span>Total de itens:</span>
                                 <span className="font-bold text-gray-700">{totalItens}</span>
@@ -411,7 +415,7 @@ export default function CriarPedidos() {
                             </div>
                             <button
                                 onClick={handleLancarPedido}
-                                className="w-full bg-[#1f2937] hover:bg-black text-white py-3 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-[0.99]"
+                                className="w-full bg-[#1f2937] hover:bg-black text-white py-3 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-[0.99] cursor-pointer"
                             >
                                 Lançar Pedido
                             </button>
@@ -421,6 +425,8 @@ export default function CriarPedidos() {
                 </div>
 
             </div>
-        </div>
+
+        </div >
+
     );
 }

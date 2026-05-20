@@ -79,16 +79,16 @@ export function Dashboard() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
 
       {/* cabeçalho */}
-      <div className="flex flex-col">
+      <div className="flex flex-col mb-2">
         <h1 className="text-3xl font-semibold text-gray-800">Resultados</h1>
         <p className="text-gray-500 mt-1 font-medium">Acompanhe os resultados e o desempenho do seu negócio</p>
       </div>
 
       {/* filtros por periodo */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-3">
         {periodos.map((p) => (
           <button
             key={p}
@@ -154,7 +154,7 @@ export function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Seção de Gráficos (Evolução e Histórico) */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
+        <div className="lg:col-span-2 flex flex-col gap-2">
 
           {/* Gráfico de Barras - Evolução do Faturamento */}
           <ContentCard title="Evolução do faturamento" subtitle="Acompanhe seu faturamento conforme o período">
@@ -250,7 +250,7 @@ export function Dashboard() {
         </div>
 
         {/* Seção de Rankings (Melhores Clientes e Produtos) */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
           <ContentCard title="Melhores Clientes" subtitle="Lista dos clientes mais lucrativos">
             <div className="p-4 flex flex-col gap-4">
               {dados.melhoresClientes.map((c, i) => (

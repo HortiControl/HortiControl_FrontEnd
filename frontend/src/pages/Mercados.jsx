@@ -23,7 +23,7 @@ export function Mercados() {
   const token = localStorage.getItem('token');
 
   const carregarMercados = () => {
-    api.get("/mercados", { 
+    api.get("/mercados", {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
@@ -33,7 +33,7 @@ export function Mercados() {
           const mercadosFormatados = response.data.map(mercado => ({
             id: mercado.id,
             nome: mercado.nome,
-            tipo: mercado.tipoMercado || mercado.tipo || 'NORMAL', 
+            tipo: mercado.tipoMercado || mercado.tipo || 'NORMAL',
           }));
           setMercadosData(mercadosFormatados);
         }
@@ -114,11 +114,10 @@ export function Mercados() {
           <button
             key={f}
             onClick={() => setFiltroAtivo(f)}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${
-              filtroAtivo === f 
-                ? 'bg-[#00a859] text-white border-[#00a859]' 
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${filtroAtivo === f
+                ? 'bg-[#00a859] text-white border-[#00a859]'
                 : 'bg-white text-gray-600 border-gray-400 hover:bg-gray-50'
-            }`}
+              }`}
           >
             {f}
           </button>
@@ -153,14 +152,14 @@ export function Mercados() {
               <td className="px-6 py-4">
                 {/* 5. NOVOS BOTÕES COM TEXTO E BORDAS */}
                 <div className="flex items-center justify-end gap-2">
-                  <button 
-                    onClick={() => abrirModal('edit', mercado)} 
+                  <button
+                    onClick={() => abrirModal('edit', mercado)}
                     className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
                   >
                     <Pencil size={14} /> Editar
                   </button>
-                  <button 
-                    onClick={() => abrirModal('delete', mercado)} 
+                  <button
+                    onClick={() => abrirModal('delete', mercado)}
                     className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
                   >
                     <Trash2 size={14} /> Excluir
