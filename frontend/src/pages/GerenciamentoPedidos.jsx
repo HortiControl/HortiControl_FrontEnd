@@ -21,13 +21,15 @@ export function GerenciamentoPedidos() {
   const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
   const [modalAtivo, setModalAtivo] = useState(null);
 
-  const [tamanhoFinalizado, setTamanhoFinalizado] = useState(0);
-  const [tamanhoAtivo, setTamanhoAtivo] = useState(0);
+
 
   const [finalizadosData, setfinalizadosData] = useState([])
   const [pedidosAtivosData, setPedidosAtivosData] = useState([])
   const [itensPedidoData, setItensPedidoData] = useState([])
   const [valorPago, setValorPago] = useState([0])
+
+  const [tamanhoFinalizado, setTamanhoFinalizado] = useState(null);
+  const [tamanhoAtivo, setTamanhoAtivo] = useState(null);
 
   const carregarPedidosAtivos = () => {
 
@@ -37,6 +39,9 @@ export function GerenciamentoPedidos() {
       .then(response => {
         if (response.data.length == 0) {
           console.log("vazio");
+          setPedidosAtivosData([]);
+          setTamanhoAtivo(0);
+          return;
         } else {
           const pedidosAtivosFormatado = response.data.map(ativo => ({
             id: ativo.id,
@@ -54,6 +59,7 @@ export function GerenciamentoPedidos() {
           })).reverse();
           setPedidosAtivosData(pedidosAtivosFormatado);
           console.log(pedidosAtivosFormatado)
+          setTamanhoAtivo(pedidosAtivosFormatado.length)
         }
       })
       .catch(error => console.error("Erro ao carregar pedidos ativos:", error));
@@ -67,6 +73,9 @@ export function GerenciamentoPedidos() {
       .then(response => {
         if (response.data.length == 0) {
           console.log("vazio");
+          setfinalizadosData([]);
+          setTamanhoFinalizado(0);
+          return;
         } else {
           const finalizadosFormatado = response.data.map(finalizado => ({
             id: finalizado.id,
@@ -84,6 +93,7 @@ export function GerenciamentoPedidos() {
           })).reverse();
           setfinalizadosData(finalizadosFormatado);
           console.log(finalizadosFormatado)
+          setTamanhoFinalizado(finalizadosFormatado.length)
         }
       })
       .catch(error => console.error("Erro ao carregar pedidos ativos:", error));
@@ -112,12 +122,15 @@ export function GerenciamentoPedidos() {
         voltarParaLista();
       }
 
+      carregarPedidosAtivos();
+      carregarPedidosFinalizados();
       fecharModal();
     } catch (error) {
       console.error("Erro ao excluir pedido:", error);
       alert("Erro ao excluir o pedido. Tente novamente.");
     }
   };
+
 
   const handlePagarValor = async () => {
     try {
@@ -126,6 +139,7 @@ export function GerenciamentoPedidos() {
       })
       alert("Atualizado com sucesso!!")
       carregarPedidosAtivos();
+      carregarPedidosFinalizados();
       fecharModal();
     } catch (error) {
       console.error("Erro ao atualizar valor pago do pedido: ", error)
@@ -270,7 +284,7 @@ export function GerenciamentoPedidos() {
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
             >
-              Finalizados ({finalizadosData.length})
+              Finalizados ({tamanhoFinalizado})
             </button>
           </div>
 
@@ -299,7 +313,7 @@ export function GerenciamentoPedidos() {
               </Table>
             </ContentCard>
           ) : (
-            <ContentCard title="Pedidos Finalizados" subtitle="Pedidos concluídos ou cancelados" count={finalizadosData.length}>
+            <ContentCard title="Pedidos Finalizados" subtitle="Pedidos concluídos ou cancelados" count={tamanhoFinalizado}>
               <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'Status']}>
                 {finalizadosData.map((pedido) => (
                   <tr key={pedido.id} onClick={() => abrirDetalhes(pedido)} className="hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer">
