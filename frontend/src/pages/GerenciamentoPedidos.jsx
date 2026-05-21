@@ -21,6 +21,9 @@ export function GerenciamentoPedidos() {
   const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
   const [modalAtivo, setModalAtivo] = useState(null);
 
+  const [tamanhoFinalizado, setTamanhoFinalizado] = useState(0);
+  const [tamanhoAtivo, setTamanhoAtivo] = useState(0);
+
   const [finalizadosData, setfinalizadosData] = useState([])
   const [pedidosAtivosData, setPedidosAtivosData] = useState([])
   const [itensPedidoData, setItensPedidoData] = useState([])
@@ -48,7 +51,7 @@ export function GerenciamentoPedidos() {
               tipo: ativo.mercado.tipoMercado
             },
             itens: ativo.itens
-          }));
+          })).reverse();
           setPedidosAtivosData(pedidosAtivosFormatado);
           console.log(pedidosAtivosFormatado)
         }
@@ -78,7 +81,7 @@ export function GerenciamentoPedidos() {
               tipo: finalizado.mercado.tipoMercado
             },
             itens: finalizado.itens
-          }));
+          })).reverse();
           setfinalizadosData(finalizadosFormatado);
           console.log(finalizadosFormatado)
         }
