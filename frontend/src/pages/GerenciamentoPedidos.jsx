@@ -267,7 +267,7 @@ export function GerenciamentoPedidos() {
             subtitle="Visualize e gerencie todos os pedidos do sistema"
           />
 
-          <div className="flex bg-white rounded-full p-1 mb-6 border border-gray-200 shadow-sm w-full">
+          <div className="flex bg-white rounded-full p-1 mb-2 border border-gray-200 shadow-sm w-full">
             <button
               onClick={() => setAbaAtiva('ativos')}
               className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer ${abaAtiva === 'ativos'
