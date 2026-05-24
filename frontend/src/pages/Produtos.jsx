@@ -228,7 +228,7 @@ export function Produtos() {
               </td>
 
               <td className="px-6 py-4 text-[#00a859] font-bold">
-                {produto.preco}
+                R${produto.preco}
               </td>
 
               {/* Coluna de Ações com os botões desenhados  */}
