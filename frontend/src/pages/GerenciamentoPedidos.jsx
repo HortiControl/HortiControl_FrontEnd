@@ -233,7 +233,7 @@ export function GerenciamentoPedidos() {
                         </span>
                       </td>
                       <td className="px-6 py-4 font-bold text-gray-800">R$ {item.precoUnitario}</td>
-                      <td className="px-6 py-4 font-bold text-[#00a859] text-right">R$ {item.subTotal}</td>
+                      <td className="px-6 py-4 font-bold text-[#00a859] text-right">R${item.subTotal}</td>
 
                       {abaAtiva === 'ativos' && (
                         <td className="px-6 py-4 text-right">
@@ -296,8 +296,8 @@ export function GerenciamentoPedidos() {
                     <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
                     <td className="px-6 py-4"><Badge text={pedido.mercado.tipo} /></td>
                     <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                    <td className="px-6 py-4 text-[#00a859] font-bold">{pedido.valorTotal}</td>
-                    <td className="px-6 py-4 text-red-600 font-bold">{pedido.valorAPagar}</td>
+                    <td className="px-6 py-4 text-[#00a859] font-bold">R${pedido.valorTotal}</td>
+                    <td className="px-6 py-4 text-red-600 font-bold">R${pedido.valorAPagar}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <button onClick={(e) => { e.stopPropagation(); abrirModal('pagamento', pedido); }} className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer">
@@ -320,7 +320,7 @@ export function GerenciamentoPedidos() {
                     <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
                     <td className="px-6 py-4"><Badge text={pedido.mercado.tipo} /></td>
                     <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                    <td className="px-6 py-4 text-[#00a859] font-bold">{pedido.valorTotal}</td>
+                    <td className="px-6 py-4 text-[#00a859] font-bold">R${pedido.valorTotal}</td>
                     <td className="px-6 py-4"><Badge text={pedido.statusPedido} /></td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
