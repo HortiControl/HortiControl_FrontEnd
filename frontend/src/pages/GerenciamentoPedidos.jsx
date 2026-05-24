@@ -261,7 +261,7 @@ export function GerenciamentoPedidos() {
         /* ----------------------------------
            LISTA DE PEDIDOS 
            ---------------------------------- */
-        <div className="animate-in fade-in duration-300">
+        <div className="animate-in fade-in duration-300 flex flex-col min-h-[calc(100vh-6rem)]">
           <PageHeader
             title="Gerenciamento de Pedidos"
             subtitle="Visualize e gerencie todos os pedidos do sistema"
@@ -288,52 +288,58 @@ export function GerenciamentoPedidos() {
             </button>
           </div>
 
-          {abaAtiva === 'ativos' ? (
-            <ContentCard title="Pedidos Ativos" subtitle="Pedidos em andamento que precisam de atenção" count={pedidosAtivosData.length}>
-              <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'A pagar']}>
-                {pedidosAtivosData.map((pedido) => (
-                  <tr key={pedido.id} onClick={() => abrirDetalhes(pedido)} className="hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer">
-                    <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
-                    <td className="px-6 py-4"><Badge text={pedido.mercado.tipo} /></td>
-                    <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                    <td className="px-6 py-4 text-[#00a859] font-bold">R${pedido.valorTotal}</td>
-                    <td className="px-6 py-4 text-red-600 font-bold">R${pedido.valorAPagar}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button onClick={(e) => { e.stopPropagation(); abrirModal('pagamento', pedido); }} className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer">
-                          <DollarSign size={14} /> Pagar
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); abrirModal('delete', pedido); }} className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer">
-                          <Trash2 size={14} /> Excluir
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </Table>
-            </ContentCard>
-          ) : (
-            <ContentCard title="Pedidos Finalizados" subtitle="Pedidos concluídos ou cancelados" count={tamanhoFinalizado}>
-              <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'Status']}>
-                {finalizadosData.map((pedido) => (
-                  <tr key={pedido.id} onClick={() => abrirDetalhes(pedido)} className="hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer">
-                    <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
-                    <td className="px-6 py-4"><Badge text={pedido.mercado.tipo} /></td>
-                    <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                    <td className="px-6 py-4 text-[#00a859] font-bold">R${pedido.valorTotal}</td>
-                    <td className="px-6 py-4"><Badge text={pedido.statusPedido} /></td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button onClick={(e) => { e.stopPropagation(); abrirModal('delete', pedido); }} className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer">
-                          <Trash2 size={14} /> Excluir
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </Table>
-            </ContentCard>
-          )}
+          <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
+            {abaAtiva === 'ativos' ? (
+              <ContentCard title="Pedidos Ativos" subtitle="Pedidos em andamento que precisam de atenção" count={pedidosAtivosData.length}>
+                <div className="overflow-x-auto overflow-y-auto max-h-[55vh] min-w-full">
+                  <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'A pagar']}>
+                    {pedidosAtivosData.map((pedido) => (
+                      <tr key={pedido.id} onClick={() => abrirDetalhes(pedido)} className="hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer">
+                        <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
+                        <td className="px-6 py-4"><Badge text={pedido.mercado.tipo} /></td>
+                        <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
+                        <td className="px-6 py-4 text-[#00a859] font-bold">R${pedido.valorTotal}</td>
+                        <td className="px-6 py-4 text-red-600 font-bold">R${pedido.valorAPagar}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <button onClick={(e) => { e.stopPropagation(); abrirModal('pagamento', pedido); }} className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer">
+                              <DollarSign size={14} /> Pagar
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); abrirModal('delete', pedido); }} className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer">
+                              <Trash2 size={14} /> Excluir
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </Table>
+                </div>
+              </ContentCard>
+            ) : (
+              <ContentCard title="Pedidos Finalizados" subtitle="Pedidos concluídos ou cancelados" count={tamanhoFinalizado}>
+                <div className="overflow-x-auto overflow-y-auto max-h-[55vh] min-w-full">
+                  <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'Status']}>
+                    {finalizadosData.map((pedido) => (
+                      <tr key={pedido.id} onClick={() => abrirDetalhes(pedido)} className="hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer">
+                        <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
+                        <td className="px-6 py-4"><Badge text={pedido.mercado.tipo} /></td>
+                        <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
+                        <td className="px-6 py-4 text-[#00a859] font-bold">R${pedido.valorTotal}</td>
+                        <td className="px-6 py-4"><Badge text={pedido.statusPedido} /></td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button onClick={(e) => { e.stopPropagation(); abrirModal('delete', pedido); }} className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer">
+                              <Trash2 size={14} /> Excluir
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </Table>
+                </div>
+              </ContentCard>
+            )}
+          </div>
 
         </div>
       )}
