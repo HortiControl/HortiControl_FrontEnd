@@ -257,7 +257,7 @@ export function Produtos() {
       {/* Os modais continuam inalterados */}
       <Modal isOpen={modalAtivo === 'add' || modalAtivo === 'edit'} onClose={fecharModal} title={modalAtivo === 'add' ? 'Adicionar Novo Produto' : 'Editar Produto'}>
         <Input label="Nome do Produto:" placeholder="Ex: Alface Lisa" value={formData.nome} onChange={(e) => setFormData({ ...formData, nome: e.target.value })} />
-        <Select label="Tipo de Processamento" options={['PRE_LAVADO', 'NAO_LAVADO']} value={formData.tipo} onChange={(e) => setFormData({ ...formData, tipo: e.target.value })} />
+        <Select label="Tipo de Processamento" options={['PRE-LAVADO', 'NAO-LAVADO']} value={formData.tipo} onChange={(e) => setFormData({ ...formData, tipo: e.target.value.replace("-", "_") })} />
         <div className="grid grid-cols-2 gap-4 mt-4">
           <Select label="Embalagem" options={['POTE', 'BANDEJA', 'SACO']} value={formData.embalagem} onChange={(e) => setFormData({ ...formData, embalagem: e.target.value })} />
           <Input label="Preço Atual (R$)" placeholder="0,00" value={formData.preco} onChange={(e) => setFormData({ ...formData, preco: e.target.value })} />
