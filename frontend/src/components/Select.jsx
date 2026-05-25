@@ -7,7 +7,7 @@ export function Select({ label, options, ...props }) {
       
       <div className="relative flex items-center">
         <select 
-          className="w-full px-4 py-2.5 bg-gray-100 rounded-lg text-sm text-gray-700 font-medium outline-none focus:ring-2 focus:ring-[#000000]/30 transition-all appearance-none cursor-pointer pr-10" 
+          className="w-full px-4 py-2 bg-gray-100 rounded-lg text-[13px] text-gray-800 font-medium outline-none focus:ring-2 focus:ring-[#000000]/30 transition-all appearance-none cursor-pointer pr-10" 
           {...props}
         >
           {options.map((opt, index) => (
