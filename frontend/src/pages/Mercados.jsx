@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, MapPin } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { ContentCard } from '../components/ContentCard';
 import { Table } from '../components/Table';
@@ -15,9 +15,15 @@ export function Mercados() {
   const [modalAtivo, setModalAtivo] = useState(null);
   const [mercadoSelecionado, setMercadoSelecionado] = useState(null);
   const [filtroAtivo, setFiltroAtivo] = useState('TODOS');
+
+  const [endereco, setEndereco] = useState(null);
+  const [loadingEndereco, setLoadingEndereco] = useState(false);
+
   const [formData, setFormData] = useState({
     nome: '',
-    tipo: 'NORMAL'
+    tipo: 'NORMAL',
+    cep: '',
+    numero: ''
   });
 
   const token = localStorage.getItem('token');
@@ -34,11 +40,36 @@ export function Mercados() {
             id: mercado.id,
             nome: mercado.nome,
             tipo: mercado.tipoMercado || mercado.tipo || 'NORMAL',
+            cep: mercado.cep,
+            numero: mercado.numero // ✅ ADICIONADO
           }));
           setMercadosData(mercadosFormatados);
         }
       })
       .catch(error => console.error("Erro ao carregar clientes:", error));
+  };
+
+  const buscarEnderecoPorCep = async (cep) => {
+    try {
+      const cepLimpo = cep.replace(/\D/g, '');
+
+      if (cepLimpo.length !== 8) return;
+
+      setLoadingEndereco(true);
+      setEndereco(null);
+
+      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const data = await response.json();
+
+      if (data.erro) throw new Error('CEP inválido');
+
+      setEndereco(data);
+    } catch (err) {
+      setEndereco(null);
+      alert('CEP não encontrado');
+    } finally {
+      setLoadingEndereco(false);
+    }
   };
 
   useEffect(() => {
@@ -50,9 +81,18 @@ export function Mercados() {
     setModalAtivo(tipo);
 
     if (tipo === 'edit' && mercado) {
-      setFormData({ nome: mercado.nome, tipo: mercado.tipo });
-    } else if (tipo === 'add') {
-      setFormData({ nome: '', tipo: 'NORMAL' });
+      setFormData({
+        nome: mercado.nome,
+        tipo: mercado.tipo,
+        cep: mercado.cep || ''
+      });
+    }
+    if (tipo === 'viewAddress' && mercado) {
+      buscarEnderecoPorCep(mercado.cep);
+    }
+
+    if (tipo === 'add') {
+      setFormData({ nome: '', tipo: 'NORMAL', cep: '' });
     }
   };
 
@@ -64,25 +104,26 @@ export function Mercados() {
   const handleSalvar = async () => {
     const dadosDoForms = {
       nome: formData.nome,
-      tipoMercado: formData.tipo
+      tipoMercado: formData.tipo,
+      cep: formData.cep,
+      numero: formData.numero
     };
+
     try {
       if (modalAtivo === 'add') {
-        await api.post("/mercados", dadosDoForms, {
+        await api.post('/mercados', dadosDoForms, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        alert("Cliente adicionado com sucesso!");
       } else if (modalAtivo === 'edit') {
         await api.put(`/mercados/${mercadoSelecionado.id}`, dadosDoForms, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        alert("Cliente atualizado com sucesso!");
       }
+
       carregarMercados();
       fecharModal();
-    } catch (error) {
-      console.error("Erro ao salvar cliente:", error);
-      alert("Erro ao salvar. Verifique os dados.");
+    } catch (err) {
+      alert('Erro ao salvar mercado');
     }
   };
 
@@ -115,8 +156,8 @@ export function Mercados() {
             key={f}
             onClick={() => setFiltroAtivo(f)}
             className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${filtroAtivo === f
-                ? 'bg-[#00a859] text-white border-[#00a859]'
-                : 'bg-white text-gray-600 border-gray-400 hover:bg-gray-50'
+              ? 'bg-[#00a859] text-white border-[#00a859]'
+              : 'bg-white text-gray-600 border-gray-400 hover:bg-gray-50'
               }`}
           >
             {f}
@@ -142,13 +183,14 @@ export function Mercados() {
         filters={FiltroClientes}
       >
         {/* 4. TABELA SEM COLUNA DE OBSERVAÇÕES */}
-        <Table headers={['Nome', 'Tipo']}>
+        <Table headers={['Nome', 'Tipo', 'CEP']}>
           {mercadosFiltrados.map((mercado) => (
             <tr key={mercado.id} className="hover:bg-gray-50 transition-colors border-b border-gray-100">
               <td className="px-6 py-4 font-medium text-gray-800">{mercado.nome}</td>
               <td className="px-6 py-4">
                 <Badge text={mercado.tipo} />
               </td>
+              <td className="px-6 py-4 text-gray-600">{mercado.cep}</td>
               <td className="px-6 py-4">
                 {/* 5. NOVOS BOTÕES COM TEXTO E BORDAS */}
                 <div className="flex items-center justify-end gap-2">
@@ -157,6 +199,12 @@ export function Mercados() {
                     className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
                   >
                     <Pencil size={14} /> Editar
+                  </button>
+                  <button
+                    onClick={() => abrirModal('viewAddress', mercado)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium cursor-pointer"
+                  >
+                    <MapPin size={14} /> Endereço
                   </button>
                   <button
                     onClick={() => abrirModal('delete', mercado)}
@@ -191,11 +239,71 @@ export function Mercados() {
           onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
         />
 
+        <Input
+          label="CEP:"
+          placeholder="Ex: 01234-567"
+          value={formData.cep}
+          onChange={(e) => {
+            const cep = e.target.value;
+            setFormData({ ...formData, cep });
+            buscarEnderecoPorCep(cep);
+          }}
+        />
+        {loadingEndereco && (
+          <p className="text-sm text-gray-500 mt-2">Buscando endereço...</p>
+        )}
+
+        {endereco && (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <Input label="Logradouro" value={endereco.logradouro} disabled />
+            <Input label="Bairro" value={endereco.bairro} disabled />
+            <Input label="Cidade" value={endereco.localidade} disabled />
+            <Input label="Estado" value={endereco.uf} disabled />
+          </div>
+        )}
+
+        <Input
+          label="Número:"
+          placeholder="Ex: 123"
+          value={formData.numero}
+          onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+        />
+
         <div className="flex justify-end gap-3 mt-8">
           <Button variant="secondary" onClick={fecharModal}>Cancelar</Button>
           <Button variant="primary" onClick={handleSalvar}>
             {modalAtivo === 'add' ? 'Salvar' : 'Salvar Alterações'}
           </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={modalAtivo === 'viewAddress'}
+        onClose={fecharModal}
+        title="Endereço do Cliente"
+        subtitle={`CEP: ${mercadoSelecionado?.cep}`}
+        maxWidth="max-w-lg"
+      >
+        {loadingEndereco && (
+          <p className="text-gray-500">Carregando endereço...</p>
+        )}
+
+        {!loadingEndereco && endereco && (
+          <div className="space-y-3 text-sm text-gray-700">
+            <div><strong>Logradouro:</strong> {endereco.logradouro || '—'}</div>
+            <div><strong>Número:</strong> {mercadoSelecionado?.numero || '—'}</div> {/* ✅ */}
+            <div><strong>Bairro:</strong> {endereco.bairro || '—'}</div>
+            <div><strong>Cidade:</strong> {endereco.localidade}</div>
+            <div><strong>Estado:</strong> {endereco.uf}</div>
+          </div>
+        )}
+
+        {!loadingEndereco && !endereco && (
+          <p className="text-red-500">Endereço não encontrado.</p>
+        )}
+
+        <div className="flex justify-end mt-6">
+          <Button variant="secondary" onClick={fecharModal}>Fechar</Button>
         </div>
       </Modal>
 
