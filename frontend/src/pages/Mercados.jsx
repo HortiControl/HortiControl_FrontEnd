@@ -93,7 +93,7 @@ export function Mercados() {
     }
 
     if (tipo === 'add') {
-      setFormData({ nome: '', tipo: 'NORMAL', cep: '', numero: ''});
+      setFormData({ nome: '', tipo: 'NORMAL', cep: '', numero: '' });
     }
   };
 
@@ -101,6 +101,15 @@ export function Mercados() {
     setModalAtivo(null);
     setMercadoSelecionado(null);
   };
+
+
+  function formatarCEP(valor) {
+    return valor
+      .replace(/\D/g, "")        // remove tudo que não é número
+      .replace(/(\d{5})(\d)/, "$1-$2") // adiciona o traço
+      .slice(0, 9);              // limita ao tamanho do CEP
+  }
+
 
   const handleSalvar = async () => {
     const dadosDoForms = {
@@ -191,7 +200,7 @@ export function Mercados() {
               <td className="px-6 py-4">
                 <Badge text={mercado.tipo} />
               </td>
-              <td className="px-6 py-4 text-gray-600">{mercado.cep}</td>
+              <td className="px-6 py-4 text-gray-600">{formatarCEP(mercado.cep)}</td>
               <td className="px-6 py-4">
                 {/* 5. NOVOS BOTÕES COM TEXTO E BORDAS */}
                 <div className="flex items-center justify-end gap-2">
@@ -243,7 +252,7 @@ export function Mercados() {
         <Input
           label="CEP:"
           placeholder="Ex: 01234-567"
-          value={formData.cep}
+          value={formatarCEP(formData.cep)}
           onChange={(e) => {
             const cep = e.target.value;
             setFormData({ ...formData, cep });
@@ -268,7 +277,7 @@ export function Mercados() {
           placeholder="Ex: 123"
           value={formData.numero}
           maxLength={6}
-          onChange={(e) => setFormData({ ...formData, numero: e.target.value})}
+          onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
         />
 
         <div className="flex justify-end gap-3 mt-8">
@@ -283,7 +292,6 @@ export function Mercados() {
         isOpen={modalAtivo === 'viewAddress'}
         onClose={fecharModal}
         title="Endereço do Cliente"
-        subtitle={`CEP: ${mercadoSelecionado?.cep}`}
         maxWidth="max-w-lg"
       >
         {loadingEndereco && (
@@ -292,8 +300,9 @@ export function Mercados() {
 
         {!loadingEndereco && endereco && (
           <div className="space-y-3 text-sm text-gray-700">
+            <div><strong>CEP:</strong> {formatarCEP(endereco.cep) || '—'}</div>
             <div><strong>Logradouro:</strong> {endereco.logradouro || '—'}</div>
-            <div><strong>Número:</strong> {mercadoSelecionado?.numero || '—'}</div> {/* ✅ */}
+            <div><strong>Número:</strong> {mercadoSelecionado?.numero || '—'}</div>
             <div><strong>Bairro:</strong> {endereco.bairro || '—'}</div>
             <div><strong>Cidade:</strong> {endereco.localidade}</div>
             <div><strong>Estado:</strong> {endereco.uf}</div>
