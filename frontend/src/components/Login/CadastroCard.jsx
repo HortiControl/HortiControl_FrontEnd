@@ -1,9 +1,10 @@
-import { User, Mail, Phone, Lock } from "lucide-react";
+import { User, Mail, Phone, Lock, ArrowLeft } from "lucide-react";
+
 import { Button } from "../Button";
 import banner from "../../assets/banner.png";
 import logo from "../../assets/HortiControlLogo.png";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
 const CadastroCard = () => {
@@ -78,13 +79,24 @@ const CadastroCard = () => {
       className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat font-[Montserrat] p-4"
       style={{ backgroundImage: `url(${banner})` }}
     >
-      <div className="w-full max-w-125 p-4 bg-white/95 backdrop-blur-sm rounded-[25px] shadow-2xl flex flex-col items-center">
-        <img src={logo} alt="Logo" className="w-24 mb-4 object-contain" />
-
-        <h2 className="text-[#333] font-bold text-3xl mb-1">Criar uma conta</h2>
-        <p className="text-gray-500 text-sm mb-6 text-center">
-          Preencha os dados abaixo para se cadastrar
-        </p>
+      <div className="w-full max-w-125 p-8 bg-white/95 backdrop-blur-sm rounded-[25px] shadow-2xl flex flex-col items-center">
+        <div className="flex w-full">
+          <Link
+            to="/login"
+            className="w-10 self-start flex items-center text-xs text-gray-500 hover:text-gray-700 mb-4 transition-colors"
+          >
+            <ArrowLeft size={34} className="mr-1" />
+          </Link>
+          {/* <img src={logo} alt="Logo" className="w-18 mb-4 object-contain" /> */}
+          <div className="items-center w-88">
+            <h2 className="text-[#333] font-bold text-3xl mb-1 text-center">
+              Criar uma conta
+            </h2>
+            <p className="text-gray-500 text-sm mb-6 text-center">
+              Preencha os dados abaixo para se cadastrar
+            </p>
+          </div>
+        </div>
 
         <form className="w-full space-y-4" onSubmit={handleSubmit}>
           <div className="flex flex-col">
