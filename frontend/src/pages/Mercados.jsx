@@ -41,7 +41,7 @@ export function Mercados() {
             nome: mercado.nome,
             tipo: mercado.tipoMercado || mercado.tipo || 'NORMAL',
             cep: mercado.cep,
-            numero: mercado.numero // ✅ ADICIONADO
+            numero: mercado.numero
           }));
           setMercadosData(mercadosFormatados);
         }
@@ -84,7 +84,8 @@ export function Mercados() {
       setFormData({
         nome: mercado.nome,
         tipo: mercado.tipo,
-        cep: mercado.cep || ''
+        cep: mercado.cep || '',
+        numero: mercado.numero
       });
     }
     if (tipo === 'viewAddress' && mercado) {
@@ -92,7 +93,7 @@ export function Mercados() {
     }
 
     if (tipo === 'add') {
-      setFormData({ nome: '', tipo: 'NORMAL', cep: '' });
+      setFormData({ nome: '', tipo: 'NORMAL', cep: '', numero: ''});
     }
   };
 
@@ -266,7 +267,8 @@ export function Mercados() {
           label="Número:"
           placeholder="Ex: 123"
           value={formData.numero}
-          onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+          maxLength={6}
+          onChange={(e) => setFormData({ ...formData, numero: e.target.value})}
         />
 
         <div className="flex justify-end gap-3 mt-8">
@@ -314,7 +316,6 @@ export function Mercados() {
           <Button variant="danger" onClick={handleExcluir}>Excluir Cliente</Button>
         </div>
       </Modal>
-
     </div>
   );
 }
