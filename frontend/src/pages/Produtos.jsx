@@ -16,8 +16,8 @@ export function Produtos() {
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
   const [valorGlobal, setValorGlobal] = useState(0);
   const [busca, setBusca] = useState('');
-  
-  // Controle de qual botão de filtro está clicado
+
+
   const [filtroAtivo, setFiltroAtivo] = useState('TODOS');
 
   const [formData, setFormData] = useState({
@@ -179,11 +179,10 @@ export function Produtos() {
           <button
             key={f}
             onClick={() => setFiltroAtivo(f)}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${
-              filtroAtivo === f 
-                ? 'bg-[#00a859] text-white border-[#00a859]' 
-                : 'bg-white text-gray-600 border-gray-400 hover:bg-gray-50'
-            }`}
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${filtroAtivo === f
+              ? 'bg-[#00a859] text-white border-[#00a859]'
+              : 'bg-white text-gray-600 border-gray-400 hover:bg-gray-50'
+              }`}
           >
             {f}
           </button>
@@ -193,7 +192,8 @@ export function Produtos() {
   );
 
   return (
-    <div>
+    <div className="h-full">
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-semibold text-gray-800">Produtos</h1>
@@ -202,57 +202,59 @@ export function Produtos() {
         <Button onClick={() => abrirModal('add')}>+ Adicionar Produto</Button>
       </div>
 
-      <ContentCard 
-        title="Todos os Produtos" 
-        count={produtosFiltrados.length} 
-        subtitle={BuscaEReajuste} 
-        filters={FiltrosProdutos} 
+      <ContentCard
+        title="Todos os Produtos"
+        count={produtosFiltrados.length}
+        subtitle={BuscaEReajuste}
+        filters={FiltrosProdutos}
       >
-        <Table headers={['Nome', 'Tipo', 'Embalagem', 'Preço']}>
-          {produtosFiltrados.map((produto) => (
-            <tr key={produto.id} className="hover:bg-gray-50 border-b border-gray-100 transition-colors">
-              <td className="px-6 py-4 font-medium text-gray-800">{produto.nome}</td>
+        
+        <div className="max-h-[calc(100vh-18rem)] overflow-y-auto pr-2">
+          <Table headers={['Nome', 'Tipo', 'Embalagem', 'Preço']}>
+            {produtosFiltrados.map((produto) => (
+              <tr key={produto.id} className="hover:bg-gray-50 border-b border-gray-100 transition-colors">
+                <td className="px-6 py-4 font-medium text-gray-800">{produto.nome}</td>
 
-              <td className="px-6 py-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  produto.tipo === 'PRE_LAVADO' 
-                    ? 'bg-[#00a859] text-white' 
+                <td className="px-6 py-4">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${produto.tipo === 'PRE_LAVADO'
+                    ? 'bg-[#00a859] text-white'
                     : 'bg-gray-200 text-gray-700'
-                }`}>
-                  {produto.tipo === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
-                </span>
-              </td>
+                    }`}>
+                    {produto.tipo === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
+                  </span>
+                </td>
 
-              <td className="px-6 py-4">
-                <Badge text={produto.embalagem} />
-              </td>
+                <td className="px-6 py-4">
+                  <Badge text={produto.embalagem} />
+                </td>
 
-              <td className="px-6 py-4 text-[#00a859] font-bold">
-                R${produto.preco}
-              </td>
+                <td className="px-6 py-4 text-[#00a859] font-bold">
+                  R$ {produto.preco}
+                </td>
 
-              {/* Coluna de Ações com os botões desenhados  */}
-              <td className="px-6 py-4 text-right">
-                <div className="flex items-center justify-end gap-2">
-                  <button 
-                    onClick={() => abrirModal('edit', produto)} 
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
-                  >
-                    <Pencil size={14} /> Editar
-                  </button>
-                  <button 
-                    onClick={() => abrirModal('delete', produto)} 
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
-                  >
-                    <Trash2 size={14} /> Excluir
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </Table>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => abrirModal('edit', produto)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
+                    >
+                      <Pencil size={14} /> Editar
+                    </button>
+                    <button
+                      onClick={() => abrirModal('delete', produto)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
+                    >
+                      <Trash2 size={14} /> Excluir
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </Table>
+        </div>
       </ContentCard>
 
+      {/* Os modais continuam inalterados */}
       <Modal isOpen={modalAtivo === 'add' || modalAtivo === 'edit'} onClose={fecharModal} title={modalAtivo === 'add' ? 'Adicionar Novo Produto' : 'Editar Produto'}>
         <Input label="Nome do Produto:" placeholder="Ex: Alface Lisa" value={formData.nome} onChange={(e) => setFormData({ ...formData, nome: e.target.value })} />
         <Select label="Tipo de Processamento" options={['PRE_LAVADO', 'NAO_LAVADO']} value={formData.tipo} onChange={(e) => setFormData({ ...formData, tipo: e.target.value })} />
@@ -283,4 +285,5 @@ export function Produtos() {
       </Modal>
     </div>
   );
+
 }

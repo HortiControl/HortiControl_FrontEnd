@@ -12,7 +12,6 @@ import api from '../provider/api';
 export function GerenciamentoPedidos() {
   const token = localStorage.getItem('token');
 
-  // Bloqueia o scroll da página principal
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     const previousHeight = document.body.style.height;
@@ -73,7 +72,8 @@ export function GerenciamentoPedidos() {
               },
               itens: ativo.itens,
             }))
-            .reverse();
+            .sort((a, b) => b.id - a.id);
+
 
           setPedidosAtivosData(pedidosAtivosFormatado);
           setTamanhoAtivo(pedidosAtivosFormatado.length);
@@ -107,7 +107,7 @@ export function GerenciamentoPedidos() {
               },
               itens: finalizado.itens,
             }))
-            .reverse();
+            .sort((a, b) => b.id - a.id);
 
           setfinalizadosData(finalizadosFormatado);
           setTamanhoFinalizado(finalizadosFormatado.length);
@@ -141,6 +141,8 @@ export function GerenciamentoPedidos() {
         voltarParaLista();
       }
 
+      alert('Pedido excluído com sucesso!');
+
       carregarPedidosAtivos();
       carregarPedidosFinalizados();
       fecharModal();
@@ -151,6 +153,7 @@ export function GerenciamentoPedidos() {
   };
 
   const handleRemoverItem = async () => {
+    
     if (!itemSelecionado) return;
 
     try {
@@ -158,18 +161,22 @@ export function GerenciamentoPedidos() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setPedidoSelecionado((prev) => {
-        const itensAtualizados = prev.itens.filter((item) => item.id !== itemSelecionado.id);
-        const novoValorTotal = itensAtualizados.reduce((acc, item) => acc + Number(item.subTotal), 0);
+      const itensRestantes = pedidoSelecionado.itens.filter((item) => item.id !== itemSelecionado.id);
 
-        return {
-          ...prev,
-          itens: itensAtualizados,
-          valorTotal: novoValorTotal.toFixed(2),
-        };
-      });
+      if (itensRestantes.length === 0) {
+        alert('Último item removido. O pedido foi excluído do sistema!');
+        voltarParaLista();
+      } else {
+        
+        const novoValorTotal = itensRestantes.reduce((acc, item) => acc + Number(item.subTotal), 0);
 
-      alert('Item removido com sucesso!');
+        setPedidoSelecionado({
+          ...pedidoSelecionado,
+          itens: itensRestantes,
+          valorTotal: novoValorTotal,
+        });
+        alert('Item removido com sucesso!');
+      }
 
       carregarPedidosAtivos();
       carregarPedidosFinalizados();
@@ -260,7 +267,7 @@ export function GerenciamentoPedidos() {
             <ArrowLeft size={16} /> Voltar aos Pedidos
           </button>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between shrink-0">
             <div>
               <h1 className="text-3xl font-semibold text-gray-800">
                 {pedidoSelecionado.mercado.nome}
@@ -274,11 +281,8 @@ export function GerenciamentoPedidos() {
             </Button>
           </div>
 
-          {/* ÁREA DE SCROLL VERTICAL DOS ITENS */}
-          <div
-            className="flex-1 overflow-y-auto custom-scrollbar pr-2 min-h-0"
-            style={{ maxHeight: 'calc(100dvh - 190px)' }}
-          >
+          {/* O CONTAINER EXTERNO AGORA NÃO ROLA MAIS, APENAS PREENCHE O ESPAÇO */}
+          <div className="flex-1 min-h-0 pr-2">
             <ContentCard
               title={`Itens do Pedido (${pedidoSelecionado.itens?.length || 0})`}
               subtitle="Produtos incluídos no pedido do cliente"
@@ -288,11 +292,11 @@ export function GerenciamentoPedidos() {
                 </div>
               }
             >
-              {/* SCROLL HORIZONTAL DA TABELA */}
-              <div className="w-full overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[800px]">
-                  <thead>
-                    <tr className="bg-gray-50 text-gray-500 text-sm border-b border-gray-200">
+              {/* O SCROLL (VERTICAL E HORIZONTAL) FICA RESTRITO A ESTA DIV */}
+              <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar max-h-[calc(100dvh-280px)]">
+                <table className="w-full text-left border-collapse min-w-200 relative">
+                  <thead className="sticky top-0 bg-gray-50 z-10 shadow-sm">
+                    <tr className="text-gray-500 text-sm border-b border-gray-200">
                       <th className="px-6 py-4 font-medium">Unidade</th>
                       <th className="px-6 py-4 font-medium">Produto</th>
                       <th className="px-6 py-4 font-medium">Tipo</th>
@@ -354,7 +358,7 @@ export function GerenciamentoPedidos() {
             />
           </div>
 
-          <div className="flex bg-white rounded-full p-1 mb-4 border border-gray-200 shadow-sm w-full shrink-0">
+          <div className="flex bg-white rounded-full p-1 mb-0 border border-gray-200 shadow-sm w-full shrink-0">
             <button
               onClick={() => setAbaAtiva('ativos')}
               className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer ${abaAtiva === 'ativos'
@@ -375,19 +379,16 @@ export function GerenciamentoPedidos() {
             </button>
           </div>
 
-          {/* ÁREA DE SCROLL VERTICAL DAS LISTAS */}
-          <div
-            className="flex-1 overflow-y-auto pr-1 min-h-0 custom-scrollbar"
-            style={{ maxHeight: 'calc(100dvh - 190px)' }}
-          >
+          {/* O CONTAINER EXTERNO DA LISTAGEM AGORA FICA ESTÁTICO */}
+          <div className="flex-1 min-h-0 pr-1">
             {abaAtiva === 'ativos' ? (
               <ContentCard
                 title="Pedidos Ativos"
                 subtitle="Pedidos em andamento que precisam de atenção"
                 count={pedidosAtivosData.length}
               >
-                {/* SCROLL HORIZONTAL DA TABELA */}
-                <div className="w-full overflow-x-auto">
+                {/* O SCROLL ACONTECE SOMENTE AQUI DENTRO (COM ALTURA MÁXIMA DEFINIDA VIA CALC) */}
+                <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar max-h-[calc(100dvh-320px)]">
                   <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'A pagar']}>
                     {pedidosAtivosData.map((pedido) => (
                       <tr
@@ -435,8 +436,8 @@ export function GerenciamentoPedidos() {
                 subtitle="Pedidos concluídos ou cancelados"
                 count={tamanhoFinalizado}
               >
-                {/* SCROLL HORIZONTAL DA TABELA */}
-                <div className="w-full overflow-x-auto">
+                {/* SCROLL INTERNO PARA OS FINALIZADOS */}
+                <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar max-h-[calc(100dvh-320px)]">
                   <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'Status']}>
                     {finalizadosData.map((pedido) => (
                       <tr
@@ -476,7 +477,7 @@ export function GerenciamentoPedidos() {
         </div>
       )}
 
-      {/* MODAIS RESTANTES */}
+      {/* MODAIS RESTANTES (Nenhuma alteração necessária aqui) */}
       <Modal
         isOpen={modalAtivo === 'pagamento'}
         onClose={fecharModal}
@@ -491,7 +492,7 @@ export function GerenciamentoPedidos() {
         <div className="flex flex-row justify-between max-h-10 mt-7">
           <div className="flex flex-col gap-1 p-2 rounded-lg justify-center border-2 border-gray-300 bg-gray-100">
             <p className="text-gray-700 text-[12px] font-medium">
-              Total: R$ {pedidoSelecionado?.valorTotal?.toFixed(2)}
+              Total: R$ {Number(pedidoSelecionado?.valorTotal || 0).toFixed(2)}
             </p>
           </div>
           <div className="flex justify-end gap-3">
