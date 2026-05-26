@@ -25,11 +25,9 @@ export function GerenciamentoPedidos() {
     };
   }, []);
 
-  // --- ESTADOS PRINCIPAIS ---
   const [abaAtiva, setAbaAtiva] = useState('ativos');
   const [viewMode, setViewMode] = useState('lista');
 
-  // --- ESTADOS DE DADOS E MODAIS ---
   const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
   const [itemSelecionado, setItemSelecionado] = useState(null);
   const [modalAtivo, setModalAtivo] = useState(null);
@@ -39,12 +37,15 @@ export function GerenciamentoPedidos() {
   const [valorPago, setValorPago] = useState(0);
 
   const [tamanhoFinalizado, setTamanhoFinalizado] = useState(null);
-  const [tamanhoAtivo, setTamanhoAtivo] = useState(null);
 
   const formatarData = (dataString) => {
     if (!dataString) return '';
     const [ano, mes, dia] = dataString.split('T')[0].split('-');
     return `${dia}/${mes}/${ano}`;
+  };
+
+  const formatarMoeda = (valor) => {
+    return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
 
   const carregarPedidosAtivos = () => {
@@ -55,7 +56,6 @@ export function GerenciamentoPedidos() {
       .then((response) => {
         if (response.data.length === 0) {
           setPedidosAtivosData([]);
-          setTamanhoAtivo(0);
           return;
         } else {
           const pedidosAtivosFormatado = response.data
@@ -76,7 +76,6 @@ export function GerenciamentoPedidos() {
 
 
           setPedidosAtivosData(pedidosAtivosFormatado);
-          setTamanhoAtivo(pedidosAtivosFormatado.length);
         }
       })
       .catch((error) => console.error('Erro ao carregar pedidos ativos:', error));
@@ -153,7 +152,7 @@ export function GerenciamentoPedidos() {
   };
 
   const handleRemoverItem = async () => {
-    
+
     if (!itemSelecionado) return;
 
     try {
@@ -167,7 +166,7 @@ export function GerenciamentoPedidos() {
         alert('Último item removido. O pedido foi excluído do sistema!');
         voltarParaLista();
       } else {
-        
+
         const novoValorTotal = itensRestantes.reduce((acc, item) => acc + Number(item.subTotal), 0);
 
         setPedidoSelecionado({
@@ -228,7 +227,6 @@ export function GerenciamentoPedidos() {
     }
   };
 
-  // --- FUNÇÕES DE NAVEGAÇÃO E MODAL ---
   const abrirDetalhes = (pedido) => {
     setPedidoSelecionado(pedido);
     setViewMode('detalhes');
@@ -255,10 +253,9 @@ export function GerenciamentoPedidos() {
 
   return (
     <div className="h-dvh flex flex-col overflow-hidden">
+      
       {viewMode === 'detalhes' && pedidoSelecionado ? (
-        /* ----------------------------------
-           DETALHES DO PEDIDO
-           ---------------------------------- */
+
         <div className="animate-in fade-in duration-300 flex flex-col flex-1 min-h-0 pb-4 overflow-hidden">
           <button
             onClick={voltarParaLista}
@@ -281,18 +278,16 @@ export function GerenciamentoPedidos() {
             </Button>
           </div>
 
-          {/* O CONTAINER EXTERNO AGORA NÃO ROLA MAIS, APENAS PREENCHE O ESPAÇO */}
           <div className="flex-1 min-h-0 pr-2">
             <ContentCard
               title={`Itens do Pedido (${pedidoSelecionado.itens?.length || 0})`}
               subtitle="Produtos incluídos no pedido do cliente"
               filters={
                 <div className="px-4 py-2 border-2 border-[#00a859] text-[#00a859] font-bold rounded-lg text-sm bg-white">
-                  TOTAL: R$ {pedidoSelecionado.valorTotal}
+                  TOTAL: {formatarMoeda(pedidoSelecionado.valorTotal)}
                 </div>
               }
             >
-              {/* O SCROLL (VERTICAL E HORIZONTAL) FICA RESTRITO A ESTA DIV */}
               <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar max-h-[calc(100dvh-280px)]">
                 <table className="w-full text-left border-collapse min-w-200 relative">
                   <thead className="sticky top-0 bg-gray-50 z-10 shadow-sm">
@@ -322,9 +317,9 @@ export function GerenciamentoPedidos() {
                             {item.tipoProduto === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 font-bold text-gray-800">R$ {item.precoUnitario}</td>
+                        <td className="px-6 py-4 font-bold text-gray-800">{formatarMoeda(item.precoUnitario)}</td>
                         <td className="px-6 py-4 font-bold text-[#00a859] text-right">
-                          R$ {item.subTotal}
+                          {formatarMoeda(item.subTotal)}
                         </td>
                         {abaAtiva === 'ativos' && (
                           <td className="px-6 py-4 text-right">
@@ -379,7 +374,6 @@ export function GerenciamentoPedidos() {
             </button>
           </div>
 
-          {/* O CONTAINER EXTERNO DA LISTAGEM AGORA FICA ESTÁTICO */}
           <div className="flex-1 min-h-0 pr-1">
             {abaAtiva === 'ativos' ? (
               <ContentCard
@@ -387,7 +381,6 @@ export function GerenciamentoPedidos() {
                 subtitle="Pedidos em andamento que precisam de atenção"
                 count={pedidosAtivosData.length}
               >
-                {/* O SCROLL ACONTECE SOMENTE AQUI DENTRO (COM ALTURA MÁXIMA DEFINIDA VIA CALC) */}
                 <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar max-h-[calc(100dvh-320px)]">
                   <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'A pagar']}>
                     {pedidosAtivosData.map((pedido) => (
@@ -401,8 +394,8 @@ export function GerenciamentoPedidos() {
                           <Badge text={pedido.mercado.tipo} />
                         </td>
                         <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                        <td className="px-6 py-4 text-[#00a859] font-bold">R$ {pedido.valorTotal}</td>
-                        <td className="px-6 py-4 text-red-600 font-bold">R$ {pedido.valorAPagar}</td>
+                        <td className="px-6 py-4 text-[#00a859] font-bold">{formatarMoeda(pedido.valorTotal)}</td>
+                        <td className="px-6 py-4 text-red-600 font-bold">{formatarMoeda(pedido.valorAPagar)}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
                             <button
@@ -433,10 +426,9 @@ export function GerenciamentoPedidos() {
             ) : (
               <ContentCard
                 title="Pedidos Finalizados"
-                subtitle="Pedidos concluídos ou cancelados"
+                subtitle="Histórico de pedidos concluídos para consulta"
                 count={tamanhoFinalizado}
               >
-                {/* SCROLL INTERNO PARA OS FINALIZADOS */}
                 <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar max-h-[calc(100dvh-320px)]">
                   <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'Status']}>
                     {finalizadosData.map((pedido) => (
@@ -450,7 +442,7 @@ export function GerenciamentoPedidos() {
                           <Badge text={pedido.mercado.tipo} />
                         </td>
                         <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                        <td className="px-6 py-4 text-[#00a859] font-bold">R$ {pedido.valorTotal}</td>
+                        <td className="px-6 py-4 text-[#00a859] font-bold">{formatarMoeda(pedido.valorTotal)}</td>
                         <td className="px-6 py-4">
                           <Badge text={pedido.statusPedido} />
                         </td>
@@ -477,7 +469,6 @@ export function GerenciamentoPedidos() {
         </div>
       )}
 
-      {/* MODAIS RESTANTES (Nenhuma alteração necessária aqui) */}
       <Modal
         isOpen={modalAtivo === 'pagamento'}
         onClose={fecharModal}
@@ -492,7 +483,7 @@ export function GerenciamentoPedidos() {
         <div className="flex flex-row justify-between max-h-10 mt-7">
           <div className="flex flex-col gap-1 p-2 rounded-lg justify-center border-2 border-gray-300 bg-gray-100">
             <p className="text-gray-700 text-[12px] font-medium">
-              Total: R$ {Number(pedidoSelecionado?.valorTotal || 0).toFixed(2)}
+              Total: R$ {Number(pedidoSelecionado?.valorTotal || 0).toFixed(2).replace('.', ',')}
             </p>
           </div>
           <div className="flex justify-end gap-3">

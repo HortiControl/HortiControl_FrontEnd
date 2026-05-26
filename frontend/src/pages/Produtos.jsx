@@ -17,7 +17,6 @@ export function Produtos() {
   const [valorGlobal, setValorGlobal] = useState(0);
   const [busca, setBusca] = useState('');
 
-
   const [filtroAtivo, setFiltroAtivo] = useState('TODOS');
 
   const [formData, setFormData] = useState({
@@ -28,6 +27,10 @@ export function Produtos() {
   });
 
   const token = localStorage.getItem('token');
+
+  const formatarMoeda = (valor) => {
+    return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
 
   const carregarProdutos = (filtro = '') => {
     let url = '/produtos'
@@ -51,7 +54,7 @@ export function Produtos() {
             nome: produto.nome,
             embalagem: produto.tipoEmbalagem,
             tipo: produto.tipoProduto
-          }))
+          })).sort((a, b) => a.nome.localeCompare(b.nome));
           setProdutosData(produtosFormatados)
         }
       })
@@ -79,7 +82,7 @@ export function Produtos() {
 
     if (tipo === 'edit' && produto) {
       setFormData({
-        preco: produto.preco,
+        preco: String(produto.preco).replace('.', ','),
         nome: produto.nome,
         embalagem: produto.embalagem,
         tipo: produto.tipo || ''
@@ -95,9 +98,12 @@ export function Produtos() {
   };
 
   const handleSalvar = async () => {
+
+    const precoFormatado = String(formData.preco).replace(',', '.');
+
     const dadosDoForms = {
       nome: formData.nome,
-      preco: Number(formData.preco),
+      preco: Number(precoFormatado),
       tipoEmbalagem: formData.embalagem,
       tipoProduto: formData.tipo
     };
@@ -119,7 +125,10 @@ export function Produtos() {
 
   const handleAtualizarGlobal = async () => {
     try {
-      await api.patch(`/produtos/reajuste-global?novoPreco=${valorGlobal}`, {}, {
+
+      const valorGlobalFormatado = String(valorGlobal).replace(',', '.');
+
+      await api.patch(`/produtos/reajuste-global?novoPreco=${valorGlobalFormatado}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       alert("Atualizado com sucesso!!")
@@ -143,7 +152,6 @@ export function Produtos() {
     }
   };
 
-  // --- LÓGICA DE FILTRAGEM LOCAL ---
   const produtosFiltrados = produtosData.filter(produto => {
     if (filtroAtivo === 'TODOS') return true;
     if (filtroAtivo === 'PRÉ-LAVADO') return produto.tipo === 'PRE_LAVADO';
@@ -151,7 +159,6 @@ export function Produtos() {
     return true;
   });
 
-  // --- BLOCO DA ESQUERDA (BUSCA + REAJUSTAR) ---
   const BuscaEReajuste = (
     <div className="flex flex-col sm:flex-row items-center gap-3 mt-4">
       <div className="relative flex items-center w-full sm:w-64">
@@ -170,7 +177,6 @@ export function Produtos() {
     </div>
   );
 
-  // --- BLOCO DA DIREITA (BOTÕES DE FILTRO) ---
   const FiltrosProdutos = (
     <div className="flex flex-col items-end gap-1 text-sm">
       <span className="text-gray-500 font-medium text-xs mb-1">Tipo de Produto</span>
@@ -208,7 +214,7 @@ export function Produtos() {
         subtitle={BuscaEReajuste}
         filters={FiltrosProdutos}
       >
-        
+
         <div className="max-h-[calc(100vh-18rem)] overflow-y-auto pr-2">
           <Table headers={['Nome', 'Tipo', 'Embalagem', 'Preço']}>
             {produtosFiltrados.map((produto) => (
@@ -229,7 +235,7 @@ export function Produtos() {
                 </td>
 
                 <td className="px-6 py-4 text-[#00a859] font-bold">
-                  R$ {produto.preco}
+                  {formatarMoeda(produto.preco)}
                 </td>
 
                 <td className="px-6 py-4 text-right">
@@ -254,7 +260,6 @@ export function Produtos() {
         </div>
       </ContentCard>
 
-      {/* Os modais continuam inalterados */}
       <Modal isOpen={modalAtivo === 'add' || modalAtivo === 'edit'} onClose={fecharModal} title={modalAtivo === 'add' ? 'Adicionar Novo Produto' : 'Editar Produto'}>
         <Input label="Nome do Produto:" placeholder="Ex: Alface Lisa" value={formData.nome} onChange={(e) => setFormData({ ...formData, nome: e.target.value })} />
         <Select label="Tipo de Processamento" options={['PRE-LAVADO', 'NAO-LAVADO']} value={formData.tipo} onChange={(e) => setFormData({ ...formData, tipo: e.target.value.replace("-", "_") })} />

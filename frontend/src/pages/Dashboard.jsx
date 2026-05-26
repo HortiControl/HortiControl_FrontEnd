@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  DollarSign,
-  Package,
-  Inbox,
-  Archive,
-  ShoppingBag
-} from 'lucide-react';
+import { DollarSign, Package, Inbox, Archive, ShoppingBag } from 'lucide-react';
 import { ContentCard } from '../components/ContentCard';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -13,9 +7,25 @@ import {
 } from 'recharts';
 import api from '../provider/api';
 
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-3 border border-gray-100 shadow-lg rounded-lg">
+        <p className="text-xs font-bold text-gray-400 mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <p key={index} className="text-sm font-bold" style={{ color: entry.color || entry.fill }}>
+            {entry.name}: {entry.value}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 export function Dashboard() {
-  const periodos = ['Hoje', 'Semana passada', 'Esta semana', 'Este mês', 'Mês passado', 'Ano'];
-  const [periodoAtivo, setPeriodoAtivo] = useState('Esta semana');
+  const periodos = ['Hoje', 'Esta Semana', 'Semana Passada', 'Este mês', 'Mês passado', 'Ano'];
+  const [periodoAtivo, setPeriodoAtivo] = useState('Hoje');
 
   const [dados, setDados] = useState({
     faturadoTotal: 0,
@@ -49,7 +59,6 @@ export function Dashboard() {
       });
   }, [periodoAtivo]);
 
-  // Função para formatar moeda
   const formatarMoeda = (valor) => {
     return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
@@ -60,22 +69,6 @@ export function Dashboard() {
       'NAO_LAVADO': 'Não Lavado'
     };
     return formatos[tipo] || tipo;
-  };
-
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 border border-gray-100 shadow-lg rounded-lg">
-          <p className="text-xs font-bold text-gray-400 mb-2">{label}</p>
-          {payload.map((entry, index) => (
-            <p key={index} className="text-sm font-bold" style={{ color: entry.color || entry.fill }}>
-              {entry.name}: {entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
   };
 
   return (
@@ -270,13 +263,12 @@ export function Dashboard() {
                     </div>
                   </div>
                   <div className="text-right shrink-0 whitespace-nowrap">
-                    <p className="text-sm font-bold text-gray-800">R$ {c.valorTotal}</p>
+                    <p className="text-sm font-bold text-gray-800">{formatarMoeda(c.valorTotal)}</p>
                     <p className="text-[10px] text-gray-400 font-medium">em compras</p>
                   </div>
 
                 </div>
               ))}
-              
             </div>
           </ContentCard>
 

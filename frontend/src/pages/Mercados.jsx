@@ -42,7 +42,7 @@ export function Mercados() {
             tipo: mercado.tipoMercado || mercado.tipo || 'NORMAL',
             cep: mercado.cep,
             numero: mercado.numero
-          }));
+          })).sort((a, b) => a.nome.localeCompare(b.nome));
           setMercadosData(mercadosFormatados);
         }
       })
@@ -65,6 +65,7 @@ export function Mercados() {
 
       setEndereco(data);
     } catch (err) {
+      console.log(err);
       setEndereco(null);
       alert('CEP não encontrado');
     } finally {
@@ -133,6 +134,7 @@ export function Mercados() {
       carregarMercados();
       fecharModal();
     } catch (err) {
+      console.log(err);
       alert('Erro ao salvar mercado');
     }
   };
@@ -178,7 +180,7 @@ export function Mercados() {
   );
 
   return (
-    <div>
+    <div className="h-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-semibold text-gray-800">Clientes</h1>
@@ -192,41 +194,42 @@ export function Mercados() {
         count={mercadosFiltrados.length}
         filters={FiltroClientes}
       >
-        {/* 4. TABELA SEM COLUNA DE OBSERVAÇÕES */}
-        <Table headers={['Nome', 'Tipo', 'CEP']}>
-          {mercadosFiltrados.map((mercado) => (
-            <tr key={mercado.id} className="hover:bg-gray-50 transition-colors border-b border-gray-100">
-              <td className="px-6 py-4 font-medium text-gray-800">{mercado.nome}</td>
-              <td className="px-6 py-4">
-                <Badge text={mercado.tipo} />
-              </td>
-              <td className="px-6 py-4 text-gray-600">{formatarCEP(mercado.cep)}</td>
-              <td className="px-6 py-4">
-                {/* 5. NOVOS BOTÕES COM TEXTO E BORDAS */}
-                <div className="flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => abrirModal('edit', mercado)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
-                  >
-                    <Pencil size={14} /> Editar
-                  </button>
-                  <button
-                    onClick={() => abrirModal('viewAddress', mercado)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium cursor-pointer"
-                  >
-                    <MapPin size={14} /> Endereço
-                  </button>
-                  <button
-                    onClick={() => abrirModal('delete', mercado)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
-                  >
-                    <Trash2 size={14} /> Excluir
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </Table>
+
+        <div className="max-h-[calc(100vh-16rem)] overflow-y-auto pr-2">
+          <Table headers={['Nome', 'Tipo', 'CEP']}>
+            {mercadosFiltrados.map((mercado) => (
+              <tr key={mercado.id} className="hover:bg-gray-50 transition-colors border-b border-gray-100">
+                <td className="px-6 py-4 font-medium text-gray-800">{mercado.nome}</td>
+                <td className="px-6 py-4">
+                  <Badge text={mercado.tipo} />
+                </td>
+                <td className="px-6 py-4 text-gray-600">{formatarCEP(mercado.cep)}</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => abrirModal('edit', mercado)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
+                    >
+                      <Pencil size={14} /> Editar
+                    </button>
+                    <button
+                      onClick={() => abrirModal('viewAddress', mercado)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium cursor-pointer"
+                    >
+                      <MapPin size={14} /> Endereço
+                    </button>
+                    <button
+                      onClick={() => abrirModal('delete', mercado)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
+                    >
+                      <Trash2 size={14} /> Excluir
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </Table>
+        </div>
       </ContentCard>
 
       <Modal

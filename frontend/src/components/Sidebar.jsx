@@ -28,7 +28,7 @@ export function Sidebar({ activeItem }) {
   const menuItems = [
     // Dashboard adicionada de volta aqui e apontando para "/"
     { id: 'dashboard', label: 'Resultados', icon: LayoutDashboard, path: '/' },
-    { id: 'mercados', label: 'Mercados', icon: Store, path: '/mercados' },
+    { id: 'mercados', label: 'Clientes', icon: Store, path: '/mercados' },
     { id: 'produtos', label: 'Produtos', icon: Carrot, path: '/produtos' },
     { id: 'pedidos', label: 'Pedidos', icon: ShoppingCart, path: '/pedidos' },
     { id: 'criarpedidos', label: 'Criar Pedidos', icon: CirclePlus, path: '/criarpedidos' }
