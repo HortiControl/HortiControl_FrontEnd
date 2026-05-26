@@ -2,8 +2,6 @@ import { User, Mail, Phone, Lock, ArrowLeft } from "lucide-react";
 
 import { Button } from "../Button";
 import banner from "../../assets/banner.png";
-import logo from "../../assets/HortiControlLogo.png";
-import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
@@ -69,8 +67,13 @@ const CadastroCard = () => {
       alert("Cadastro realizado com sucesso!");
       navigate("/login", { replace: true });
     } catch (error) {
-      console.log(error.message);
-      alert("Erro ao cadastrar");
+
+      if (error.response && (error.response.status === 409 || error.response.status === 400)) {
+        alert("E-mail já cadastrado. Por favor, use outro e-mail.");
+      } else {
+        console.log(error.message);
+        alert("Erro ao cadastrar");
+      }
     }
   };
 

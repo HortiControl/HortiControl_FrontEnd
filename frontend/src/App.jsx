@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./layouts/AppLayout";
-import { Dashboard } from "./pages/Dashboard"; // <-- Importe a Dashboard aqui
+import { Dashboard } from "./pages/Dashboard";
 import { Mercados } from "./pages/Mercados";
 import { Produtos } from "./pages/Produtos";
 import { GerenciamentoPedidos } from "./pages/GerenciamentoPedidos";

@@ -1,25 +1,25 @@
-import { Mail, Lock, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { Mail, Lock, EyeOff, Eye } from "lucide-react";
 import { Button } from "../Button";
 import banner from "../../assets/banner.png";
 import logo from "../../assets/HortiControlLogo.png";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../provider/api";
 
 const LoginCard = () => {
   const navigate = useNavigate();
+
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   function direcionarCadastro() {
     navigate("/cadastro", { replace: true });
   }
 
-  //Para realizar o envio das informações do
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Captura as informações do formulário
     const formData = new FormData(e.currentTarget);
 
-    // Transforma em objeto json
     const dados = Object.fromEntries(formData.entries());
 
     console.log(dados);
@@ -30,8 +30,7 @@ const LoginCard = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/usuarios/login",
+      const response = await api.post("/usuarios/login",
         {
           email: dados.email,
           senha: dados.senha,
@@ -44,9 +43,9 @@ const LoginCard = () => {
 
       localStorage.setItem("token", dadosLogin.token);
       localStorage.setItem("userId", dadosLogin.idUsuario);
-      
+
       alert("Login realizado com sucesso!");
-      navigate("/mercados", { replace: true });
+      navigate("/", { replace: true });
 
     } catch (error) {
       console.log(error.message);
@@ -90,12 +89,22 @@ const LoginCard = () => {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
-                type="password"
+                type={mostrarSenha ? "text" : "password"}
                 name="senha"
                 placeholder="•••••"
                 className="w-full pl-10 pr-10 py-3 bg-[#e9ecef] rounded-xl border-none focus:ring-2 focus:ring-[#009951] outline-none transition-all placeholder:text-gray-400"
               />
-              <EyeOff className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 cursor-pointer hover:text-gray-600" />
+              <button
+                type="button"
+                onClick={() => setMostrarSenha(!mostrarSenha)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none flex items-center justify-center"
+              >
+                {mostrarSenha ? (
+                  <Eye className="w-5 h-5" />
+                ) : (
+                  <EyeOff className="w-5 h-5" />
+                )}
+              </button>
             </div>
           </div>
 
