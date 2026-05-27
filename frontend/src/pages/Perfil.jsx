@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   User,
   Mail,
@@ -18,6 +18,7 @@ export default function Perfil() {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId"); // O ID do usuário logado
 
+  const navigate = useNavigate();
   // 2. Estados para armazenar os dados dos formulários
   const [perfil, setPerfil] = useState({ nome: "", email: "", telefone: "" });
   const [senhas, setSenhas] = useState({
@@ -28,22 +29,35 @@ export default function Perfil() {
 
   // 3. Efeito que roda ao abrir a tela: Busca os dados no Backend
   useEffect(() => {
-    if (userId && token) {
-      axios
-        .get(`http://localhost:8080/usuarios/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          // Preenche o estado com os dados vindos do banco
-          setPerfil({
-            nome: response.data.nome,
-            email: response.data.email,
-            telefone: response.data.telefone || "",
-          });
-        })
-        .catch((error) => console.error("Erro ao carregar perfil:", error));
+    // Se não tiver token ou userId, volta pro login
+    if (!token || !userId) {
+      navigate("/login", { replace: true });
+      return;
     }
-  }, [userId, token]);
+
+    axios
+      .get(`http://localhost:8080/usuarios/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setPerfil({
+          nome: response.data.nome,
+          email: response.data.email,
+          telefone: response.data.telefone || "",
+        });
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar perfil:", error);
+
+        // Token inválido ou expirado
+        if (error.response?.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("userId");
+
+          navigate("/login", { replace: true });
+        }
+      });
+  }, [userId, token, navigate]);
 
   // 4. Função para atualizar as informações pessoais (PUT)
   const handleSalvarPerfil = async () => {
@@ -53,16 +67,15 @@ export default function Perfil() {
     }
 
     if (perfil.telefone && !/^\d{0,11}$/.test(perfil.telefone)) {
-        alert("O telefone deve conter apenas números e no máximo 11 dígitos.");
-        return;
-      }
+      alert("O telefone deve conter apenas números e no máximo 11 dígitos.");
+      return;
+    }
 
     // Email obrigatório
     if (!perfil.email.trim()) {
       alert("Digite um e-mail.");
       return;
     }
-
 
     // Validação de email
     const email = perfil.email.trim();
@@ -86,10 +99,11 @@ export default function Perfil() {
         },
       );
       alert("Perfil atualizado com sucesso!");
-    } catch (error) {
+
       
-        alert("Erro ao atualizar o perfil. Verifique os dados.");
-        console.error(error);
+    } catch (error) {
+      alert("Erro ao atualizar o perfil. Verifique os dados.");
+      console.error(error);
     }
   };
 
@@ -97,6 +111,18 @@ export default function Perfil() {
   const handleAtualizarSenha = async () => {
     if (senhas.novaSenha !== senhas.confirmacao) {
       alert("A nova senha e a confirmação não batem!");
+      return;
+    }
+
+    // Mínimo de 5 caracteres
+    if (senhas.novaSenha.length < 5) {
+      alert("A senha deve ter no mínimo 5 caracteres.");
+      return;
+    }
+
+    // Não permite caracteres especiais
+    if (!/^[a-zA-Z0-9]+$/.test(senhas.novaSenha)) {
+      alert("A senha não pode conter caracteres especiais.");
       return;
     }
 

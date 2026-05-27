@@ -43,9 +43,17 @@ const CadastroCard = () => {
       return;
     }
 
+
+
     //Validações de senha
     if (dados.senha.length < 5) {
       alert("A senha deve ter no mínimo 5 caracteres!");
+      return;
+    }
+    
+     // Não permite caracteres especiais
+    if (!/^[a-zA-Z0-9]+$/.test(senhas.novaSenha)) {
+      alert("A senha não pode conter caracteres especiais.");
       return;
     }
 
