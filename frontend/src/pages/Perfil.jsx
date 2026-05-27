@@ -66,6 +66,15 @@ export default function Perfil() {
       return;
     }
 
+     // Nome não pode conter números, caracteres especiais ou ç
+    if (
+      !/^[A-Za-zÀ-ú\s]+$/.test(perfil.nome.trim()) ||
+      /[çÇ]/.test(dados.nome)
+    ) {
+      alert("O nome deve conter apenas letras sem caracteres especiais.");
+      return;
+    }
+
     if (perfil.telefone && !/^\d{0,11}$/.test(perfil.telefone)) {
       alert("O telefone deve conter apenas números e no máximo 11 dígitos.");
       return;

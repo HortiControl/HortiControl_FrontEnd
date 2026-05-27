@@ -30,8 +30,18 @@ const CadastroCard = () => {
       alert("Preencha todos os campos obrigatórios!");
       return;
     }
+
+    // Nome não pode conter números, caracteres especiais ou ç
+    if (
+      !/^[A-Za-zÀ-ú\s]+$/.test(dados.nome.trim()) ||
+      /[çÇ]/.test(dados.nome)
+    ) {
+      alert("O nome deve conter apenas letras sem caracteres especiais.");
+      return;
+    }
+
     const email = dados.email.trim();
-    
+
     // Validações de email
     if (
       !email.includes("@") ||
