@@ -69,7 +69,7 @@ export default function Perfil() {
      // Nome não pode conter números, caracteres especiais ou ç
     if (
       !/^[A-Za-zÀ-ú\s]+$/.test(perfil.nome.trim()) ||
-      /[çÇ]/.test(dados.nome)
+      /[çÇ]/.test(perfil.nome)
     ) {
       alert("O nome deve conter apenas letras sem caracteres especiais.");
       return;
