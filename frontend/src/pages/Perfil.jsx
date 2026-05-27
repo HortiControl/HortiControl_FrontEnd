@@ -98,9 +98,12 @@ export default function Perfil() {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      alert("Perfil atualizado com sucesso!");
+      alert("Perfil atualizado com sucesso! Faça o login novamente");
 
-      
+      localStorage.removeItem("token");
+
+      navigate("/login", { replace: true });
+
     } catch (error) {
       alert("Erro ao atualizar o perfil. Verifique os dados.");
       console.error(error);

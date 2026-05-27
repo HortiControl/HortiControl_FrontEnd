@@ -52,7 +52,7 @@ const CadastroCard = () => {
     }
     
      // Não permite caracteres especiais
-    if (!/^[a-zA-Z0-9]+$/.test(senhas.novaSenha)) {
+    if (!/^[a-zA-Z0-9]+$/.test(dados.senha)) {
       alert("A senha não pode conter caracteres especiais.");
       return;
     }
