@@ -31,7 +31,8 @@ const CadastroCard = () => {
       return;
     }
     const email = dados.email.trim();
-    // Validação de email
+    
+    // Validações de email
     if (
       !email.includes("@") ||
       !email.includes(".") ||
@@ -43,15 +44,28 @@ const CadastroCard = () => {
       return;
     }
 
+    // Validações de telefone
+    if (dados.telefone.trim()) {
+      // Apenas números
+      if (!/^\d+$/.test(dados.telefone)) {
+        alert("O telefone deve conter apenas números.");
+        return;
+      }
 
+      // Deve ter 10 ou 11 dígitos
+      if (dados.telefone.length < 10 || dados.telefone.length > 11) {
+        alert("O telefone deve ter 10 ou 11 dígitos.");
+        return;
+      }
+    }
 
     //Validações de senha
     if (dados.senha.length < 5) {
       alert("A senha deve ter no mínimo 5 caracteres!");
       return;
     }
-    
-     // Não permite caracteres especiais
+
+    // Não permite caracteres especiais
     if (!/^[a-zA-Z0-9]+$/.test(dados.senha)) {
       alert("A senha não pode conter caracteres especiais.");
       return;
@@ -75,8 +89,10 @@ const CadastroCard = () => {
       alert("Cadastro realizado com sucesso!");
       navigate("/login", { replace: true });
     } catch (error) {
-
-      if (error.response && (error.response.status === 409 || error.response.status === 400)) {
+      if (
+        error.response &&
+        (error.response.status === 409 || error.response.status === 400)
+      ) {
         alert("E-mail já cadastrado. Por favor, use outro e-mail.");
       } else {
         console.log(error.message);
