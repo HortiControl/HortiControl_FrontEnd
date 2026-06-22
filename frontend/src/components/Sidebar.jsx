@@ -1,5 +1,6 @@
 import { LayoutDashboard, Store, Carrot, ShoppingCart, LogOut, CirclePlus, User } from 'lucide-react';
 import axios from 'axios';
+import api from '../provider/api';
 import { Link, useNavigate } from 'react-router-dom';
 import logoImg from '../assets/logo.png';
 
@@ -7,7 +8,7 @@ export function Sidebar({ activeItem }) {
   const navigate = useNavigate();
 
   async function logOff() {
-    axios.get("http://localhost:5173/usuarios/logout", {
+    api.get("/usuarios/logout", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
