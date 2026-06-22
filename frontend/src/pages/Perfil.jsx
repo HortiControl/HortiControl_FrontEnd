@@ -9,6 +9,8 @@ import {
   Save,
   RefreshCw,
 } from "lucide-react";
+
+import api from "../provider/api";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import axios from "axios";
@@ -35,10 +37,9 @@ export default function Perfil() {
       return;
     }
 
-    axios
-      .get(`http://localhost:8080/usuarios/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api.get(`/usuarios/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((response) => {
         setPerfil({
           nome: response.data.nome,
@@ -66,7 +67,7 @@ export default function Perfil() {
       return;
     }
 
-     // Nome não pode conter números, caracteres especiais ou ç
+    // Nome não pode conter números, caracteres especiais ou ç
     if (
       !/^[A-Za-zÀ-ú\s]+$/.test(perfil.nome.trim()) ||
       /[çÇ]/.test(perfil.nome)
@@ -100,8 +101,7 @@ export default function Perfil() {
       return;
     }
     try {
-      await axios.put(
-        `http://localhost:8080/usuarios/perfil/${userId}`,
+      await api.put(`/usuarios/perfil/${userId}`,
         perfil,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -139,8 +139,7 @@ export default function Perfil() {
     }
 
     try {
-      await axios.put(
-        `http://localhost:8080/usuarios/senha/${userId}`,
+      await api.put(`/usuarios/senha/${userId}`,
         {
           senhaAtual: senhas.senhaAtual,
           novaSenha: senhas.novaSenha,

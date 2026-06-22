@@ -3,6 +3,7 @@ import { User, Mail, Phone, Lock, ArrowLeft } from "lucide-react";
 import { Button } from "../Button";
 import banner from "../../assets/banner.png";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../../provider/api";
 import axios from "axios";
 
 const CadastroCard = () => {
@@ -87,7 +88,7 @@ const CadastroCard = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8080/usuarios", {
+      const response = await api.post("/usuarios", {
         nome: dados.nome,
         email: dados.email,
         telefone: dados.telefone,
