@@ -8,8 +8,10 @@ import { Modal } from '../components/Modal';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import api from '../provider/api';
+import { useNotification } from '../components/notifications/NotificationContext';
 
 export function GerenciamentoPedidos() {
+  const notify = useNotification();
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -78,7 +80,10 @@ export function GerenciamentoPedidos() {
           setPedidosAtivosData(pedidosAtivosFormatado);
         }
       })
-      .catch((error) => console.error('Erro ao carregar pedidos ativos:', error));
+      .catch((error) => {
+        console.error('Erro ao carregar pedidos ativos:', error);
+        notify.error('Não foi possível carregar os pedidos ativos.');
+      });
   };
 
   const carregarPedidosFinalizados = () => {
@@ -112,7 +117,10 @@ export function GerenciamentoPedidos() {
           setTamanhoFinalizado(finalizadosFormatado.length);
         }
       })
-      .catch((error) => console.error('Erro ao carregar pedidos finalizados:', error));
+      .catch((error) => {
+        console.error('Erro ao carregar pedidos finalizados:', error);
+        notify.error('Não foi possível carregar o histórico de pedidos.');
+      });
   };
 
   useEffect(() => {
@@ -140,14 +148,14 @@ export function GerenciamentoPedidos() {
         voltarParaLista();
       }
 
-      alert('Pedido excluído com sucesso!');
+      notify.success('Pedido excluído com sucesso.');
 
       carregarPedidosAtivos();
       carregarPedidosFinalizados();
       fecharModal();
     } catch (error) {
       console.error('Erro ao excluir pedido:', error);
-      alert('Erro ao excluir o pedido. Tente novamente.');
+      notify.error('Não foi possível excluir o pedido. Tente novamente.');
     }
   };
 
@@ -163,7 +171,7 @@ export function GerenciamentoPedidos() {
       const itensRestantes = pedidoSelecionado.itens.filter((item) => item.id !== itemSelecionado.id);
 
       if (itensRestantes.length === 0) {
-        alert('Último item removido. O pedido foi excluído do sistema!');
+        notify.info('Último item removido. O pedido foi encerrado no sistema.');
         voltarParaLista();
       } else {
 
@@ -174,7 +182,7 @@ export function GerenciamentoPedidos() {
           itens: itensRestantes,
           valorTotal: novoValorTotal,
         });
-        alert('Item removido com sucesso!');
+        notify.success('Item removido com sucesso.');
       }
 
       carregarPedidosAtivos();
@@ -182,7 +190,7 @@ export function GerenciamentoPedidos() {
       fecharModal();
     } catch (error) {
       console.error('Erro ao remover item:', error);
-      alert('Erro ao remover o item do pedido.');
+      notify.error('Não foi possível remover o item do pedido.');
     }
   };
 
@@ -191,14 +199,12 @@ export function GerenciamentoPedidos() {
     const valorAPagarNum = parseFloat(pedidoSelecionado.valorAPagar);
 
     if (valorInformadoNum > valorAPagarNum) {
-      alert(
-        `Erro: O valor digitado (R$ ${valorInformadoNum}) é maior que o valor restante a pagar (R$ ${valorAPagarNum})!`
-      );
+      notify.warning('O valor informado é maior que o valor restante a pagar.');
       return;
     }
 
     if (isNaN(valorInformadoNum) || valorInformadoNum <= 0) {
-      alert('Por favor, insira um valor válido.');
+      notify.warning('Insira um valor válido para continuar.');
       return;
     }
 
@@ -212,9 +218,9 @@ export function GerenciamentoPedidos() {
       );
 
       if (valorInformadoNum === valorAPagarNum) {
-        alert('Pedido pago!');
+        notify.success('Pagamento concluído com sucesso.');
       } else {
-        alert('Pagamento registrado com sucesso!!');
+        notify.success('Pagamento registrado com sucesso.');
       }
 
       carregarPedidosAtivos();
@@ -223,7 +229,7 @@ export function GerenciamentoPedidos() {
       setValorPago(0);
     } catch (error) {
       console.error('Erro ao atualizar valor pago do pedido: ', error);
-      alert('Erro ao atualizar o pagamento. Verifique os dados.');
+      notify.error('Não foi possível atualizar o pagamento. Verifique os dados.');
     }
   };
 
@@ -288,55 +294,100 @@ export function GerenciamentoPedidos() {
                 </div>
               }
             >
-              <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar max-h-[calc(100dvh-280px)]">
-                <table className="w-full text-left border-collapse min-w-200 relative">
-                  <thead className="sticky top-0 bg-gray-50 z-10 shadow-sm">
-                    <tr className="text-gray-500 text-sm border-b border-gray-200">
-                      <th className="px-6 py-4 font-medium">Unidade</th>
-                      <th className="px-6 py-4 font-medium">Produto</th>
-                      <th className="px-6 py-4 font-medium">Tipo</th>
-                      <th className="px-6 py-4 font-medium">Preço</th>
-                      <th className="px-6 py-4 font-medium text-right">Total</th>
+              <div className="w-full max-h-[calc(100dvh-280px)] overflow-y-auto custom-scrollbar">
+                <div className="space-y-3 md:hidden">
+                  {pedidoSelecionado.itens?.map((item) => (
+                    <article key={item.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h3 className="truncate text-base font-semibold text-gray-800">{item.nomeProduto}</h3>
+                          <p className="mt-1 text-sm text-gray-500">Unidades: {item.quantidade}</p>
+                        </div>
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-medium ${item.tipoProduto === 'PRE_LAVADO'
+                            ? 'bg-[#00a859] text-white'
+                            : 'bg-gray-200 text-gray-700'
+                            }`}
+                        >
+                          {item.tipoProduto === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-xs font-medium uppercase text-gray-400">Preço</p>
+                          <p className="font-semibold text-gray-800">{formatarMoeda(item.precoUnitario)}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs font-medium uppercase text-gray-400">Total</p>
+                          <p className="font-semibold text-[#00a859]">{formatarMoeda(item.subTotal)}</p>
+                        </div>
+                      </div>
+
                       {abaAtiva === 'ativos' && (
-                        <th className="px-6 py-4 font-medium text-right">Ações</th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {pedidoSelecionado.itens?.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 text-gray-800">{item.quantidade}</td>
-                        <td className="px-6 py-4 font-medium text-gray-800">{item.nomeProduto}</td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${item.tipoProduto === 'PRE_LAVADO'
-                              ? 'bg-[#00a859] text-white'
-                              : 'bg-gray-200 text-gray-700'
-                              }`}
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            onClick={() => abrirModalItem(item)}
+                            className="inline-flex items-center gap-1.5 rounded-md border border-red-600 bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
                           >
-                            {item.tipoProduto === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 font-bold text-gray-800">{formatarMoeda(item.precoUnitario)}</td>
-                        <td className="px-6 py-4 font-bold text-[#00a859] text-right">
-                          {formatarMoeda(item.subTotal)}
-                        </td>
+                            <Trash2 size={14} /> Excluir
+                          </button>
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </div>
+
+                <div className="hidden md:block">
+                  <table className="relative min-w-[52rem] w-full border-collapse text-left">
+                    <thead className="sticky top-0 z-10 bg-gray-50 shadow-sm">
+                      <tr className="border-b border-gray-200 text-sm text-gray-500">
+                        <th className="px-6 py-4 font-medium">Unidade</th>
+                        <th className="px-6 py-4 font-medium">Produto</th>
+                        <th className="px-6 py-4 font-medium">Tipo</th>
+                        <th className="px-6 py-4 font-medium">Preço</th>
+                        <th className="px-6 py-4 font-medium text-right">Total</th>
                         {abaAtiva === 'ativos' && (
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end">
-                              <button
-                                onClick={() => abrirModalItem(item)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
-                              >
-                                <Trash2 size={14} /> Excluir
-                              </button>
-                            </div>
-                          </td>
+                          <th className="px-6 py-4 font-medium text-right">Ações</th>
                         )}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {pedidoSelecionado.itens?.map((item) => (
+                        <tr key={item.id} className="transition-colors hover:bg-gray-50">
+                          <td className="px-6 py-4 text-gray-800">{item.quantidade}</td>
+                          <td className="px-6 py-4 font-medium text-gray-800">{item.nomeProduto}</td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`rounded-full px-3 py-1 text-xs font-medium ${item.tipoProduto === 'PRE_LAVADO'
+                                ? 'bg-[#00a859] text-white'
+                                : 'bg-gray-200 text-gray-700'
+                                }`}
+                            >
+                              {item.tipoProduto === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 font-bold text-gray-800">{formatarMoeda(item.precoUnitario)}</td>
+                          <td className="px-6 py-4 font-bold text-[#00a859] text-right">
+                            {formatarMoeda(item.subTotal)}
+                          </td>
+                          {abaAtiva === 'ativos' && (
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex items-center justify-end">
+                                <button
+                                  onClick={() => abrirModalItem(item)}
+                                  className="flex items-center gap-1.5 rounded-md border border-red-600 bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                                >
+                                  <Trash2 size={14} /> Excluir
+                                </button>
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </ContentCard>
           </div>
@@ -381,46 +432,98 @@ export function GerenciamentoPedidos() {
                 subtitle="Pedidos em andamento que precisam de atenção"
                 count={pedidosAtivosData.length}
               >
-                <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar max-h-[calc(100dvh-320px)]">
-                  <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'A pagar']}>
+                <div className="w-full max-h-[calc(100dvh-320px)] overflow-y-auto custom-scrollbar">
+                  <div className="space-y-3 md:hidden">
                     {pedidosAtivosData.map((pedido) => (
-                      <tr
+                      <article
                         key={pedido.id}
                         onClick={() => abrirDetalhes(pedido)}
-                        className="hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer"
+                        className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:bg-gray-50"
                       >
-                        <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
-                        <td className="px-6 py-4">
-                          <Badge text={pedido.mercado.tipo} />
-                        </td>
-                        <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                        <td className="px-6 py-4 text-[#00a859] font-bold">{formatarMoeda(pedido.valorTotal)}</td>
-                        <td className="px-6 py-4 text-red-600 font-bold">{formatarMoeda(pedido.valorAPagar)}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                abrirModal('pagamento', pedido);
-                              }}
-                              className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
-                            >
-                              <DollarSign size={14} /> Pagar
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                abrirModal('delete', pedido);
-                              }}
-                              className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
-                            >
-                              <Trash2 size={14} /> Excluir
-                            </button>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="truncate text-base font-semibold text-gray-800">{pedido.mercado.nome}</h3>
+                            <p className="mt-1 text-sm text-gray-500">{pedido.data}</p>
                           </div>
-                        </td>
-                      </tr>
+                          <Badge text={pedido.mercado.tipo} />
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <p className="text-xs font-medium uppercase text-gray-400">Valor Total</p>
+                            <p className="font-bold text-[#00a859]">{formatarMoeda(pedido.valorTotal)}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs font-medium uppercase text-gray-400">A pagar</p>
+                            <p className="font-bold text-red-600">{formatarMoeda(pedido.valorAPagar)}</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 flex flex-wrap justify-end gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              abrirModal('pagamento', pedido);
+                            }}
+                            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                          >
+                            <DollarSign size={14} /> Pagar
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              abrirModal('delete', pedido);
+                            }}
+                            className="inline-flex items-center gap-1.5 rounded-md border border-red-600 bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                          >
+                            <Trash2 size={14} /> Excluir
+                          </button>
+                        </div>
+                      </article>
                     ))}
-                  </Table>
+                  </div>
+
+                  <div className="hidden md:block">
+                    <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'A pagar']}>
+                      {pedidosAtivosData.map((pedido) => (
+                        <tr
+                          key={pedido.id}
+                          onClick={() => abrirDetalhes(pedido)}
+                          className="cursor-pointer border-b border-gray-100 transition-colors hover:bg-gray-50"
+                        >
+                          <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
+                          <td className="px-6 py-4">
+                            <Badge text={pedido.mercado.tipo} />
+                          </td>
+                          <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
+                          <td className="px-6 py-4 font-bold text-[#00a859]">{formatarMoeda(pedido.valorTotal)}</td>
+                          <td className="px-6 py-4 font-bold text-red-600">{formatarMoeda(pedido.valorAPagar)}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  abrirModal('pagamento', pedido);
+                                }}
+                                className="flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                              >
+                                <DollarSign size={14} /> Pagar
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  abrirModal('delete', pedido);
+                                }}
+                                className="flex items-center gap-1.5 rounded-md border border-red-600 bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                              >
+                                <Trash2 size={14} /> Excluir
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </Table>
+                  </div>
                 </div>
               </ContentCard>
             ) : (
@@ -429,39 +532,82 @@ export function GerenciamentoPedidos() {
                 subtitle="Histórico de pedidos concluídos para consulta"
                 count={tamanhoFinalizado}
               >
-                <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar max-h-[calc(100dvh-320px)]">
-                  <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'Status']}>
+                <div className="w-full max-h-[calc(100dvh-320px)] overflow-y-auto custom-scrollbar">
+                  <div className="space-y-3 md:hidden">
                     {finalizadosData.map((pedido) => (
-                      <tr
+                      <article
                         key={pedido.id}
                         onClick={() => abrirDetalhes(pedido)}
-                        className="hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer"
+                        className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:bg-gray-50"
                       >
-                        <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
-                        <td className="px-6 py-4">
-                          <Badge text={pedido.mercado.tipo} />
-                        </td>
-                        <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
-                        <td className="px-6 py-4 text-[#00a859] font-bold">{formatarMoeda(pedido.valorTotal)}</td>
-                        <td className="px-6 py-4">
-                          <Badge text={pedido.statusPedido} />
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                abrirModal('delete', pedido);
-                              }}
-                              className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
-                            >
-                              <Trash2 size={14} /> Excluir
-                            </button>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="truncate text-base font-semibold text-gray-800">{pedido.mercado.nome}</h3>
+                            <p className="mt-1 text-sm text-gray-500">{pedido.data}</p>
                           </div>
-                        </td>
-                      </tr>
+                          <Badge text={pedido.mercado.tipo} />
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <p className="text-xs font-medium uppercase text-gray-400">Valor Total</p>
+                            <p className="font-bold text-[#00a859]">{formatarMoeda(pedido.valorTotal)}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs font-medium uppercase text-gray-400">Status</p>
+                            <Badge text={pedido.statusPedido} />
+                          </div>
+                        </div>
+
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              abrirModal('delete', pedido);
+                            }}
+                            className="inline-flex items-center gap-1.5 rounded-md border border-red-600 bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                          >
+                            <Trash2 size={14} /> Excluir
+                          </button>
+                        </div>
+                      </article>
                     ))}
-                  </Table>
+                  </div>
+
+                  <div className="hidden md:block">
+                    <Table headers={['Cliente', 'Tipo', 'Data Solicitação', 'Valor Total', 'Status']}>
+                      {finalizadosData.map((pedido) => (
+                        <tr
+                          key={pedido.id}
+                          onClick={() => abrirDetalhes(pedido)}
+                          className="cursor-pointer border-b border-gray-100 transition-colors hover:bg-gray-50"
+                        >
+                          <td className="px-6 py-4 font-medium text-gray-800">{pedido.mercado.nome}</td>
+                          <td className="px-6 py-4">
+                            <Badge text={pedido.mercado.tipo} />
+                          </td>
+                          <td className="px-6 py-4 text-gray-600">{pedido.data}</td>
+                          <td className="px-6 py-4 font-bold text-[#00a859]">{formatarMoeda(pedido.valorTotal)}</td>
+                          <td className="px-6 py-4">
+                            <Badge text={pedido.statusPedido} />
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  abrirModal('delete', pedido);
+                                }}
+                                className="flex items-center gap-1.5 rounded-md border border-red-600 bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                              >
+                                <Trash2 size={14} /> Excluir
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </Table>
+                  </div>
                 </div>
               </ContentCard>
             )}

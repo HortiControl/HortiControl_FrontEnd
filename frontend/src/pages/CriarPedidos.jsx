@@ -3,8 +3,9 @@ import { ShoppingCart, Trash2, Plus, ChevronDown, ChevronUp, Leaf, Minus, X } fr
 import { Select } from '../components/Select';
 import { Button } from '../components/Button';
 import api from '../provider/api';
+import { useNotification } from '../components/notifications/NotificationContext';
 
-const SecaoSanfona = ({ id, titulo, produtos, abaAberta, setAbaAberta, children }) => {
+const SecaoSanfona = ({ id, titulo, produtos, abaAberta, setAbaAberta, children, mobileItems }) => {
     const isAberta = abaAberta === id;
     const totalProdutos = produtos?.length || 0;
 
@@ -28,9 +29,13 @@ const SecaoSanfona = ({ id, titulo, produtos, abaAberta, setAbaAberta, children 
             </button>
 
             {isAberta && (
-                <div className="px-6 pb-4 border-t border-gray-100 bg-white max-h-60">
+                <div className="border-t border-gray-100 bg-white px-4 pb-4 sm:px-6 max-h-60">
                     <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar">
-                        <table className="w-full text-left border-collapse">
+                        <div className="space-y-3 md:hidden">
+                            {mobileItems}
+                        </div>
+
+                        <table className="hidden w-full border-collapse text-left md:table">
                             <thead>
                                 <tr className="border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                                     <th className="py-3 font-semibold">Produto</th>
@@ -39,9 +44,7 @@ const SecaoSanfona = ({ id, titulo, produtos, abaAberta, setAbaAberta, children 
                                     <th className="py-3 font-semibold text-right pr-2">Quantidade</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {children}
-                            </tbody>
+                            <tbody>{children}</tbody>
                         </table>
                     </div>
                 </div>
@@ -51,6 +54,7 @@ const SecaoSanfona = ({ id, titulo, produtos, abaAberta, setAbaAberta, children 
 };
 
 export default function CriarPedidos() {
+    const notify = useNotification();
     const [carrinho, setCarrinho] = useState([]);
     const [abaAberta, setAbaAberta] = useState('');
     const [mercadosData, setMercadosData] = useState([]);
@@ -77,7 +81,10 @@ export default function CriarPedidos() {
                         setMercadosData(mercadosFormatados);
                     }
                 })
-                .catch(error => console.error("Erro ao carregar clientes:", error));
+                .catch(error => {
+                    console.error("Erro ao carregar clientes:", error);
+                    notify.error("Não foi possível carregar os clientes.");
+                });
         };
 
         const carregarPreLavados = () => {
@@ -98,7 +105,10 @@ export default function CriarPedidos() {
                         setProdutosData(prev => ({ ...prev, pre_lavados: preLavadosFormatados }));
                     }
                 })
-                .catch(error => console.error("Erro ao carregar clientes:", error));
+                .catch(error => {
+                    console.error("Erro ao carregar clientes:", error);
+                    notify.error("Não foi possível carregar os produtos pré-lavados.");
+                });
         };
 
         const carregarNaoLavados = () => {
@@ -119,7 +129,10 @@ export default function CriarPedidos() {
                         setProdutosData(prev => ({ ...prev, nao_lavados: naoLavadosFormatados }));
                     }
                 })
-                .catch(error => console.error("Erro ao carregar clientes:", error));
+                .catch(error => {
+                    console.error("Erro ao carregar clientes:", error);
+                    notify.error("Não foi possível carregar os produtos não lavados.");
+                });
         };
 
         if (token) {
@@ -142,12 +155,12 @@ export default function CriarPedidos() {
 
     const handleLancarPedido = () => {
         if (!mercadoSelecionado || mercadoSelecionado === 'Selecione um mercado') {
-            alert('Por favor, selecione um mercado válido antes de lançar o pedido.');
+            notify.warning('Selecione um mercado válido antes de lançar o pedido.');
             return;
         }
 
         if (carrinho.length === 0) {
-            alert('O carrinho está vazio! Adicione pelo menos um produto.');
+            notify.warning('O carrinho está vazio. Adicione pelo menos um produto.');
             return;
         }
 
@@ -169,7 +182,7 @@ export default function CriarPedidos() {
         })
             .then(response => {
                 console.log("Resposta da API ao lançar pedido:", response.data);
-                alert("Pedido lançado com sucesso!");
+                notify.success("Pedido lançado com sucesso.");
                 setCarrinho([]);
                 setMercadoSelecionado('Selecione um mercado');
             })
@@ -178,7 +191,7 @@ export default function CriarPedidos() {
                 if (error.response) {
                     console.log("Detalhes do erro do backend:", error.response.data);
                 }
-                alert("Houve um erro ao registrar o pedido no servidor.");
+                notify.error("Não foi possível registrar o pedido. Tente novamente.");
             });
     };
 
@@ -282,6 +295,97 @@ export default function CriarPedidos() {
         );
     };
 
+    const CardProduto = ({ produto }) => {
+        const itemNoCarrinho = carrinho.find(item => item.id === produto.id);
+        const quantidadeAtual = itemNoCarrinho ? itemNoCarrinho.qtd : 0;
+
+        const handleInputChange = (e) => {
+            const valorDigitado = e.target.value;
+
+            if (valorDigitado === "") {
+                setCarrinho(prev => prev.map(item =>
+                    item.id === produto.id ? { ...item, qtd: "" } : item
+                ));
+                return;
+            }
+
+            const novaQtd = parseInt(valorDigitado);
+
+            if (novaQtd > 0) {
+                const itemExiste = carrinho.find(item => item.id === produto.id);
+                if (!itemExiste) {
+                    setCarrinho(prev => [...prev, { ...produto, qtd: novaQtd }]);
+                } else {
+                    setCarrinho(prev => prev.map(item =>
+                        item.id === produto.id ? { ...item, qtd: novaQtd } : item
+                    ));
+                }
+            } else {
+                removerItem(produto.id);
+            }
+        };
+
+        const handleBlur = () => {
+            if (itemNoCarrinho && (itemNoCarrinho.qtd === "" || itemNoCarrinho.qtd === 0)) {
+                removerItem(produto.id);
+            }
+        };
+
+        const incrementar = () => {
+            const itemExiste = carrinho.find(item => item.id === produto.id);
+            if (!itemExiste) {
+                setCarrinho(prev => [...prev, { ...produto, qtd: 1 }]);
+            } else {
+                atualizarQtd(produto.id, 1);
+            }
+        };
+
+        const decrementar = () => {
+            if (quantidadeAtual <= 1) {
+                removerItem(produto.id);
+            } else {
+                atualizarQtd(produto.id, -1);
+            }
+        };
+
+        return (
+            <article className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                        <h4 className="truncate text-base font-semibold text-gray-800">{produto.nome}</h4>
+                        <p className="mt-1 text-sm text-[#10b981] font-semibold">R$ {produto.preco.toFixed(2).replace('.', ',')}</p>
+                    </div>
+                    {renderBadgeEmbalagem(produto.embalagem || produto.tipoEmbalagem)}
+                </div>
+
+                <div className="mt-4 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={decrementar}
+                            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-500 transition-colors hover:bg-gray-100"
+                        >
+                            <Minus size={14} />
+                        </button>
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            className="h-8 w-14 rounded-md border border-gray-200 bg-[#f8f9fa] text-center text-sm font-medium text-gray-700 outline-none"
+                            value={quantidadeAtual}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
+                        />
+                        <button
+                            onClick={incrementar}
+                            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-500 transition-colors hover:bg-gray-100"
+                        >
+                            <Plus size={14} />
+                        </button>
+                    </div>
+                </div>
+            </article>
+        );
+    };
+
     return (
 
         <div>
@@ -316,6 +420,7 @@ export default function CriarPedidos() {
                             produtos={produtosData.nao_lavados}
                             abaAberta={abaAberta}
                             setAbaAberta={setAbaAberta}
+                            mobileItems={produtosData.nao_lavados?.map(p => <CardProduto key={p.id} produto={p} />)}
                         >
                             {produtosData.nao_lavados?.map(p => <LinhaProduto key={p.id} produto={p} />)}
                         </SecaoSanfona>
@@ -326,6 +431,7 @@ export default function CriarPedidos() {
                             produtos={produtosData.pre_lavados}
                             abaAberta={abaAberta}
                             setAbaAberta={setAbaAberta}
+                            mobileItems={produtosData.pre_lavados?.map(p => <CardProduto key={p.id} produto={p} />)}
                         >
                             {produtosData.pre_lavados?.map(p => <LinhaProduto key={p.id} produto={p} />)}
                         </SecaoSanfona>
@@ -335,7 +441,7 @@ export default function CriarPedidos() {
 
                 {/* Coluna da Direita (Resumo do Pedido) */}
                 <div className="lg:col-span-1">
-                    <div className="bg-white rounded-2xl border border-gray-200/80 p-6 flex flex-col h-135 max-h-135 shadow-sm">
+                    <div className="bg-white rounded-2xl border border-gray-200/80 p-4 sm:p-6 flex flex-col h-136 max-h-136 shadow-sm">
 
                         {/* Header do Resumo */}
                         <div className="flex items-center justify-between mb-5 pb-4 ">
@@ -408,7 +514,7 @@ export default function CriarPedidos() {
                         </div>
 
                         {/* Rodapé do Resumo (Valores e Botão Salvar) */}
-                        <div div div className="border-t-2 border-gray-200 pt-4 mt-4 space-y-4" >
+                        <div className="border-t-2 border-gray-200 pt-4 mt-4 space-y-4">
                             <div className="flex items-center justify-between text-xs text-gray-400 font-medium">
                                 <span>Total de itens:</span>
                                 <span className="font-bold text-gray-700">{totalItens}</span>

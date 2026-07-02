@@ -1,10 +1,10 @@
 import { LayoutDashboard, Store, Carrot, ShoppingCart, LogOut, CirclePlus, User } from 'lucide-react';
-import axios from 'axios';
+import { X } from 'lucide-react';
 import api from '../provider/api';
 import { Link, useNavigate } from 'react-router-dom';
 import logoImg from '../assets/logo.png';
 
-export function Sidebar({ activeItem }) {
+export function Sidebar({ activeItem, isOpen = false, onClose }) {
   const navigate = useNavigate();
 
   async function logOff() {
@@ -24,6 +24,7 @@ export function Sidebar({ activeItem }) {
 
   function perfil () {
     navigate("/perfil", { replace: true })
+    onClose?.();
   }
 
   const menuItems = [
@@ -36,12 +37,21 @@ export function Sidebar({ activeItem }) {
   ];
 
   return (
-    <aside className="w-64 bg-[#0B623C] text-green-300 flex flex-col h-screen sticky top-0 overflow-hidden">
-      <div className="p-6 flex flex-col items-center justify-center">
-        <img src={logoImg} alt="HortiControl" className="w-32 h-auto" />
+    <aside className={`fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col overflow-hidden bg-[#0B623C] text-green-300 shadow-2xl transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:z-30 lg:w-64 lg:translate-x-0 lg:shadow-none ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <div className="flex items-center justify-between p-5 lg:flex-col lg:justify-center lg:p-6">
+        <img src={logoImg} alt="HortiControl" className="h-auto w-28 sm:w-32" />
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white lg:hidden"
+          aria-label="Fechar menu"
+        >
+          <X size={20} />
+        </button>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
+      <nav className="mt-2 flex-1 space-y-2 overflow-y-auto px-4 pb-4">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeItem === item.id;
@@ -50,6 +60,7 @@ export function Sidebar({ activeItem }) {
             <Link
               key={item.id}
               to={item.path}
+              onClick={onClose}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive
                   ? 'bg-[#00a859] text-white font-semibold'

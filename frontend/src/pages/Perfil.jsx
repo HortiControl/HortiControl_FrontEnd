@@ -13,7 +13,7 @@ import {
 import api from "../provider/api";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
-import axios from "axios";
+import { useNotification } from "../components/notifications/NotificationContext";
 
 export default function Perfil() {
   // 1. Configuração base (Pegando dados salvos no Login)
@@ -21,6 +21,7 @@ export default function Perfil() {
   const userId = localStorage.getItem("userId"); // O ID do usuário logado
 
   const navigate = useNavigate();
+  const notify = useNotification();
   // 2. Estados para armazenar os dados dos formulários
   const [perfil, setPerfil] = useState({ nome: "", email: "", telefone: "" });
   const [senhas, setSenhas] = useState({
@@ -63,7 +64,7 @@ export default function Perfil() {
   // 4. Função para atualizar as informações pessoais (PUT)
   const handleSalvarPerfil = async () => {
     if (!perfil.nome.trim()) {
-      alert("Digite seu nome completo.");
+      notify.warning("Digite seu nome completo.");
       return;
     }
 
@@ -72,18 +73,18 @@ export default function Perfil() {
       !/^[A-Za-zÀ-ú\s]+$/.test(perfil.nome.trim()) ||
       /[çÇ]/.test(perfil.nome)
     ) {
-      alert("O nome deve conter apenas letras sem caracteres especiais.");
+      notify.warning("O nome deve conter apenas letras.");
       return;
     }
 
     if (perfil.telefone && !/^\d{0,11}$/.test(perfil.telefone)) {
-      alert("O telefone deve conter apenas números e no máximo 11 dígitos.");
+      notify.warning("O telefone deve conter apenas números e no máximo 11 dígitos.");
       return;
     }
 
     // Email obrigatório
     if (!perfil.email.trim()) {
-      alert("Digite um e-mail.");
+      notify.warning("Digite um e-mail.");
       return;
     }
 
@@ -97,7 +98,7 @@ export default function Perfil() {
       email.endsWith("@") ||
       email.endsWith(".")
     ) {
-      alert("Digite um e-mail válido.");
+      notify.warning("Digite um e-mail válido.");
       return;
     }
     try {
@@ -107,14 +108,14 @@ export default function Perfil() {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      alert("Perfil atualizado com sucesso! Faça o login novamente");
+      notify.success("Perfil atualizado com sucesso. Faça o login novamente.");
 
       localStorage.removeItem("token");
 
       navigate("/login", { replace: true });
 
     } catch (error) {
-      alert("Erro ao atualizar o perfil. Verifique os dados.");
+      notify.error("Não foi possível atualizar o perfil. Verifique os dados.");
       console.error(error);
     }
   };
@@ -122,19 +123,19 @@ export default function Perfil() {
   // 5. Função para atualizar a senha (PATCH)
   const handleAtualizarSenha = async () => {
     if (senhas.novaSenha !== senhas.confirmacao) {
-      alert("A nova senha e a confirmação não batem!");
+      notify.warning("A nova senha e a confirmação não batem.");
       return;
     }
 
     // Mínimo de 5 caracteres
     if (senhas.novaSenha.length < 5) {
-      alert("A senha deve ter no mínimo 5 caracteres.");
+      notify.warning("A senha deve ter no mínimo 5 caracteres.");
       return;
     }
 
     // Não permite caracteres especiais
     if (!/^[a-zA-Z0-9]+$/.test(senhas.novaSenha)) {
-      alert("A senha não pode conter caracteres especiais.");
+      notify.warning("A senha não pode conter caracteres especiais.");
       return;
     }
 
@@ -149,18 +150,16 @@ export default function Perfil() {
         },
       );
 
-      alert("Senha atualizada com sucesso!");
+      notify.success("Senha atualizada com sucesso.");
       setSenhas({ senhaAtual: "", novaSenha: "", confirmacao: "" }); // Limpa os campos
     } catch (error) {
-      alert(
-        "Erro ao atualizar senha. Verifique se sua senha atual está correta.",
-      );
+      notify.error("Não foi possível atualizar a senha. Verifique a senha atual.");
       console.error(error);
     }
   };
 
   return (
-    <div className="p-4 max-w-6xl">
+    <div className="max-w-6xl p-4 sm:p-6">
       <Link
         to="/"
         className="flex items-center text-xs text-gray-500 hover:text-gray-700 mb-4 transition-colors"
@@ -168,26 +167,26 @@ export default function Perfil() {
         <ArrowLeft size={14} className="mr-1" /> Voltar para Dashboard
       </Link>
 
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Perfil</h1>
-        <p className="text-sm text-gray-500 mt-1">
+      <header className="mb-6 sm:mb-8">
+        <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl">Perfil</h1>
+        <p className="mt-1 text-sm text-gray-500">
           Gerencie suas informações pessoais
         </p>
       </header>
 
-      <div className="space-y-6">
+      <div className="space-y-5 sm:space-y-6">
         {/* --- SESSÃO 1: PERFIL --- */}
-        <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-1">
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
+          <h2 className="mb-1 text-lg font-bold text-gray-800 sm:text-xl">
             Informações Pessoais
           </h2>
-          <p className="text-sm text-gray-500 mb-8">
+          <p className="mb-6 text-sm text-gray-500 sm:mb-8">
             Visualize ou altere suas informações de perfil
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
             <div className="relative">
-              <label className="text-sm font-bold text-gray-700 mb-2 block">
+              <label className="mb-2 block text-xs font-bold text-gray-700 sm:text-sm">
                 Nome Completo
               </label>
               <div className="relative flex items-center">
@@ -198,13 +197,13 @@ export default function Perfil() {
                   onChange={(e) =>
                     setPerfil({ ...perfil, nome: e.target.value })
                   }
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#00a859]/20 transition-all"
+                  className="w-full rounded-xl bg-gray-100 py-3 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-[#00a859]/20"
                 />
               </div>
             </div>
 
             <div className="relative">
-              <label className="text-sm font-bold text-gray-700 mb-2 block">
+              <label className="mb-2 block text-xs font-bold text-gray-700 sm:text-sm">
                 E-mail
               </label>
               <div className="relative flex items-center">
@@ -215,13 +214,13 @@ export default function Perfil() {
                   onChange={(e) =>
                     setPerfil({ ...perfil, email: e.target.value })
                   }
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#00a859]/20 transition-all"
+                  className="w-full rounded-xl bg-gray-100 py-3 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-[#00a859]/20"
                 />
               </div>
             </div>
 
             <div className="relative">
-              <label className="text-sm font-bold text-gray-700 mb-2 block">
+              <label className="mb-2 block text-xs font-bold text-gray-700 sm:text-sm">
                 Telefone
               </label>
               <div className="relative flex items-center">
@@ -234,16 +233,16 @@ export default function Perfil() {
                   onChange={(e) =>
                     setPerfil({ ...perfil, telefone: e.target.value })
                   }
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#00a859]/20 transition-all"
+                  className="w-full rounded-xl bg-gray-100 py-3 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-[#00a859]/20"
                 />
               </div>
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <button
               onClick={handleSalvarPerfil}
-              className="bg-[#00a859] hover:bg-[#008f4c] text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm font-bold transition-colors cursor-pointer"
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#00a859] px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#008f4c]"
             >
               <Save size={18} /> Salvar Alterações
             </button>
@@ -251,17 +250,17 @@ export default function Perfil() {
         </section>
 
         {/* --- SESSÃO 2: SENHA --- */}
-        <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-1">
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
+          <h2 className="mb-1 text-lg font-bold text-gray-800 sm:text-xl">
             Alterar Senha
           </h2>
-          <p className="text-sm text-gray-500 mb-8">
+          <p className="mb-6 text-sm text-gray-500 sm:mb-8">
             Atualize sua senha para manter sua conta segura
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2 sm:gap-y-6">
             <div className="relative">
-              <label className="text-sm font-bold text-gray-700 mb-2 block">
+              <label className="mb-2 block text-xs font-bold text-gray-700 sm:text-sm">
                 Senha Atual
               </label>
               <div className="relative flex items-center">
@@ -273,13 +272,13 @@ export default function Perfil() {
                     setSenhas({ ...senhas, senhaAtual: e.target.value })
                   }
                   placeholder="••••••"
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#00a859]/20 transition-all"
+                  className="w-full rounded-xl bg-gray-100 py-3 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-[#00a859]/20"
                 />
               </div>
             </div>
 
             <div className="relative">
-              <label className="text-sm font-bold text-gray-700 mb-2 block">
+              <label className="mb-2 block text-xs font-bold text-gray-700 sm:text-sm">
                 Nova Senha
               </label>
               <div className="relative flex items-center">
@@ -291,13 +290,13 @@ export default function Perfil() {
                     setSenhas({ ...senhas, novaSenha: e.target.value })
                   }
                   placeholder="Mínimo 5 Caracteres"
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#00a859]/20 transition-all"
+                  className="w-full rounded-xl bg-gray-100 py-3 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-[#00a859]/20"
                 />
               </div>
             </div>
 
             <div className="relative">
-              <label className="text-sm font-bold text-gray-700 mb-2 block">
+              <label className="mb-2 block text-xs font-bold text-gray-700 sm:text-sm">
                 Confirmar Nova Senha
               </label>
               <div className="relative flex items-center">
@@ -309,16 +308,16 @@ export default function Perfil() {
                     setSenhas({ ...senhas, confirmacao: e.target.value })
                   }
                   placeholder="Digite a senha novamente"
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#00a859]/20 transition-all"
+                  className="w-full rounded-xl bg-gray-100 py-3 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-[#00a859]/20"
                 />
               </div>
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <button
               onClick={handleAtualizarSenha}
-              className="bg-[#00a859] hover:bg-[#008f4c] text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm font-bold transition-colors cursor-pointer"
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#00a859] px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#008f4c]"
             >
               <RefreshCw size={18} /> Atualizar Senha
             </button>

@@ -9,8 +9,10 @@ import { Modal } from '../components/Modal';
 import { Input } from '../components/Input';
 import { Select } from '../components/Select';
 import api from '../provider/api';
+import { useNotification } from '../components/notifications/NotificationContext';
 
 export function Produtos() {
+  const notify = useNotification();
   const [produtosData, setProdutosData] = useState([]);
   const [modalAtivo, setModalAtivo] = useState(null);
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
@@ -58,7 +60,10 @@ export function Produtos() {
           setProdutosData(produtosFormatados)
         }
       })
-      .catch(error => console.error("Erro ao carregar produtos: ", error))
+      .catch(error => {
+        console.error("Erro ao carregar produtos: ", error)
+        notify.error("Não foi possível carregar os produtos neste momento.");
+      })
   }
 
   useEffect(() => {
@@ -110,16 +115,16 @@ export function Produtos() {
     try {
       if (modalAtivo === 'add') {
         await api.post("/produtos", dadosDoForms, { headers: { Authorization: `Bearer ${token}` } })
-        alert("Produto adicionado com sucesso!");
+        notify.success("Produto adicionado com sucesso.");
       } else if (modalAtivo === 'edit') {
         await api.put(`/produtos/${produtoSelecionado.id}`, dadosDoForms, { headers: { Authorization: `Bearer ${token}` } })
-        alert("Produto atualizado com sucesso!");
+        notify.success("Produto atualizado com sucesso.");
       }
       carregarProdutos()
       fecharModal();
     } catch (error) {
       console.error("Erro ao salvar produto: ", error)
-      alert("Erro ao salvar. Verifique os dados.")
+      notify.error("Não foi possível salvar. Verifique os dados e tente novamente.")
     }
   };
 
@@ -131,12 +136,12 @@ export function Produtos() {
       await api.patch(`/produtos/reajuste-global?novoPreco=${valorGlobalFormatado}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      alert("Atualizado com sucesso!!")
+      notify.success("Valores atualizados com sucesso.")
       carregarProdutos();
       fecharModal();
     } catch (error) {
       console.error("Erro ao atualizar valor global de produtos: ", error)
-      alert("Erro ao atualizar valor global de produtos. Verifique os dados.")
+      notify.error("Não foi possível atualizar os valores. Verifique os dados.")
     }
   }
 
@@ -144,11 +149,11 @@ export function Produtos() {
     try {
       await api.delete(`/produtos/${produtoSelecionado.id}`, { headers: { Authorization: `Bearer ${token}` } });
       setProdutosData(prev => prev.filter(m => m.id !== produtoSelecionado.id));
-      alert("Produto excluído com sucesso!");
+      notify.success("Produto excluído com sucesso.");
       fecharModal();
     } catch (error) {
       console.error("Erro ao excluir Produto:", error);
-      alert("Erro ao excluir Produto");
+      notify.error("Não foi possível excluir o produto.");
     }
   };
 
@@ -178,14 +183,14 @@ export function Produtos() {
   );
 
   const FiltrosProdutos = (
-    <div className="flex flex-col items-end gap-1 text-sm">
-      <span className="text-gray-500 font-medium text-xs mb-1">Tipo de Produto</span>
-      <div className="flex gap-2">
+    <div className="flex flex-col items-start gap-1 text-sm sm:items-end">
+      <span className="mb-1 text-xs font-medium text-gray-500">Tipo de Produto</span>
+      <div className="flex flex-wrap gap-2">
         {['TODOS', 'PRÉ-LAVADO', 'NÃO LAVADO'].map(f => (
           <button
             key={f}
             onClick={() => setFiltroAtivo(f)}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${filtroAtivo === f
+            className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${filtroAtivo === f
               ? 'bg-[#00a859] text-white border-[#00a859]'
               : 'bg-white text-gray-600 border-gray-400 hover:bg-gray-50'
               }`}
@@ -199,14 +204,12 @@ export function Produtos() {
 
   return (
     <div className="h-full">
-
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-800">Produtos</h1>
-          <p className="text-gray-500 mt-1 font-medium">Gerencie seu catálogo de produtos e preços</p>
-        </div>
-        <Button onClick={() => abrirModal('add')}>+ Adicionar Produto</Button>
-      </div>
+      <PageHeader
+        title="Produtos"
+        subtitle="Gerencie seu catálogo de produtos e preços"
+        buttonText="Adicionar Produto"
+        onButtonClick={() => abrirModal('add')}
+      />
 
       <ContentCard
         title="Todos os Produtos"
@@ -216,47 +219,87 @@ export function Produtos() {
       >
 
         <div className="max-h-[calc(100vh-18rem)] overflow-y-auto pr-2">
-          <Table headers={['Nome', 'Tipo', 'Embalagem', 'Preço']}>
+          <div className="space-y-3 md:hidden">
             {produtosFiltrados.map((produto) => (
-              <tr key={produto.id} className="hover:bg-gray-50 border-b border-gray-100 transition-colors">
-                <td className="px-6 py-4 font-medium text-gray-800">{produto.nome}</td>
+              <article key={produto.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="truncate text-base font-semibold text-gray-800">{produto.nome}</h3>
+                    <p className="mt-1 text-sm text-[#00a859] font-bold">{formatarMoeda(produto.preco)}</p>
+                  </div>
+                  <Badge text={produto.embalagem} />
+                </div>
 
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${produto.tipo === 'PRE_LAVADO'
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${produto.tipo === 'PRE_LAVADO'
                     ? 'bg-[#00a859] text-white'
                     : 'bg-gray-200 text-gray-700'
                     }`}>
                     {produto.tipo === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
                   </span>
-                </td>
+                </div>
 
-                <td className="px-6 py-4">
-                  <Badge text={produto.embalagem} />
-                </td>
-
-                <td className="px-6 py-4 text-[#00a859] font-bold">
-                  {formatarMoeda(produto.preco)}
-                </td>
-
-                <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => abrirModal('edit', produto)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
-                    >
-                      <Pencil size={14} /> Editar
-                    </button>
-                    <button
-                      onClick={() => abrirModal('delete', produto)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 border border-red-600 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium cursor-pointer"
-                    >
-                      <Trash2 size={14} /> Excluir
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <button
+                    onClick={() => abrirModal('edit', produto)}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                  >
+                    <Pencil size={14} /> Editar
+                  </button>
+                  <button
+                    onClick={() => abrirModal('delete', produto)}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-600 bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                  >
+                    <Trash2 size={14} /> Excluir
+                  </button>
+                </div>
+              </article>
             ))}
-          </Table>
+          </div>
+
+          <div className="hidden md:block">
+            <Table headers={['Nome', 'Tipo', 'Embalagem', 'Preço']}>
+              {produtosFiltrados.map((produto) => (
+                <tr key={produto.id} className="border-b border-gray-100 transition-colors hover:bg-gray-50">
+                  <td className="px-6 py-4 font-medium text-gray-800">{produto.nome}</td>
+
+                  <td className="px-6 py-4">
+                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${produto.tipo === 'PRE_LAVADO'
+                      ? 'bg-[#00a859] text-white'
+                      : 'bg-gray-200 text-gray-700'
+                      }`}>
+                      {produto.tipo === 'PRE_LAVADO' ? 'Pré-Lavado' : 'Não Lavado'}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <Badge text={produto.embalagem} />
+                  </td>
+
+                  <td className="px-6 py-4 text-[#00a859] font-bold">
+                    {formatarMoeda(produto.preco)}
+                  </td>
+
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => abrirModal('edit', produto)}
+                        className="flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                      >
+                        <Pencil size={14} /> Editar
+                      </button>
+                      <button
+                        onClick={() => abrirModal('delete', produto)}
+                        className="flex items-center gap-1.5 rounded-md border border-red-600 bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                      >
+                        <Trash2 size={14} /> Excluir
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </Table>
+          </div>
         </div>
       </ContentCard>
 

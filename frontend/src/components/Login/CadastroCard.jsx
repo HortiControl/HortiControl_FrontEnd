@@ -4,10 +4,11 @@ import { Button } from "../Button";
 import banner from "../../assets/banner.png";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../../provider/api";
-import axios from "axios";
+import { useNotification } from "../notifications/NotificationContext";
 
 const CadastroCard = () => {
   const navigate = useNavigate();
+  const notify = useNotification();
 
   //Para realizar o envio das informações do
   const handleSubmit = async (e) => {
@@ -28,7 +29,7 @@ const CadastroCard = () => {
       !dados.senha.trim() ||
       !dados.confirmarSenha.trim()
     ) {
-      alert("Preencha todos os campos obrigatórios!");
+      notify.warning("Preencha os campos obrigatórios para continuar.");
       return;
     }
 
@@ -37,7 +38,7 @@ const CadastroCard = () => {
       !/^[A-Za-zÀ-ú\s]+$/.test(dados.nome.trim()) ||
       /[çÇ]/.test(dados.nome)
     ) {
-      alert("O nome deve conter apenas letras sem caracteres especiais.");
+      notify.warning("O nome deve conter apenas letras.");
       return;
     }
 
@@ -51,7 +52,7 @@ const CadastroCard = () => {
       email.endsWith("@") ||
       email.endsWith(".")
     ) {
-      alert("Digite um e-mail válido!");
+      notify.warning("Digite um e-mail válido.");
       return;
     }
 
@@ -59,31 +60,31 @@ const CadastroCard = () => {
     if (dados.telefone.trim()) {
       // Apenas números
       if (!/^\d+$/.test(dados.telefone)) {
-        alert("O telefone deve conter apenas números.");
+        notify.warning("O telefone deve conter apenas números.");
         return;
       }
 
       // Deve ter 10 ou 11 dígitos
       if (dados.telefone.length < 10 || dados.telefone.length > 11) {
-        alert("O telefone deve ter 10 ou 11 dígitos.");
+        notify.warning("O telefone deve ter 10 ou 11 dígitos.");
         return;
       }
     }
 
     //Validações de senha
     if (dados.senha.length < 5) {
-      alert("A senha deve ter no mínimo 5 caracteres!");
+      notify.warning("A senha deve ter no mínimo 5 caracteres.");
       return;
     }
 
     // Não permite caracteres especiais
     if (!/^[a-zA-Z0-9]+$/.test(dados.senha)) {
-      alert("A senha não pode conter caracteres especiais.");
+      notify.warning("A senha não pode conter caracteres especiais.");
       return;
     }
 
     if (dados.senha !== dados.confirmarSenha) {
-      alert("As senhas não coincidem!");
+      notify.warning("As senhas não coincidem.");
       return;
     }
 
@@ -97,40 +98,39 @@ const CadastroCard = () => {
 
       console.log(response);
 
-      alert("Cadastro realizado com sucesso!");
+      notify.success("Cadastro realizado com sucesso.");
       navigate("/login", { replace: true });
     } catch (error) {
       if (
         error.response &&
         (error.response.status === 409 || error.response.status === 400)
       ) {
-        alert("E-mail já cadastrado. Por favor, use outro e-mail.");
+        notify.warning("Este e-mail já está cadastrado. Tente outro endereço.");
       } else {
         console.log(error.message);
-        alert("Erro ao cadastrar");
+        notify.error("Não foi possível concluir o cadastro. Tente novamente.");
       }
     }
   };
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat font-[Montserrat] p-4"
+      className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat font-[Montserrat] px-4 py-8 sm:p-6"
       style={{ backgroundImage: `url(${banner})` }}
     >
-      <div className="w-full max-w-125 p-8 bg-white/95 backdrop-blur-sm rounded-[25px] shadow-2xl flex flex-col items-center">
-        <div className="flex w-full">
+      <div className="w-full max-w-md rounded-[25px] bg-white/95 p-5 shadow-2xl backdrop-blur-sm flex flex-col items-center sm:max-w-xl sm:p-8">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-start">
           <Link
             to="/login"
-            className="w-10 self-start flex items-center text-xs text-gray-500 hover:text-gray-700 mb-4 transition-colors"
+            className="flex h-10 w-10 items-center justify-center self-start rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
           >
-            <ArrowLeft size={34} className="mr-1" />
+            <ArrowLeft size={22} />
           </Link>
-          {/* <img src={logo} alt="Logo" className="w-18 mb-4 object-contain" /> */}
-          <div className="items-center w-88">
-            <h2 className="text-[#333] font-bold text-3xl mb-1 text-center">
+          <div className="w-full flex-1">
+            <h2 className="mb-1 text-center text-xl font-bold text-[#333] sm:text-2xl lg:text-3xl">
               Criar uma conta
             </h2>
-            <p className="text-gray-500 text-sm mb-6 text-center">
+            <p className="mb-6 text-center text-xs text-gray-500 sm:text-sm">
               Preencha os dados abaixo para se cadastrar
             </p>
           </div>
@@ -138,7 +138,7 @@ const CadastroCard = () => {
 
         <form className="w-full space-y-4" onSubmit={handleSubmit}>
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold mb-1 ml-1 text-sm">
+            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
               Nome Completo:
             </label>
             <div className="relative">
@@ -147,13 +147,13 @@ const CadastroCard = () => {
                 type="text"
                 name="nome"
                 placeholder="Seu nome"
-                className="w-full pl-10 pr-4 py-2 bg-[#e9ecef] rounded-xl border-none focus:ring-2 focus:ring-[#009951] outline-none transition-all placeholder:text-gray-400"
+                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
               />
             </div>
           </div>
 
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold mb-1 ml-1 text-sm">
+            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
               E-mail:
             </label>
             <div className="relative">
@@ -162,13 +162,13 @@ const CadastroCard = () => {
                 type="email"
                 name="email"
                 placeholder="exemplo@email.com"
-                className="w-full pl-10 pr-4 py-2 bg-[#e9ecef] rounded-xl border-none focus:ring-2 focus:ring-[#009951] outline-none transition-all placeholder:text-gray-400"
+                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
               />
             </div>
           </div>
 
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold mb-1 ml-1 text-sm">
+            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
               Telefone (opcional):
             </label>
             <div className="relative">
@@ -178,13 +178,13 @@ const CadastroCard = () => {
                 type="text"
                 name="telefone"
                 placeholder="(11) 91234 5678"
-                className="w-full pl-10 pr-4 py-2 bg-[#e9ecef] rounded-xl border-none focus:ring-2 focus:ring-[#009951] outline-none transition-all placeholder:text-gray-400"
+                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
               />
             </div>
           </div>
 
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold mb-1 ml-1 text-sm">
+            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
               Senha:
             </label>
             <div className="relative">
@@ -193,13 +193,13 @@ const CadastroCard = () => {
                 type="password"
                 name="senha"
                 placeholder="Mínimo 5 caracteres"
-                className="w-full pl-10 pr-4 py-2 bg-[#e9ecef] rounded-xl border-none focus:ring-2 focus:ring-[#009951] outline-none transition-all placeholder:text-gray-400"
+                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
               />
             </div>
           </div>
 
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold mb-1 ml-1 text-sm">
+            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
               Confirmar Senha:
             </label>
             <div className="relative">
@@ -208,14 +208,14 @@ const CadastroCard = () => {
                 type="password"
                 name="confirmarSenha"
                 placeholder="Digite a senha novamente"
-                className="w-full pl-10 pr-4 py-2 bg-[#e9ecef] rounded-xl border-none focus:ring-2 focus:ring-[#009951] outline-none transition-all placeholder:text-gray-400"
+                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
               />
             </div>
           </div>
 
           <Button
             type="submit"
-            className="w-full py-3.5 mt-2 rounded-xl text-lg bg-[#009951]! hover:bg-[#007d42]! text-white "
+            className="mt-2 w-full rounded-xl bg-[#009951] py-3.5 text-sm text-white hover:bg-[#007d42] sm:text-lg"
           >
             Criar uma conta
           </Button>

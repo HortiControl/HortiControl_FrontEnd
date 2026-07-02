@@ -1,6 +1,6 @@
-export function Button({ children, variant = 'primary', icon: Icon, ...props }) {
+export function Button({ children, variant = 'primary', icon: Icon, className = '', ...props }) {
   // Estilos base que todo botão terá
-  const baseStyles = "inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-colors cursor-pointer text-sm";
+  const baseStyles = "inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-xs font-medium transition-colors cursor-pointer sm:text-sm";
   
   // Variações de estilo (Primário = Verde Sólido | Outline = Borda Verde)
   const variants = {
@@ -11,7 +11,7 @@ export function Button({ children, variant = 'primary', icon: Icon, ...props }) 
   };
 
   return (
-    <button className={`${baseStyles} ${variants[variant]}`} {...props}>
+    <button className={`${baseStyles} ${variants[variant]} ${className}`.trim()} {...props}>
       {/* Se passarmos um ícone, ele renderiza aqui */}
       {Icon && <Icon size={18} />}
       {children}

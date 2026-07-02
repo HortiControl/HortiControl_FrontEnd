@@ -72,16 +72,16 @@ export function Dashboard() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5 sm:gap-6">
 
       {/* cabeçalho */}
-      <div className="flex flex-col mb-2">
-        <h1 className="text-3xl font-semibold text-gray-800">Resultados</h1>
-        <p className="text-gray-500 mt-1 font-medium">Acompanhe os resultados e o desempenho do seu negócio</p>
+      <div className="mb-2 flex flex-col">
+        <h1 className="text-2xl font-semibold text-gray-800 sm:text-3xl">Resultados</h1>
+        <p className="mt-1 text-sm font-medium text-gray-500 sm:text-base">Acompanhe os resultados e o desempenho do seu negócio</p>
       </div>
 
       {/* filtros por periodo */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2 sm:gap-3">
         {periodos.map((p) => (
           <button
             key={p}
@@ -97,13 +97,13 @@ export function Dashboard() {
       </div>
 
       {/* cards KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 sm:gap-6">
 
         {/* card faturamento */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+        <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
           <div>
-            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Faturado</p>
-            <h3 className="text-2xl font-bold text-gray-800">{formatarMoeda(dados.faturadoTotal)}</h3>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400 sm:text-xs">Faturado</p>
+            <h3 className="text-xl font-bold text-gray-800 sm:text-2xl">{formatarMoeda(dados.faturadoTotal)}</h3>
           </div>
           <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-[#00a859]">
             <DollarSign size={24} />
@@ -111,10 +111,10 @@ export function Dashboard() {
         </div>
 
         {/* card total de pedidos */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+        <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
           <div>
-            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total de Pedidos</p>
-            <h3 className="text-2xl font-bold text-gray-800">{dados.totalPedidos}</h3>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400 sm:text-xs">Total de Pedidos</p>
+            <h3 className="text-xl font-bold text-gray-800 sm:text-2xl">{dados.totalPedidos}</h3>
           </div>
           <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500">
             <Package size={24} />
@@ -122,36 +122,36 @@ export function Dashboard() {
         </div>
 
         {/* card embalagens */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex justify-between items-center mb-3">
-            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Consumo de Embalagens</p>
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 sm:text-xs">Consumo de Embalagens</p>
           </div>
-          <div className="flex justify-between">
+          <div className="flex flex-wrap justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-orange-50 text-orange-600 flex items-center justify-center rounded border border-orange-100"><Inbox size={16} /></div>
-              <div><p className="text-[9px] font-bold text-orange-600 uppercase">Bandejas</p><p className="font-bold text-gray-800 leading-none">{dados.consumoEmbalagens.bandejas}</p></div>
+              <div><p className="text-[9px] font-bold uppercase text-orange-600 sm:text-[10px]">Bandejas</p><p className="font-bold leading-none text-gray-800">{dados.consumoEmbalagens.bandejas}</p></div>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-50 text-blue-600 flex items-center justify-center rounded border border-blue-100"><Archive size={16} /></div>
-              <div><p className="text-[9px] font-bold text-blue-600 uppercase">Potes</p><p className="font-bold text-gray-800 leading-none">{dados.consumoEmbalagens.potes}</p></div>
+              <div><p className="text-[9px] font-bold uppercase text-blue-600 sm:text-[10px]">Potes</p><p className="font-bold leading-none text-gray-800">{dados.consumoEmbalagens.potes}</p></div>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-green-50 text-green-600 flex items-center justify-center rounded border border-green-100"><ShoppingBag size={16} /></div>
-              <div><p className="text-[9px] font-bold text-green-600 uppercase">Sacos</p><p className="font-bold text-gray-800 leading-none">{dados.consumoEmbalagens.sacos}</p></div>
+              <div><p className="text-[9px] font-bold uppercase text-green-600 sm:text-[10px]">Sacos</p><p className="font-bold leading-none text-gray-800">{dados.consumoEmbalagens.sacos}</p></div>
             </div>
           </div>
         </div>
       </div>
 
       {/* grid dos gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 sm:gap-6">
 
         {/* Seção de Gráficos (Evolução e Histórico) */}
-        <div className="lg:col-span-2 flex flex-col gap-2">
+        <div className="flex flex-col gap-3 lg:col-span-2 sm:gap-4">
 
           {/* Gráfico de Barras - Evolução do Faturamento */}
           <ContentCard title="Evolução do faturamento" subtitle="Acompanhe seu faturamento conforme o período">
-            <div className="w-full p-4" style={{ height: '320px', minHeight: '320px' }}>
+            <div className="w-full p-3 sm:p-4" style={{ height: '320px', minHeight: '320px' }}>
 
               {dados.evolucaoFaturamento && dados.evolucaoFaturamento.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -190,7 +190,7 @@ export function Dashboard() {
 
           {/* Gráfico de Linhas - Histórico de Embalagens */}
           <ContentCard title="Histórico de embalagens" subtitle="Volume consumido mês a mês (Visão anual fixa)">
-            <div className="w-full p-4" style={{ height: '320px', minHeight: '320px' }}>
+            <div className="w-full p-3 sm:p-4" style={{ height: '320px', minHeight: '320px' }}>
 
               {dados.historicoEmbalagens && dados.historicoEmbalagens.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -243,9 +243,9 @@ export function Dashboard() {
         </div>
 
         {/* Seção de Rankings (Melhores Clientes e Produtos) */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3 sm:gap-4">
           <ContentCard title="Melhores Clientes" subtitle="Lista dos clientes mais lucrativos">
-            <div className="p-4 flex flex-col gap-4">
+            <div className="flex flex-col gap-4 p-4 sm:p-5">
 
               {dados.melhoresClientes.map((c, i) => (
                 <div key={c.id} className="flex justify-between items-center pb-3 border-b border-gray-200 last:border-0 last:pb-0 gap-2">
@@ -273,7 +273,7 @@ export function Dashboard() {
           </ContentCard>
 
           <ContentCard title="Produtos mais vendidos" subtitle="Lista de produtos mais vendidos no período">
-            <div className="p-4 flex flex-col gap-4">
+            <div className="flex flex-col gap-4 p-4 sm:p-5">
 
               {dados.produtosMaisVendidos.map((p, i) => (
                 <div key={p.id} className="flex justify-between items-center pb-3 border-b border-gray-200 last:border-0 last:pb-0 gap-2">

@@ -9,16 +9,16 @@ export function Modal({ isOpen, onClose, title, subtitle, children, isDanger, ma
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
 
       {/* A Caixa Branca do Modal */}
-      <div className={`bg-white rounded-2xl shadow-xl w-full ${maxWidth} mx-4 overflow-hidden flex flex-col`}>
+      <div className={`mx-4 flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-xl ${maxWidth}`}>
 
         {/* Cabeçalho do Modal */}
-        <div className="px-6 py-5 flex justify-between items-start">
+        <div className="flex items-start justify-between px-4 py-4 sm:px-6 sm:py-5">
           <div>
             {/*(Excluir), o título fica vermelho */}
-            <h2 className={`text-xl font-semibold ${isDanger ? 'text-red-600' : 'text-gray-800'}`}>
+            <h2 className={`text-base font-semibold sm:text-lg lg:text-xl ${isDanger ? 'text-red-600' : 'text-gray-800'}`}>
               {title}
             </h2>
-            {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+            {subtitle && <p className="mt-1 text-xs text-gray-500 sm:text-sm">{subtitle}</p>}
           </div>
 
           {/* Botão de Fechar (X) */}
@@ -28,7 +28,7 @@ export function Modal({ isOpen, onClose, title, subtitle, children, isDanger, ma
         </div>
 
         {/* Conteúdo Dinâmico (Os inputs e botões) */}
-        <div className="px-6 pb-6">
+        <div className="px-4 pb-4 sm:px-6 sm:pb-6">
           {children}
         </div>
 
