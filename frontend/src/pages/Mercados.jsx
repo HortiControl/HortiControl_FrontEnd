@@ -36,7 +36,6 @@ export function Mercados() {
     })
       .then(response => {
         if (response.data.length == 0) {
-          console.log("vazio");
         } else {
           const mercadosFormatados = response.data.map(mercado => ({
             id: mercado.id,
@@ -69,8 +68,7 @@ export function Mercados() {
       if (data.erro) throw new Error('CEP inválido');
 
       setEndereco(data);
-    } catch (err) {
-      console.log(err);
+    } catch {
       setEndereco(null);
       notify.warning('CEP não encontrado. Verifique o valor digitado.');
     } finally {
@@ -138,8 +136,7 @@ export function Mercados() {
 
       carregarMercados();
       fecharModal();
-    } catch (err) {
-      console.log(err);
+    } catch {
       notify.error('Não foi possível salvar o cliente. Verifique os dados e tente novamente.');
     }
   };

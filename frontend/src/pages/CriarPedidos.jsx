@@ -71,7 +71,6 @@ export default function CriarPedidos() {
             })
                 .then(response => {
                     if (response.data.length == 0) {
-                        console.log("vazio");
                     } else {
                         const mercadosFormatados = response.data.map(mercado => ({
                             id: mercado.id,
@@ -93,7 +92,6 @@ export default function CriarPedidos() {
             })
                 .then(response => {
                     if (response.data.length == 0) {
-                        console.log("vazio");
                     } else {
                         const preLavadosFormatados = response.data.map(preLavado => ({
                             id: preLavado.id,
@@ -117,7 +115,6 @@ export default function CriarPedidos() {
             })
                 .then(response => {
                     if (response.data.length == 0) {
-                        console.log("vazio");
                     } else {
                         const naoLavadosFormatados = response.data.map(naoLavado => ({
                             id: naoLavado.id,
@@ -175,22 +172,16 @@ export default function CriarPedidos() {
             }))
         };
 
-        console.log("Enviando dados estruturados para a API:", novoPedido);
-
         api.post("/pedidos", novoPedido, {
             headers: { Authorization: `Bearer ${token}` }
         })
-            .then(response => {
-                console.log("Resposta da API ao lançar pedido:", response.data);
+            .then(() => {
                 notify.success("Pedido lançado com sucesso.");
                 setCarrinho([]);
                 setMercadoSelecionado('Selecione um mercado');
             })
             .catch(error => {
                 console.error("Erro ao registrar pedido:", error);
-                if (error.response) {
-                    console.log("Detalhes do erro do backend:", error.response.data);
-                }
                 notify.error("Não foi possível registrar o pedido. Tente novamente.");
             });
     };

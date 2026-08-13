@@ -46,7 +46,6 @@ export function Produtos() {
     })
       .then(response => {
         if (response.data.length === 0 || response.status === 204) {
-          console.log("Erro! Nenhum produto encontrado.")
           setProdutosData([])
           return;
         } else {

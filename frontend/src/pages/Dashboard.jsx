@@ -46,16 +46,10 @@ export function Dashboard() {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     }).then((resposta) => {
-      console.log("Dados recebidos com sucesso:", resposta.data);
       setDados(resposta.data);
     })
-      .catch((erro) => {
-        console.error("Erro ao carregar dados da dashboard com Axios:", erro);
-
-        if (erro.response) {
-          console.error("Status do erro:", erro.response.status);
-          console.error("Dados do erro:", erro.response.data);
-        }
+      .catch(() => {
+        console.error("Erro ao carregar dados da dashboard.");
       });
   }, [periodoAtivo]);
 

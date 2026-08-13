@@ -24,8 +24,6 @@ const LoginCard = () => {
 
     const dados = Object.fromEntries(formData.entries());
 
-    console.log(dados);
-
     if (!dados.email.trim() || !dados.senha.trim()) {
       notify.warning("Preencha o e-mail e a senha para continuar.");
       return;
@@ -39,8 +37,6 @@ const LoginCard = () => {
         },
       );
 
-      console.log("Resposta do servidor:", response.data);
-
       const dadosLogin = response.data;
 
       localStorage.setItem("token", dadosLogin.token);
@@ -50,7 +46,6 @@ const LoginCard = () => {
       navigate("/", { replace: true });
 
     } catch (error) {
-      console.log(error.message);
       notify.error("Não foi possível fazer login. Verifique seus dados e tente novamente.");
     }
   };
