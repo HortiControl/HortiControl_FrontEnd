@@ -20,8 +20,6 @@ const CadastroCard = () => {
     // Transforma em objeto json
     const dados = Object.fromEntries(formData.entries());
 
-    console.log(dados);
-
     // Validação de campos vazios
     if (
       !dados.nome.trim() ||
@@ -89,14 +87,12 @@ const CadastroCard = () => {
     }
 
     try {
-      const response = await api.post("/usuarios", {
+      await api.post("/usuarios", {
         nome: dados.nome,
         email: dados.email,
         telefone: dados.telefone,
         senha: dados.senha,
       });
-
-      console.log(response);
 
       notify.success("Cadastro realizado com sucesso.");
       navigate("/login", { replace: true });
@@ -107,7 +103,6 @@ const CadastroCard = () => {
       ) {
         notify.warning("Este e-mail já está cadastrado. Tente outro endereço.");
       } else {
-        console.log(error.message);
         notify.error("Não foi possível concluir o cadastro. Tente novamente.");
       }
     }

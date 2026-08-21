@@ -13,13 +13,15 @@ export function Sidebar({ activeItem, isOpen = false, onClose }) {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     })
-      .then(response => {
-        const aviso = response.data
-        console.log(aviso);
+      .then(() => {
         localStorage.removeItem("token");
-        navigate("/login", { replace: true })
+        navigate("/login", { replace: true });
       })
-      .catch(error => console.error("Erro ao fazer logout:", error));
+      .catch((error) => {
+        console.error("Erro na API ao fazer logout, forçando saída no frontend:", error);
+        localStorage.removeItem("token");
+        navigate("/login", { replace: true });
+      });
   }
 
   function perfil () {

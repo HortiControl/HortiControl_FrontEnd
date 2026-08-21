@@ -38,7 +38,6 @@ export function Mercados() {
     })
       .then(response => {
         if (response.data.length == 0) {
-          console.log("vazio");
         } else {
           const mercadosFormatados = response.data.map(mercado => ({
             id: mercado.id,
@@ -84,6 +83,7 @@ export function Mercados() {
       }
 
       setEndereco({
+        ...data,
         cep: cepRetornado,
         logradouro: String(data.logradouro || '').trim().slice(0, 120),
         bairro: String(data.bairro || '').trim().slice(0, 80),
@@ -165,8 +165,7 @@ export function Mercados() {
 
       carregarMercados();
       fecharModal();
-    } catch (err) {
-      console.log(err);
+    } catch {
       notify.error('Não foi possível salvar o cliente. Verifique os dados e tente novamente.');
     }
   };
