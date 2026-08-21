@@ -11,6 +11,8 @@ import { Select } from '../components/Select';
 import api from '../provider/api';
 import { useNotification } from '../components/notifications/NotificationContext';
 
+const VIA_CEP_TIMEOUT_MS = 10000;
+
 export function Mercados() {
   const notify = useNotification();
   const [mercadosData, setMercadosData] = useState([]);
@@ -55,25 +57,49 @@ export function Mercados() {
   };
 
   const buscarEnderecoPorCep = async (cep) => {
+    const cepLimpo = cep.replace(/\D/g, '');
+
+    if (cepLimpo.length !== 8) return;
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), VIA_CEP_TIMEOUT_MS);
+
     try {
-      const cepLimpo = cep.replace(/\D/g, '');
-
-      if (cepLimpo.length !== 8) return;
-
       setLoadingEndereco(true);
       setEndereco(null);
 
-      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`, {
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        throw new Error(`ViaCEP respondeu com status HTTP ${response.status}.`);
+      }
+
       const data = await response.json();
 
-      if (data.erro) throw new Error('CEP inválido');
+      const cepRetornado = typeof data.cep === 'string' ? data.cep.replace(/\D/g, '') : '';
+      if (data.erro || cepRetornado !== cepLimpo) {
+        throw new Error('CEP inválido ou resposta inválida do ViaCEP.');
+      }
 
-      setEndereco(data);
+      setEndereco({
+        cep: cepRetornado,
+        logradouro: String(data.logradouro || '').trim().slice(0, 120),
+        bairro: String(data.bairro || '').trim().slice(0, 80),
+        localidade: String(data.localidade || '').trim().slice(0, 80),
+        uf: String(data.uf || '').trim().toUpperCase().slice(0, 2)
+      });
     } catch (err) {
-      console.log(err);
       setEndereco(null);
-      notify.warning('CEP não encontrado. Verifique o valor digitado.');
+      if (err.name === 'AbortError') {
+        notify.warning('A consulta de CEP demorou demais. Tente novamente.');
+      } else {
+        console.error('Erro ao consultar o ViaCEP:', err);
+        notify.warning('CEP não encontrado ou serviço indisponível. Verifique o valor digitado.');
+      }
     } finally {
+      window.clearTimeout(timeoutId);
       setLoadingEndereco(false);
     }
   };
@@ -104,6 +130,7 @@ export function Mercados() {
   };
 
   const fecharModal = () => {
+    setEndereco(null);
     setModalAtivo(null);
     setMercadoSelecionado(null);
   };
