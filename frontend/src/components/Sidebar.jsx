@@ -8,21 +8,23 @@ export function Sidebar({ activeItem, isOpen = false, onClose }) {
   const navigate = useNavigate();
 
   async function logOff() {
-    api.get("/usuarios/logout", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+  api.get("/usuarios/logout", {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  })
+    .then(() => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      navigate("/login", { replace: true });
     })
-      .then(() => {
-        localStorage.removeItem("token");
-        navigate("/login", { replace: true });
-      })
-      .catch((error) => {
-        console.error("Erro na API ao fazer logout, forçando saída no frontend:", error);
-        localStorage.removeItem("token");
-        navigate("/login", { replace: true });
-      });
-  }
+    .catch((error) => {
+      console.error("Erro na API ao fazer logout, forçando saída no frontend:", error);
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      navigate("/login", { replace: true });
+    });
+}
 
   function perfil () {
     navigate("/perfil", { replace: true })
