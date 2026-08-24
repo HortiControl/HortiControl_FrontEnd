@@ -11,19 +11,30 @@ import {
 } from "lucide-react";
 
 import api from "../provider/api";
+import { useAuth } from "../context/AuthContext";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { useNotification } from "../components/notifications/NotificationContext";
 
 export default function Perfil() {
   // 1. Configuração base (Pegando dados salvos no Login)
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId"); // O ID do usuário logado
 
   const navigate = useNavigate();
   const notify = useNotification();
+
   // 2. Estados para armazenar os dados dos formulários
-  const [perfil, setPerfil] = useState({ nome: "", email: "", telefone: "" });
+  /*
+   * usuario contém os dados retornados por GET /usuarios/me.
+   * logout solicita ao backend a remoção do cookie HttpOnly.
+   */
+  const { usuario, logout } = useAuth();
+
+  const [perfil, setPerfil] = useState({
+    nome: "",
+    email: "",
+    telefone: "",
+  });
+
   const [senhas, setSenhas] = useState({
     senhaAtual: "",
     novaSenha: "",
@@ -32,34 +43,18 @@ export default function Perfil() {
 
   // 3. Efeito que roda ao abrir a tela: Busca os dados no Backend
   useEffect(() => {
-    // Se não tiver token ou userId, volta pro login
-    if (!token || !userId) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    api.get(`/usuarios/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((response) => {
-        setPerfil({
-          nome: response.data.nome,
-          email: response.data.email,
-          telefone: response.data.telefone || "",
-        });
-      })
-      .catch((error) => {
-        console.error("Erro ao carregar perfil:", error);
-
-        // Token inválido ou expirado
-        if (error.response?.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("userId");
-
-          navigate("/login", { replace: true });
-        }
+    /*
+     * Não buscamos mais o usuário por um ID guardado no localStorage.
+     * Os dados já foram obtidos pelo AuthContext em /usuarios/me.
+     */
+    if (usuario) {
+      setPerfil({
+        nome: usuario.nome,
+        email: usuario.email,
+        telefone: usuario.telefone || "",
       });
-  }, [userId, token, navigate]);
+    }
+  }, [usuario]);
 
   // 4. Função para atualizar as informações pessoais (PUT)
   const handleSalvarPerfil = async () => {
@@ -68,7 +63,7 @@ export default function Perfil() {
       return;
     }
 
-    // Nome não pode conter números, caracteres especiais ou ç
+    // Validação original mantida sem alteração.
     if (
       !/^[A-Za-zÀ-ú\s]+$/.test(perfil.nome.trim()) ||
       /[çÇ]/.test(perfil.nome)
@@ -78,17 +73,17 @@ export default function Perfil() {
     }
 
     if (perfil.telefone && !/^\d{0,11}$/.test(perfil.telefone)) {
-      notify.warning("O telefone deve conter apenas números e no máximo 11 dígitos.");
+      notify.warning(
+        "O telefone deve conter apenas números e no máximo 11 dígitos.",
+      );
       return;
     }
 
-    // Email obrigatório
     if (!perfil.email.trim()) {
       notify.warning("Digite um e-mail.");
       return;
     }
 
-    // Validação de email
     const email = perfil.email.trim();
 
     if (
@@ -101,21 +96,26 @@ export default function Perfil() {
       notify.warning("Digite um e-mail válido.");
       return;
     }
+
     try {
-      await api.put(`/usuarios/perfil/${userId}`,
-        perfil,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      /*
+       * O backend identifica o usuário por meio do JWT já validado.
+       * O frontend não precisa enviar ou controlar um ID de usuário.
+       */
+      await api.put("/usuarios/me/perfil", perfil);
+
       notify.success("Perfil atualizado com sucesso. Faça o login novamente.");
 
-      localStorage.removeItem("token");
+      /*
+       * Como o cookie é HttpOnly, localStorage.removeItem não o apagaria.
+       * A remoção precisa ser feita pelo endpoint de logout.
+       */
+      await logout();
 
       navigate("/login", { replace: true });
-
     } catch (error) {
       notify.error("Não foi possível atualizar o perfil. Verifique os dados.");
+
       console.error(error);
     }
   };
@@ -127,33 +127,42 @@ export default function Perfil() {
       return;
     }
 
-    // Mínimo de 5 caracteres
+    /*
+     * As validações originais foram mantidas.
+     * Nenhuma regra de senha foi alterada.
+     */
     if (senhas.novaSenha.length < 5) {
       notify.warning("A senha deve ter no mínimo 5 caracteres.");
       return;
     }
 
-    // Não permite caracteres especiais
     if (!/^[a-zA-Z0-9]+$/.test(senhas.novaSenha)) {
       notify.warning("A senha não pode conter caracteres especiais.");
       return;
     }
 
     try {
-      await api.put(`/usuarios/senha/${userId}`,
-        {
-          senhaAtual: senhas.senhaAtual,
-          novaSenha: senhas.novaSenha,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      /*
+       * O backend obtém o usuário pelo JWT validado no cookie.
+       * Não é mais necessário enviar userId ou Authorization.
+       */
+      await api.put("/usuarios/me/senha", {
+        senhaAtual: senhas.senhaAtual,
+        novaSenha: senhas.novaSenha,
+      });
 
       notify.success("Senha atualizada com sucesso.");
-      setSenhas({ senhaAtual: "", novaSenha: "", confirmacao: "" }); // Limpa os campos
+
+      setSenhas({
+        senhaAtual: "",
+        novaSenha: "",
+        confirmacao: "",
+      });
     } catch (error) {
-      notify.error("Não foi possível atualizar a senha. Verifique a senha atual.");
+      notify.error(
+        "Não foi possível atualizar a senha. Verifique a senha atual.",
+      );
+
       console.error(error);
     }
   };

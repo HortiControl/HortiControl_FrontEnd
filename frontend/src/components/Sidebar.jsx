@@ -1,49 +1,131 @@
-import { LayoutDashboard, Store, Carrot, ShoppingCart, LogOut, CirclePlus, User } from 'lucide-react';
-import { X } from 'lucide-react';
-import api from '../provider/api';
-import { Link, useNavigate } from 'react-router-dom';
-import logoImg from '../assets/logo.png';
+import {
+  LayoutDashboard,
+  Store,
+  Carrot,
+  ShoppingCart,
+  LogOut,
+  CirclePlus,
+  User,
+  X,
+} from "lucide-react";
 
-export function Sidebar({ activeItem, isOpen = false, onClose }) {
+import { Link, useNavigate } from "react-router-dom";
+import logoImg from "../assets/logo.png";
+
+/*
+ * Importa o contexto responsável pela autenticação.
+ *
+ * A Sidebar não acessará mais o token diretamente.
+ * O AuthContext solicitará ao backend a revogação do JWT
+ * e a remoção do cookie HttpOnly.
+ */
+import { useAuth } from "../context/AuthContext";
+
+export function Sidebar({
+  activeItem,
+  isOpen = false,
+  onClose,
+}) {
   const navigate = useNavigate();
 
-  async function logOff() {
-  api.get("/usuarios/logout", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    }
-  })
-    .then(() => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      navigate("/login", { replace: true });
-    })
-    .catch((error) => {
-      console.error("Erro na API ao fazer logout, forçando saída no frontend:", error);
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      navigate("/login", { replace: true });
-    });
-}
+  /*
+   * Obtém a função de logout disponibilizada pelo AuthContext.
+   *
+   * A Sidebar não precisa saber:
+   * - onde está o JWT;
+   * - como o cookie é removido;
+   * - como o token é revogado;
+   * - como o CSRF é enviado.
+   *
+   * Essas responsabilidades ficam centralizadas no AuthContext
+   * e no cliente api.
+   */
+  const { logout } = useAuth();
 
-  function perfil () {
-    navigate("/perfil", { replace: true })
+  async function logOff() {
+    try {
+      /*
+       * Solicita o logout ao backend.
+       *
+       * O backend:
+       * 1. Obtém o JWT do cookie HttpOnly.
+       * 2. Revoga o JWT no servidor.
+       * 3. envia um Set-Cookie com Max-Age=0.
+       * 4. O navegador remove o cookie automaticamente.
+       */
+      await logout();
+
+      /*
+       * O redirecionamento só acontece depois que o backend
+       * confirma que o logout foi realizado.
+       */
+      navigate("/login", { replace: true });
+    } catch (error) {
+      /*
+       * Não removemos nada do localStorage porque o JWT não está mais lá.
+       *
+       * Também não simulamos um logout no frontend quando o backend falha,
+       * pois o cookie HttpOnly pode continuar válido.
+       */
+      console.error(
+        "Não foi possível encerrar a sessão no servidor:",
+        error
+      );
+    }
+  }
+
+  function perfil() {
+    navigate("/perfil", { replace: true });
     onClose?.();
   }
 
   const menuItems = [
-    // Dashboard adicionada de volta aqui e apontando para "/"
-    { id: 'dashboard', label: 'Resultados', icon: LayoutDashboard, path: '/' },
-    { id: 'mercados', label: 'Clientes', icon: Store, path: '/mercados' },
-    { id: 'produtos', label: 'Produtos', icon: Carrot, path: '/produtos' },
-    { id: 'pedidos', label: 'Pedidos', icon: ShoppingCart, path: '/pedidos' },
-    { id: 'criarpedidos', label: 'Criar Pedidos', icon: CirclePlus, path: '/criarpedidos' }
+    {
+      id: "dashboard",
+      label: "Resultados",
+      icon: LayoutDashboard,
+      path: "/",
+    },
+    {
+      id: "mercados",
+      label: "Clientes",
+      icon: Store,
+      path: "/mercados",
+    },
+    {
+      id: "produtos",
+      label: "Produtos",
+      icon: Carrot,
+      path: "/produtos",
+    },
+    {
+      id: "pedidos",
+      label: "Pedidos",
+      icon: ShoppingCart,
+      path: "/pedidos",
+    },
+    {
+      id: "criarpedidos",
+      label: "Criar Pedidos",
+      icon: CirclePlus,
+      path: "/criarpedidos",
+    },
   ];
 
   return (
-    <aside className={`fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col overflow-hidden bg-[#0B623C] text-green-300 shadow-2xl transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:z-30 lg:w-64 lg:translate-x-0 lg:shadow-none ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+    <aside
+      className={`fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col overflow-hidden bg-[#0B623C] text-green-300 shadow-2xl transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:z-30 lg:w-64 lg:translate-x-0 lg:shadow-none ${
+        isOpen
+          ? "translate-x-0"
+          : "-translate-x-full lg:translate-x-0"
+      }`}
+    >
       <div className="flex items-center justify-between p-5 lg:flex-col lg:justify-center lg:p-6">
-        <img src={logoImg} alt="HortiControl" className="h-auto w-28 sm:w-32" />
+        <img
+          src={logoImg}
+          alt="HortiControl"
+          className="h-auto w-28 sm:w-32"
+        />
 
         <button
           type="button"
@@ -65,10 +147,10 @@ export function Sidebar({ activeItem, isOpen = false, onClose }) {
               key={item.id}
               to={item.path}
               onClick={onClose}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              className={`flex w-full items-center space-x-3 rounded-lg px-4 py-3 transition-colors ${
                 isActive
-                  ? 'bg-[#00a859] text-white font-semibold'
-                  : 'text-green-100 hover:bg-[#0a9154]'
+                  ? "bg-[#00a859] font-semibold text-white"
+                  : "text-green-100 hover:bg-[#0a9154]"
               }`}
             >
               <Icon size={20} />
@@ -78,12 +160,21 @@ export function Sidebar({ activeItem, isOpen = false, onClose }) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-green-800">
-        <button onClick={perfil} className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-[#0a4f30] rounded-lg transition-colors cursor-pointer">
+      <div className="border-t border-green-800 p-4">
+        <button
+          type="button"
+          onClick={perfil}
+          className="flex w-full cursor-pointer items-center space-x-3 rounded-lg px-4 py-3 text-white transition-colors hover:bg-[#0a4f30]"
+        >
           <User size={20} />
           <span>Perfil</span>
         </button>
-        <button onClick={logOff} className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-[#0a4f30] rounded-lg transition-colors cursor-pointer">
+
+        <button
+          type="button"
+          onClick={logOff}
+          className="flex w-full cursor-pointer items-center space-x-3 rounded-lg px-4 py-3 text-white transition-colors hover:bg-[#0a4f30]"
+        >
           <LogOut size={20} />
           <span>Sair</span>
         </button>

@@ -1,102 +1,150 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
+
 import { AppLayout } from "./layouts/AppLayout";
 import { Dashboard } from "./pages/Dashboard";
 import { Mercados } from "./pages/Mercados";
 import { Produtos } from "./pages/Produtos";
 import { GerenciamentoPedidos } from "./pages/GerenciamentoPedidos";
+
 import CriarPedidos from "./pages/CriarPedidos";
 import Perfil from "./pages/Perfil";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
-import { NotificationProvider } from "./components/notifications/NotificationContext";
+
+import {
+  NotificationProvider,
+} from "./components/notifications/NotificationContext";
+
+import {
+  AuthProvider,
+} from "./context/AuthContext";
+
+/*
+ * Outlet representa a rota filha que será
+ * renderizada dentro deste agrupamento.
+ */
+function RotasProtegidas() {
+  return (
+    <ProtectedRoute>
+      <Outlet />
+    </ProtectedRoute>
+  );
+}
 
 function App() {
   return (
+    /*
+     * Disponibiliza as notificações
+     * para toda a aplicação.
+     */
     <NotificationProvider>
+
+      {/*
+       * BrowserRouter ativa o sistema
+       * de rotas do React.
+       */}
       <BrowserRouter>
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            }
-          />
 
-          <Route path="/cadastro" element={<Cadastro />} />
+        {/*
+         * AuthProvider disponibiliza o estado
+         * de autenticação para todas as páginas.
+         */}
+        <AuthProvider>
 
-          {/* Rota da Dashboard (Raiz do sistema) */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <AppLayout activePage="dashboard">
-                  <Dashboard />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
+          <Routes>
 
-          {/* Rota de Mercados */}
-          <Route
-            path="/mercados"
-            element={
-              <ProtectedRoute>
-                <AppLayout activePage="mercados">
-                  <Mercados />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
+            {/*
+             * Rotas públicas.
+             */}
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
 
-          {/* Rota de Produtos */}
-          <Route
-            path="/produtos"
-            element={
-              <ProtectedRoute>
-                <AppLayout activePage="produtos">
-                  <Produtos />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/cadastro"
+              element={
+                <PublicRoute>
+                  <Cadastro />
+                </PublicRoute>
+              }
+            />
 
-          <Route
-            path="/pedidos"
-            element={
-              <ProtectedRoute>
-                <AppLayout activePage="pedidos">
-                  <GerenciamentoPedidos />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
+            {/*
+             * Todas as rotas dentro deste grupo
+             * passam por ProtectedRoute.
+             */}
+            <Route element={<RotasProtegidas />}>
 
-          <Route
-            path="/criarpedidos"
-            element={
-              <ProtectedRoute>
-                <AppLayout activePage="criarpedidos">
-                  <CriarPedidos />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/"
+                element={
+                  <AppLayout activePage="dashboard">
+                    <Dashboard />
+                  </AppLayout>
+                }
+              />
 
-          <Route
-            path="/perfil"
-            element={
-              <ProtectedRoute>
-                <AppLayout activePage="perfil">
-                  <Perfil />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+              <Route
+                path="/mercados"
+                element={
+                  <AppLayout activePage="mercados">
+                    <Mercados />
+                  </AppLayout>
+                }
+              />
+
+              <Route
+                path="/produtos"
+                element={
+                  <AppLayout activePage="produtos">
+                    <Produtos />
+                  </AppLayout>
+                }
+              />
+
+              <Route
+                path="/pedidos"
+                element={
+                  <AppLayout activePage="pedidos">
+                    <GerenciamentoPedidos />
+                  </AppLayout>
+                }
+              />
+
+              <Route
+                path="/criarpedidos"
+                element={
+                  <AppLayout activePage="criarpedidos">
+                    <CriarPedidos />
+                  </AppLayout>
+                }
+              />
+
+              <Route
+                path="/perfil"
+                element={
+                  <AppLayout activePage="perfil">
+                    <Perfil />
+                  </AppLayout>
+                }
+              />
+
+            </Route>
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </NotificationProvider>
   );

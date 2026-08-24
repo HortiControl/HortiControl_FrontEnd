@@ -6,47 +6,92 @@ import logo from "../../assets/HortiControlLogo.png";
 import { useNavigate } from "react-router-dom";
 import api from "../../provider/api";
 import { useNotification } from "../notifications/NotificationContext";
+import { useAuth } from "../../context/AuthContext";
 
 const LoginCard = () => {
   const navigate = useNavigate();
   const notify = useNotification();
 
+  // Função de login fornecida pelo AuthContext.
+  const { login } = useAuth();
+
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
+  // Impede múltiplos envios simultâneos.
+
+  const [enviando, setEnviando] = useState(false);
+
   function direcionarCadastro() {
-    navigate("/cadastro", { replace: true });
-  }
+  /*
+   * Direciona o usuário anônimo para a página de cadastro.
+   */
+  navigate("/cadastro", { replace: true });
+}
+  const handleSubmit = async (event) => {
+    /*
+     * Impede o recarregamento padrão da página.
+     */
+    event.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
+    /*
+     * Lê os campos do formulário.
+     */
+    const formData = new FormData(event.currentTarget);
 
     const dados = Object.fromEntries(formData.entries());
 
-    if (!dados.email.trim() || !dados.senha.trim()) {
+    const email = String(dados.email ?? "").trim();
+
+    const senha = String(dados.senha ?? "");
+
+    if (!email || !senha) {
       notify.warning("Preencha o e-mail e a senha para continuar.");
+
       return;
     }
 
     try {
-      const response = await api.post("/usuarios/login",
-        {
-          email: dados.email,
-          senha: dados.senha,
-        },
-      );
+      setEnviando(true);
 
-      const dadosLogin = response.data;
-
-      localStorage.setItem("token", dadosLogin.token);
-      localStorage.setItem("userId", dadosLogin.idUsuario);
+      /*
+       * O AuthContext executará o login
+       * e confirmará a sessão em /usuarios/me.
+       */
+      await login(email, senha);
 
       notify.success("Login realizado com sucesso.");
-      navigate("/", { replace: true });
 
-    } catch (error) {
-      notify.error("Não foi possível fazer login. Verifique seus dados e tente novamente.");
+      /*
+       * Recupera a página que o usuário
+       * tentou acessar antes do login.
+       */
+      const origem = location.state?.from;
+
+      /*
+       * Aceita somente caminhos internos.
+       *
+       * O teste de "//" impede uma URL externa
+       * interpretada como endereço absoluto.
+       */
+      const caminhoInterno =
+        origem?.pathname?.startsWith("/") && !origem.pathname.startsWith("//");
+
+      const destino = caminhoInterno
+        ? `${origem.pathname}${origem.search ?? ""}${origem.hash ?? ""}`
+        : "/";
+
+      navigate(destino, {
+        replace: true,
+      });
+    } catch {
+      /*
+       * A mensagem não revela se o e-mail existe.
+       */
+      notify.error(
+        "Não foi possível fazer login. Verifique seus dados e tente novamente.",
+      );
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -56,9 +101,15 @@ const LoginCard = () => {
       style={{ backgroundImage: `url(${banner})` }}
     >
       <div className="w-full max-w-md rounded-[25px] bg-white/95 p-5 shadow-2xl backdrop-blur-sm flex flex-col items-center sm:max-w-lg sm:p-8">
-        <img src={logo} alt="Logo" className="mb-4 w-24 object-contain sm:w-28" />
+        <img
+          src={logo}
+          alt="Logo"
+          className="mb-4 w-24 object-contain sm:w-28"
+        />
 
-        <h2 className="mb-1 text-center text-xl font-bold text-[#333] sm:text-2xl lg:text-3xl">Seja Bem-Vindo!</h2>
+        <h2 className="mb-1 text-center text-xl font-bold text-[#333] sm:text-2xl lg:text-3xl">
+          Seja Bem-Vindo!
+        </h2>
         <p className="mb-7 text-center text-xs text-gray-500 sm:text-sm">
           Faça o login e acesse o sistema
         </p>
@@ -107,9 +158,13 @@ const LoginCard = () => {
 
           <Button
             type="submit"
-            className="w-full rounded-xl bg-[#009951] py-3.5 text-sm text-white hover:bg-[#007d42] sm:text-lg"
+            /*
+             * Impede novos cliques durante o login.
+             */
+            disabled={enviando}
+            className="w-full rounded-xl bg-[#009951] py-3.5 text-white disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Entrar
+            {enviando ? "Entrando..." : "Entrar"}
           </Button>
         </form>
 
