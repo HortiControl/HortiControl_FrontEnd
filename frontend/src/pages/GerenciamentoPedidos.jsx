@@ -275,16 +275,23 @@ export function GerenciamentoPedidos() {
     setModalAtivo(null);
   };
 
+  const trilhaNavegacao =
+    viewMode === "lista" ? "Pedidos" : "Pedidos > Itens do Pedido";
+
   return (
     <div className="h-dvh flex flex-col overflow-hidden">
       {viewMode === "detalhes" && pedidoSelecionado ? (
         <div className="animate-in fade-in duration-300 flex flex-col flex-1 min-h-0 pb-4 overflow-hidden">
-          <button
-            onClick={voltarParaLista}
-            className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 font-medium mb-6 transition-colors cursor-pointer shrink-0"
-          >
-            <ArrowLeft size={16} /> Voltar aos Pedidos
-          </button>
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-500 shrink-0">
+            <button
+              onClick={voltarParaLista}
+              className="text-gray-600 transition-colors hover:text-gray-900"
+              aria-label="Voltar para Pedidos"
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <p>{trilhaNavegacao}</p>
+          </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between shrink-0">
             <div>
@@ -373,7 +380,7 @@ export function GerenciamentoPedidos() {
                 </div>
 
                 <div className="hidden md:block">
-                  <table className="relative min-w-[52rem] w-full border-collapse text-left">
+                  <table className="relative min-w-208 w-full border-collapse text-left">
                     <thead className="sticky top-0 z-10 bg-gray-50 shadow-sm">
                       <tr className="border-b border-gray-200 text-sm text-gray-500">
                         <th className="px-6 py-4 font-medium">Unidade</th>
