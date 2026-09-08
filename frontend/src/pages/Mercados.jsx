@@ -20,153 +20,6 @@ import { useNotification } from "../components/notifications/NotificationContext
 
 const VIA_CEP_TIMEOUT_MS = 10000;
 
-const MOCK_MERCADOS = [
-  {
-    id: 1001,
-    nome: "MJ4",
-    tipo: "NORMAL",
-    cep: "08790110",
-    numero: "101",
-  },
-  {
-    id: 1002,
-    nome: "MJ3",
-    tipo: "NORMAL",
-    cep: "08780120",
-    numero: "88",
-  },
-  {
-    id: 1003,
-    nome: "MJ2",
-    tipo: "NORMAL",
-    cep: "08770130",
-    numero: "45",
-  },
-  {
-    id: 1004,
-    nome: "Mercado São Paulo",
-    tipo: "CONSIGNADO",
-    cep: "01001000",
-    numero: "150",
-  },
-  {
-    id: 1005,
-    nome: "Tropical",
-    tipo: "NORMAL",
-    cep: "08760140",
-    numero: "77",
-  },
-  {
-    id: 1006,
-    nome: "Casa Verde",
-    tipo: "CONSIGNADO",
-    cep: "08750150",
-    numero: "250",
-  },
-];
-
-const PEDIDOS_TEMPLATE = [
-  {
-    id: 1,
-    data: "2026-03-29",
-    valorTotal: 541,
-    valorPago: 0,
-    valorAPagar: 541,
-    statusPedido: "ATIVO",
-  },
-  {
-    id: 2,
-    data: "2026-03-23",
-    valorTotal: 607,
-    valorPago: 300,
-    valorAPagar: 307,
-    statusPedido: "ATIVO",
-  },
-  {
-    id: 3,
-    data: "2026-03-20",
-    valorTotal: 333,
-    valorPago: 231,
-    valorAPagar: 102,
-    statusPedido: "ATIVO",
-  },
-  {
-    id: 4,
-    data: "2026-03-27",
-    valorTotal: 287,
-    valorPago: 229,
-    valorAPagar: 58,
-    statusPedido: "ATIVO",
-  },
-  {
-    id: 5,
-    data: "2026-03-29",
-    valorTotal: 567,
-    valorPago: 385,
-    valorAPagar: 182,
-    statusPedido: "ATIVO",
-  },
-  {
-    id: 6,
-    data: "2026-03-18",
-    valorTotal: 754,
-    valorPago: 754,
-    valorAPagar: 0,
-    statusPedido: "FINALIZADO",
-  },
-  {
-    id: 7,
-    data: "2026-03-11",
-    valorTotal: 420,
-    valorPago: 420,
-    valorAPagar: 0,
-    statusPedido: "FINALIZADO",
-  },
-];
-
-const ITENS_TEMPLATE = [
-  {
-    id: 1,
-    nomeProduto: "Alface Crespa",
-    quantidade: 5,
-    tipoProduto: "NAO_LAVADO",
-    precoUnitario: 9,
-    subTotal: 54,
-  },
-  {
-    id: 2,
-    nomeProduto: "Alface Lisa",
-    quantidade: 10,
-    tipoProduto: "PRE_LAVADO",
-    precoUnitario: 9,
-    subTotal: 67,
-  },
-  {
-    id: 3,
-    nomeProduto: "Alface Americana",
-    quantidade: 23,
-    tipoProduto: "NAO_LAVADO",
-    precoUnitario: 3,
-    subTotal: 333,
-  },
-  {
-    id: 4,
-    nomeProduto: "Acelga",
-    quantidade: 12,
-    tipoProduto: "NAO_LAVADO",
-    precoUnitario: 5,
-    subTotal: 287,
-  },
-  {
-    id: 5,
-    nomeProduto: "Repolho",
-    quantidade: 7,
-    tipoProduto: "PRE_LAVADO",
-    precoUnitario: 9,
-    subTotal: 145,
-  },
-];
-
 export function Mercados() {
   const notify = useNotification();
   const [viewMode, setViewMode] = useState("clientes");
@@ -180,6 +33,7 @@ export function Mercados() {
   const [itemSelecionado, setItemSelecionado] = useState(null);
   const [pedidosPorMercado, setPedidosPorMercado] = useState({});
   const [pedidosSelecionados, setPedidosSelecionados] = useState([]);
+  const [carregandoPedidos, setCarregandoPedidos] = useState(false);
   const [valorPago, setValorPago] = useState(0);
   const [filtroAtivo, setFiltroAtivo] = useState("TODOS");
 
@@ -202,7 +56,7 @@ export function Mercados() {
       .get("/mercados")
       .then((response) => {
         if (response.data.length === 0) {
-          setMercadosData(MOCK_MERCADOS);
+          setMercadosData([]);
         } else {
           const mercadosFormatados = response.data
             .map((mercado) => ({
@@ -219,30 +73,65 @@ export function Mercados() {
       })
       .catch((error) => {
         console.error("Erro ao carregar clientes:", error);
-        setMercadosData(MOCK_MERCADOS);
-        notify.warning(
-          "Clientes carregados em modo de teste. Conecte o backend para dados reais.",
+        setMercadosData([]);
+        notify.error(
+          "Não foi possível carregar os clientes. Tente novamente mais tarde.",
         );
       });
   }, [notify]);
 
-  const criarItensMock = (pedidoId) =>
-    ITENS_TEMPLATE.map((item, index) => ({
-      ...item,
-      id: pedidoId * 100 + index + 1,
-    }));
+  const formatarPedidoDaApi = (pedido) => ({
+    id: pedido.id,
+    data: pedido.dataSolicitacao,
+    valorTotal: pedido.valorTotal,
+    valorPago: pedido.valorPago,
+    valorAPagar: pedido.valorAPagar,
+    statusPedido: pedido.statusPedido,
+    mercado: {
+      id: pedido.mercado?.id,
+      nome: pedido.mercado?.nome,
+      tipo: pedido.mercado?.tipoMercado,
+    },
+    itens: pedido.itens || [],
+  });
 
-  const criarPedidosMock = (mercado) =>
-    PEDIDOS_TEMPLATE.map((pedido) => ({
-      ...pedido,
-      id: Number(`${mercado.id}${pedido.id}`),
-      mercado: {
-        id: mercado.id,
-        nome: mercado.nome,
-        tipo: mercado.tipo,
-      },
-      itens: criarItensMock(Number(`${mercado.id}${pedido.id}`)),
-    }));
+  const carregarPedidosDoMercado = useCallback(
+    (mercadoId) => {
+      setCarregandoPedidos(true);
+
+      return Promise.all([
+        api.get("/pedidos/ativos", { params: { mercadoId } }),
+        api.get("/pedidos/historico", { params: { mercadoId } }),
+      ])
+        .then(([ativosResponse, historicoResponse]) => {
+          // 204 (sem conteúdo) chega com data vazio/não-array
+          const ativos = Array.isArray(ativosResponse.data)
+            ? ativosResponse.data
+            : [];
+          const historico = Array.isArray(historicoResponse.data)
+            ? historicoResponse.data
+            : [];
+
+          const pedidosFormatados = [...ativos, ...historico]
+            .map(formatarPedidoDaApi)
+            .sort((a, b) => b.id - a.id);
+
+          setPedidosPorMercado((prev) => ({
+            ...prev,
+            [mercadoId]: pedidosFormatados,
+          }));
+
+          return pedidosFormatados;
+        })
+        .catch((error) => {
+          console.error("Erro ao carregar pedidos do cliente:", error);
+          notify.error("Não foi possível carregar os pedidos deste cliente.");
+          return [];
+        })
+        .finally(() => setCarregandoPedidos(false));
+    },
+    [notify],
+  );
 
   const buscarEnderecoPorCep = async (cep) => {
     const cepLimpo = cep.replace(/\D/g, "");
@@ -454,14 +343,7 @@ export function Mercados() {
     setViewMode("pedidos");
     setAbaPedidosAtiva("ativos");
     setPedidosSelecionados([]);
-
-    setPedidosPorMercado((prev) => {
-      if (prev[mercado.id]) return prev;
-      return {
-        ...prev,
-        [mercado.id]: criarPedidosMock(mercado),
-      };
-    });
+    carregarPedidosDoMercado(mercado.id);
   };
 
   const voltarParaClientes = () => {
@@ -494,7 +376,7 @@ export function Mercados() {
 
   const pedidosFinalizados = useMemo(
     () =>
-      pedidosDoMercado.filter((pedido) => pedido.statusPedido === "FINALIZADO"),
+      pedidosDoMercado.filter((pedido) => pedido.statusPedido === "CONCLUIDO"),
     [pedidosDoMercado],
   );
 
@@ -525,41 +407,31 @@ export function Mercados() {
     setPedidosSelecionados(pedidosDaAba.map((pedido) => pedido.id));
   };
 
-  const atualizarPedidoNoMercado = (pedidoAtualizado) => {
-    if (!mercadoEmFoco) return;
-
-    setPedidosPorMercado((prev) => ({
-      ...prev,
-      [mercadoEmFoco.id]: (prev[mercadoEmFoco.id] || []).map((pedido) =>
-        pedido.id === pedidoAtualizado.id ? pedidoAtualizado : pedido,
-      ),
-    }));
-  };
-
-  const handleExcluirPedido = () => {
+  const handleExcluirPedido = async () => {
     if (!mercadoEmFoco || !pedidoSelecionado) return;
 
-    setPedidosPorMercado((prev) => ({
-      ...prev,
-      [mercadoEmFoco.id]: (prev[mercadoEmFoco.id] || []).filter(
-        (pedido) => pedido.id !== pedidoSelecionado.id,
-      ),
-    }));
+    try {
+      await api.delete(`/pedidos/${pedidoSelecionado.id}`);
 
-    setPedidosSelecionados((prev) =>
-      prev.filter((pedidoId) => pedidoId !== pedidoSelecionado.id),
-    );
+      setPedidosSelecionados((prev) =>
+        prev.filter((pedidoId) => pedidoId !== pedidoSelecionado.id),
+      );
 
-    if (viewMode === "itens") {
-      voltarParaPedidos();
+      if (viewMode === "itens") {
+        voltarParaPedidos();
+      }
+
+      notify.success("Pedido excluído com sucesso.");
+      carregarPedidosDoMercado(mercadoEmFoco.id);
+      fecharModal();
+    } catch (error) {
+      console.error("Erro ao excluir pedido:", error);
+      notify.error("Não foi possível excluir o pedido. Tente novamente.");
     }
-
-    notify.success("Pedido excluído com sucesso.");
-    fecharModal();
   };
 
-  const handleRegistrarPagamento = () => {
-    if (!pedidoSelecionado) return;
+  const handleRegistrarPagamento = async () => {
+    if (!pedidoSelecionado || !mercadoEmFoco) return;
 
     const valorInformadoNum = parseFloat(String(valorPago).replace(",", "."));
     const valorAPagarNum = Number(pedidoSelecionado.valorAPagar || 0);
@@ -574,74 +446,62 @@ export function Mercados() {
       return;
     }
 
-    const novoValorPago = Number(pedidoSelecionado.valorPago || 0) + valorInformadoNum;
-    const novoValorAPagar = Math.max(
-      0,
-      Number(pedidoSelecionado.valorTotal || 0) - novoValorPago,
-    );
+    try {
+      await api.patch(
+        `/pedidos/${pedidoSelecionado.id}/pagamento?valor=${valorInformadoNum}`,
+        {},
+      );
 
-    const pedidoAtualizado = {
-      ...pedidoSelecionado,
-      valorPago: novoValorPago,
-      valorAPagar: novoValorAPagar,
-      statusPedido: novoValorAPagar === 0 ? "FINALIZADO" : "ATIVO",
-    };
+      notify.success(
+        valorInformadoNum === valorAPagarNum
+          ? "Pagamento concluído com sucesso."
+          : "Pagamento registrado com sucesso.",
+      );
 
-    atualizarPedidoNoMercado(pedidoAtualizado);
-    setPedidoSelecionado(pedidoAtualizado);
-
-    notify.success(
-      novoValorAPagar === 0
-        ? "Pagamento concluído com sucesso."
-        : "Pagamento registrado com sucesso.",
-    );
-
-    fecharModal();
+      carregarPedidosDoMercado(mercadoEmFoco.id);
+      fecharModal();
+    } catch (error) {
+      console.error("Erro ao registrar pagamento:", error);
+      notify.error(
+        "Não foi possível registrar o pagamento. Verifique os dados.",
+      );
+    }
   };
 
-  const handleRemoverItemPedido = () => {
-    if (!pedidoSelecionado || !itemSelecionado) return;
+  const handleRemoverItemPedido = async () => {
+    if (!pedidoSelecionado || !itemSelecionado || !mercadoEmFoco) return;
 
-    const itensRestantes = (pedidoSelecionado.itens || []).filter(
-      (item) => item.id !== itemSelecionado.id,
-    );
+    try {
+      await api.delete(
+        `/pedidos/${pedidoSelecionado.id}/itens/${itemSelecionado.id}`,
+      );
 
-    if (itensRestantes.length === 0) {
-      setPedidosPorMercado((prev) => ({
-        ...prev,
-        [mercadoEmFoco.id]: (prev[mercadoEmFoco.id] || []).filter(
-          (pedido) => pedido.id !== pedidoSelecionado.id,
-        ),
-      }));
+      const itensRestantes = (pedidoSelecionado.itens || []).filter(
+        (item) => item.id !== itemSelecionado.id,
+      );
 
-      notify.info("Último item removido. O pedido foi encerrado no sistema.");
+      if (itensRestantes.length === 0) {
+        notify.info("Último item removido. O pedido foi encerrado no sistema.");
+        fecharModal();
+        voltarParaPedidos();
+        carregarPedidosDoMercado(mercadoEmFoco.id);
+        return;
+      }
+
+      notify.success("Item removido com sucesso.");
       fecharModal();
-      voltarParaPedidos();
-      return;
+
+      const pedidosAtualizados = await carregarPedidosDoMercado(mercadoEmFoco.id);
+      const pedidoAtualizado = pedidosAtualizados.find(
+        (pedido) => pedido.id === pedidoSelecionado.id,
+      );
+      if (pedidoAtualizado) {
+        setPedidoSelecionado(pedidoAtualizado);
+      }
+    } catch (error) {
+      console.error("Erro ao remover item do pedido:", error);
+      notify.error("Não foi possível remover o item do pedido.");
     }
-
-    const novoValorTotal = itensRestantes.reduce(
-      (acc, item) => acc + Number(item.subTotal || 0),
-      0,
-    );
-
-    const novoValorAPagar = Math.max(
-      0,
-      novoValorTotal - Number(pedidoSelecionado.valorPago || 0),
-    );
-
-    const pedidoAtualizado = {
-      ...pedidoSelecionado,
-      itens: itensRestantes,
-      valorTotal: novoValorTotal,
-      valorAPagar: novoValorAPagar,
-      statusPedido: novoValorAPagar === 0 ? "FINALIZADO" : "ATIVO",
-    };
-
-    atualizarPedidoNoMercado(pedidoAtualizado);
-    setPedidoSelecionado(pedidoAtualizado);
-    notify.success("Item removido com sucesso.");
-    fecharModal();
   };
 
   const handleExportarPedidos = () => {
@@ -940,6 +800,11 @@ export function Mercados() {
               count={pedidosDaAba.length}
             >
               <div className="w-full max-h-[calc(100vh-22rem)] overflow-y-auto pr-2 pb-4">
+                {carregandoPedidos && pedidosDaAba.length === 0 && (
+                  <p className="py-6 text-center text-sm text-gray-500">
+                    Carregando pedidos...
+                  </p>
+                )}
                 <div className="space-y-3 md:hidden">
                   {pedidosDaAba.map((pedido) => {
                     const selecionado = pedidosSelecionados.includes(pedido.id);
@@ -960,7 +825,7 @@ export function Mercados() {
                             />
                             <div>
                               <h3 className="truncate text-base font-semibold text-gray-800">
-                                #{String(pedido.id).slice(-1)}
+                                #{pedido.id}
                               </h3>
                               <p className="mt-1 text-sm text-gray-500">
                                 {formatarData(pedido.data)}
@@ -1049,7 +914,7 @@ export function Mercados() {
                           />
                         </td>
                         <td className="px-6 py-4 font-medium text-gray-800">
-                          #{String(pedido.id).slice(-1)}
+                          #{pedido.id}
                         </td>
                         <td className="px-6 py-4 text-gray-600">
                           {formatarData(pedido.data)}
@@ -1111,7 +976,7 @@ export function Mercados() {
 
           <div className="shrink-0 mb-4">
             <h1 className="text-3xl font-semibold text-gray-800">
-              Detalhes do Pedido (#{String(pedidoSelecionado.id).slice(-1)})
+              Detalhes do Pedido (#{pedidoSelecionado.id})
             </h1>
             <p className="text-gray-500 mt-1 font-medium">
               Data de Solicitação - {formatarData(pedidoSelecionado.data)}
@@ -1413,7 +1278,7 @@ export function Mercados() {
       >
         <p className="text-gray-700">
           Tem certeza que deseja excluir o pedido
-          <span className="font-bold"> #{String(pedidoSelecionado?.id || "").slice(-1)}</span>?
+          <span className="font-bold"> #{pedidoSelecionado?.id ?? ""}</span>?
         </p>
         <div className="flex justify-center gap-3 mt-8">
           <Button variant="secondary" onClick={fecharModal}>
