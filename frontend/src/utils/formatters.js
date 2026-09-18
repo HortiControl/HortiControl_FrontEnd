@@ -17,3 +17,12 @@ export function formatarMoeda(valor) {
     currency: "BRL",
   });
 }
+
+const ROTULOS_TIPO_PRODUTO = {
+  PRE_LAVADO: "Pré-Lavado",
+  NAO_LAVADO: "Não Lavado",
+};
+
+export function formatarTipoProduto(tipo) {
+  return ROTULOS_TIPO_PRODUTO[tipo] || tipo;
+}
