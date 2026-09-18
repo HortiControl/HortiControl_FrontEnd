@@ -23,3 +23,7 @@ export function registrarPagamento(pedidoId, valor) {
 export function removerItemPedido(pedidoId, itemId) {
   return api.delete(`/pedidos/${pedidoId}/itens/${itemId}`);
 }
+
+export function criarPedido(dados) {
+  return api.post("/pedidos", dados).then((response) => response.data);
+}

@@ -23,3 +23,11 @@ export function excluirProduto(id) {
 export function reajustarPrecoGlobal(novoPreco) {
   return api.patch(`/produtos/reajuste-global?novoPreco=${novoPreco}`, {});
 }
+
+export function listarProdutosPreLavados() {
+  return api.get("/produtos/pre-lavados").then((response) => response.data);
+}
+
+export function listarProdutosNaoLavados() {
+  return api.get("/produtos/nao-lavados").then((response) => response.data);
+}
