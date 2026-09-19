@@ -4,9 +4,9 @@ import {
   criarMercado,
   atualizarMercado,
   excluirMercado,
-} from "../services/mercadosService";
-import { formatarMercadoDaApi } from "../utils/mercadoMappers";
-import { useNotification } from "../components/notifications/NotificationContext";
+} from "../../services/mercadosService";
+import { formatarMercadoDaApi } from "../../utils/mercadoMappers";
+import { useNotification } from "../../components/notifications/NotificationContext";
 
 /** Regra de negócio da listagem/CRUD de clientes (mercados). */
 export function useMercados() {

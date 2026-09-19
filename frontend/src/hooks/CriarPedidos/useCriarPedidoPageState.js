@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import { listarMercados } from "../services/mercadosService";
+import { listarMercados } from "../../services/mercadosService";
 import {
   listarProdutosPreLavados,
   listarProdutosNaoLavados,
-} from "../services/produtosService";
-import { criarPedido } from "../services/pedidosService";
-import { formatarMercadoDaApi } from "../utils/mercadoMappers";
+} from "../../services/produtosService";
+import { criarPedido } from "../../services/pedidosService";
+import { formatarMercadoDaApi } from "../../utils/mercadoMappers";
 import {
   formatarProdutoPreLavado,
   formatarProdutoNaoLavado,
-} from "../utils/produtoMappers";
+} from "../../utils/produtoMappers";
 import { useCarrinho } from "./useCarrinho";
-import { useNotification } from "../components/notifications/NotificationContext";
+import { useNotification } from "../../components/notifications/NotificationContext";
 
 const MERCADO_PLACEHOLDER = "Selecione um mercado";
 

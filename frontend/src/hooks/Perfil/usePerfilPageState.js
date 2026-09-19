@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { atualizarPerfil, atualizarSenha } from "../services/usuariosService";
+import { useAuth } from "../../context/AuthContext";
+import { atualizarPerfil, atualizarSenha } from "../../services/usuariosService";
 import {
   validarNomeCompleto,
   validarTelefone,
   validarEmail,
   validarNovaSenha,
-} from "../utils/validators";
-import { useNotification } from "../components/notifications/NotificationContext";
+} from "../../utils/validators";
+import { useNotification } from "../../components/notifications/NotificationContext";
 
 const SENHAS_INICIAIS = { senhaAtual: "", novaSenha: "", confirmacao: "" };
 

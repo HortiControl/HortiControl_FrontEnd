@@ -1,4 +1,4 @@
-import { useCriarPedidoPageState } from "../hooks/useCriarPedidoPageState";
+import { useCriarPedidoPageState } from "../hooks/CriarPedidos/useCriarPedidoPageState";
 import { SelecaoCliente } from "../components/CriarPedidos/SelecaoCliente";
 import { SecaoSanfonaProdutos } from "../components/CriarPedidos/SecaoSanfonaProdutos";
 import { LinhaProdutoDesktop } from "../components/CriarPedidos/LinhaProdutoDesktop";

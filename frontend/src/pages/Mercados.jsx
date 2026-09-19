@@ -1,4 +1,4 @@
-import { useMercadosPageState } from "../hooks/useMercadosPageState";
+import { useMercadosPageState } from "../hooks/Mercados/useMercadosPageState";
 import { ClientesSection } from "../components/Mercados/ClientesSection";
 import { PedidosDoMercadoSection } from "../components/Mercados/PedidosDoMercadoSection";
 import { ItensDoPedidoSection } from "../components/Mercados/ItensDoPedidoSection";

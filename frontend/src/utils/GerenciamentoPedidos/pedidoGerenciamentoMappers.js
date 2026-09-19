@@ -1,4 +1,4 @@
-import { formatarData } from "./formatters";
+import { formatarData } from "../formatters";
 
 export function formatarPedidoGerenciamento(pedido) {
   return {

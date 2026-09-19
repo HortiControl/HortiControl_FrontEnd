@@ -5,9 +5,9 @@ import {
   excluirPedido,
   registrarPagamento,
   removerItemPedido,
-} from "../services/pedidosService";
-import { formatarPedidoDaApi } from "../utils/mercadoMappers";
-import { useNotification } from "../components/notifications/NotificationContext";
+} from "../../services/pedidosService";
+import { formatarPedidoDaApi } from "../../utils/mercadoMappers";
+import { useNotification } from "../../components/notifications/NotificationContext";
 
 /** Regra de negócio dos pedidos (ativos/finalizados) de um cliente. */
 export function usePedidosDoMercado(mercadoId) {

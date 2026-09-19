@@ -2,110 +2,20 @@ import { User, Mail, Phone, Lock, ArrowLeft } from "lucide-react";
 
 import { Button } from "../Button";
 import banner from "../../assets/banner.png";
-import { useNavigate, Link } from "react-router-dom";
-import api from "../../provider/api";
-import { useNotification } from "../notifications/NotificationContext";
+import { Link } from "react-router-dom";
+import { useCadastroPageState } from "../../hooks/Login/useCadastroPageState";
+import { CampoAuthComIcone } from "./CampoAuthComIcone";
 
 const CadastroCard = () => {
-  const navigate = useNavigate();
-  const notify = useNotification();
+  const { handleCadastrar } = useCadastroPageState();
 
-  //Para realizar o envio das informações do
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-    // Captura as informações do formulário
-    const formData = new FormData(e.currentTarget);
-
-    // Transforma em objeto json
+    const formData = new FormData(event.currentTarget);
     const dados = Object.fromEntries(formData.entries());
 
-    // Validação de campos vazios
-    if (
-      !dados.nome.trim() ||
-      !dados.email.trim() ||
-      !dados.senha.trim() ||
-      !dados.confirmarSenha.trim()
-    ) {
-      notify.warning("Preencha os campos obrigatórios para continuar.");
-      return;
-    }
-
-    // Nome não pode conter números, caracteres especiais ou ç
-    if (
-      !/^[A-Za-zÀ-ú\s]+$/.test(dados.nome.trim()) ||
-      /[çÇ]/.test(dados.nome)
-    ) {
-      notify.warning("O nome deve conter apenas letras.");
-      return;
-    }
-
-    const email = dados.email.trim();
-
-    // Validações de email
-    if (
-      !email.includes("@") ||
-      !email.includes(".") ||
-      email.startsWith("@") ||
-      email.endsWith("@") ||
-      email.endsWith(".")
-    ) {
-      notify.warning("Digite um e-mail válido.");
-      return;
-    }
-
-    // Validações de telefone
-    if (dados.telefone.trim()) {
-      // Apenas números
-      if (!/^\d+$/.test(dados.telefone)) {
-        notify.warning("O telefone deve conter apenas números.");
-        return;
-      }
-
-      // Deve ter 10 ou 11 dígitos
-      if (dados.telefone.length < 10 || dados.telefone.length > 11) {
-        notify.warning("O telefone deve ter 10 ou 11 dígitos.");
-        return;
-      }
-    }
-
-    //Validações de senha
-    if (dados.senha.length < 5) {
-      notify.warning("A senha deve ter no mínimo 5 caracteres.");
-      return;
-    }
-
-    // Não permite caracteres especiais
-    if (!/^[a-zA-Z0-9]+$/.test(dados.senha)) {
-      notify.warning("A senha não pode conter caracteres especiais.");
-      return;
-    }
-
-    if (dados.senha !== dados.confirmarSenha) {
-      notify.warning("As senhas não coincidem.");
-      return;
-    }
-
-    try {
-      await api.post("/usuarios", {
-        nome: dados.nome,
-        email: dados.email,
-        telefone: dados.telefone,
-        senha: dados.senha,
-      });
-
-      notify.success("Cadastro realizado com sucesso.");
-      navigate("/login", { replace: true });
-    } catch (error) {
-      if (
-        error.response &&
-        (error.response.status === 409 || error.response.status === 400)
-      ) {
-        notify.warning("Este e-mail já está cadastrado. Tente outro endereço.");
-      } else {
-        notify.error("Não foi possível concluir o cadastro. Tente novamente.");
-      }
-    }
+    handleCadastrar(dados);
   };
 
   return (
@@ -132,81 +42,44 @@ const CadastroCard = () => {
         </div>
 
         <form className="w-full space-y-4" onSubmit={handleSubmit}>
-          <div className="flex flex-col">
-            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
-              Nome Completo:
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                name="nome"
-                placeholder="Seu nome"
-                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
-              />
-            </div>
-          </div>
+          <CampoAuthComIcone
+            icon={User}
+            label="Nome Completo:"
+            name="nome"
+            placeholder="Seu nome"
+          />
 
-          <div className="flex flex-col">
-            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
-              E-mail:
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="email"
-                name="email"
-                placeholder="exemplo@email.com"
-                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
-              />
-            </div>
-          </div>
+          <CampoAuthComIcone
+            icon={Mail}
+            label="E-mail:"
+            type="email"
+            name="email"
+            placeholder="exemplo@email.com"
+          />
 
-          <div className="flex flex-col">
-            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
-              Telefone (opcional):
-            </label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                maxLength={11}
-                type="text"
-                name="telefone"
-                placeholder="(11) 91234 5678"
-                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
-              />
-            </div>
-          </div>
+          <CampoAuthComIcone
+            icon={Phone}
+            label="Telefone (opcional):"
+            name="telefone"
+            placeholder="(11) 91234 5678"
+            maxLength={11}
+          />
 
-          <div className="flex flex-col">
-            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
-              Senha:
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="password"
-                name="senha"
-                placeholder="Mínimo 5 caracteres"
-                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
-              />
-            </div>
-          </div>
+          <CampoAuthComIcone
+            icon={Lock}
+            label="Senha:"
+            type="password"
+            name="senha"
+            placeholder="Mínimo 5 caracteres"
+          />
 
-          <div className="flex flex-col">
-            <label className="mb-1 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
-              Confirmar Senha:
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="password"
-                name="confirmarSenha"
-                placeholder="Digite a senha novamente"
-                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
-              />
-            </div>
-          </div>
+          <CampoAuthComIcone
+            icon={Lock}
+            label="Confirmar Senha:"
+            type="password"
+            name="confirmarSenha"
+            placeholder="Digite a senha novamente"
+          />
 
           <Button
             type="submit"

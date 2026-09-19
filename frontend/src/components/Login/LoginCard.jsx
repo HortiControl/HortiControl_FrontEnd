@@ -1,98 +1,34 @@
-import { useState } from "react";
-import { Mail, Lock, EyeOff, Eye } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import { Button } from "../Button";
 import banner from "../../assets/banner.png";
 import logo from "../../assets/HortiControlLogo.png";
-import { useNavigate } from "react-router-dom";
-import api from "../../provider/api";
-import { useNotification } from "../notifications/NotificationContext";
-import { useAuth } from "../../context/AuthContext";
+import { useLoginPageState } from "../../hooks/Login/useLoginPageState";
+import { CampoAuthComIcone } from "./CampoAuthComIcone";
+
+const LABEL_CLASS = "mb-1.5 ml-1 text-xs font-semibold text-gray-700 sm:text-sm";
 
 const LoginCard = () => {
-  const navigate = useNavigate();
-  const notify = useNotification();
+  const {
+    mostrarSenha,
+    onAlternarMostrarSenha,
+    enviando,
+    direcionarCadastro,
+    handleLogin,
+  } = useLoginPageState();
 
-  // Função de login fornecida pelo AuthContext.
-  const { login } = useAuth();
-
-  const [mostrarSenha, setMostrarSenha] = useState(false);
-
-  // Impede múltiplos envios simultâneos.
-
-  const [enviando, setEnviando] = useState(false);
-
-  function direcionarCadastro() {
-  /*
-   * Direciona o usuário anônimo para a página de cadastro.
-   */
-  navigate("/cadastro", { replace: true });
-}
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     /*
      * Impede o recarregamento padrão da página.
      */
     event.preventDefault();
 
-    /*
-     * Lê os campos do formulário.
-     */
     const formData = new FormData(event.currentTarget);
-
     const dados = Object.fromEntries(formData.entries());
 
     const email = String(dados.email ?? "").trim();
-
     const senha = String(dados.senha ?? "");
 
-    if (!email || !senha) {
-      notify.warning("Preencha o e-mail e a senha para continuar.");
-
-      return;
-    }
-
-    try {
-      setEnviando(true);
-
-      /*
-       * O AuthContext executará o login
-       * e confirmará a sessão em /usuarios/me.
-       */
-      await login(email, senha);
-
-      notify.success("Login realizado com sucesso.");
-
-      /*
-       * Recupera a página que o usuário
-       * tentou acessar antes do login.
-       */
-      const origem = location.state?.from;
-
-      /*
-       * Aceita somente caminhos internos.
-       *
-       * O teste de "//" impede uma URL externa
-       * interpretada como endereço absoluto.
-       */
-      const caminhoInterno =
-        origem?.pathname?.startsWith("/") && !origem.pathname.startsWith("//");
-
-      const destino = caminhoInterno
-        ? `${origem.pathname}${origem.search ?? ""}${origem.hash ?? ""}`
-        : "/";
-
-      navigate(destino, {
-        replace: true,
-      });
-    } catch {
-      /*
-       * A mensagem não revela se o e-mail existe.
-       */
-      notify.error(
-        "Não foi possível fazer login. Verifique seus dados e tente novamente.",
-      );
-    } finally {
-      setEnviando(false);
-    }
+    handleLogin(email, senha);
   };
 
   return (
@@ -115,46 +51,25 @@ const LoginCard = () => {
         </p>
 
         <form className="w-full space-y-5" onSubmit={handleSubmit}>
-          <div className="flex flex-col">
-            <label className="mb-1.5 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
-              E-mail:
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="email"
-                name="email"
-                placeholder="exemplo@email.com"
-                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
-              />
-            </div>
-          </div>
+          <CampoAuthComIcone
+            icon={Mail}
+            label="E-mail:"
+            labelClassName={LABEL_CLASS}
+            type="email"
+            name="email"
+            placeholder="exemplo@email.com"
+          />
 
-          <div className="flex flex-col">
-            <label className="mb-1.5 ml-1 text-xs font-semibold text-gray-700 sm:text-sm">
-              Senha:
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type={mostrarSenha ? "text" : "password"}
-                name="senha"
-                placeholder="•••••"
-                className="w-full rounded-xl border-none bg-[#e9ecef] px-4 py-3 pl-10 pr-10 outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#009951]"
-              />
-              <button
-                type="button"
-                onClick={() => setMostrarSenha(!mostrarSenha)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none flex items-center justify-center"
-              >
-                {mostrarSenha ? (
-                  <Eye className="w-5 h-5" />
-                ) : (
-                  <EyeOff className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-          </div>
+          <CampoAuthComIcone
+            icon={Lock}
+            label="Senha:"
+            labelClassName={LABEL_CLASS}
+            name="senha"
+            placeholder="•••••"
+            comToggleSenha
+            senhaVisivel={mostrarSenha}
+            onToggleSenha={onAlternarMostrarSenha}
+          />
 
           <Button
             type="submit"

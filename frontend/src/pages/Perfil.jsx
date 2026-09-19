@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-import { usePerfilPageState } from "../hooks/usePerfilPageState";
+import { usePerfilPageState } from "../hooks/Perfil/usePerfilPageState";
 import { InformacoesPessoaisForm } from "../components/Perfil/InformacoesPessoaisForm";
 import { AlterarSenhaForm } from "../components/Perfil/AlterarSenhaForm";
 

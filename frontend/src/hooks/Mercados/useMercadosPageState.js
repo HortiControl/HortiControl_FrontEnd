@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMercados } from "./useMercados";
 import { usePedidosDoMercado } from "./usePedidosDoMercado";
 import { useEnderecoCep } from "./useEnderecoCep";
-import { useLockBodyScroll } from "./useLockBodyScroll";
+import { useLockBodyScroll } from "../useLockBodyScroll";
 
 const FORM_DATA_INICIAL = { nome: "", tipo: "NORMAL", cep: "", numero: "" };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { buscarResultados } from "../services/dashboardService";
-import { normalizarResultadosDashboard } from "../utils/dashboardMappers";
+import { buscarResultados } from "../../services/Dashboard/dashboardService";
+import { normalizarResultadosDashboard } from "../../utils/Dashboard/dashboardMappers";
 
 export const PERIODOS_DASHBOARD = [
   "Hoje",

@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 
-import api from "../provider/api";
+import api, { invalidarTokenCsrf } from "../provider/api";
 
 /*
  * Context permite compartilhar informações
@@ -168,6 +168,12 @@ export function AuthProvider({ children }) {
       );
 
       /*
+       * O backend regenera a sessao no login (protecao contra fixacao
+       * de sessao), invalidando o token CSRF obtido antes de autenticar.
+       */
+      invalidarTokenCsrf();
+
+      /*
        * Confirma que:
        *
        * 1. O navegador aceitou o cookie.
@@ -201,6 +207,12 @@ export function AuthProvider({ children }) {
      * automaticamente pelo interceptor.
      */
     await api.post("/usuarios/logout");
+
+    /*
+     * A sessao anterior deixou de existir; um token CSRF novo
+     * sera obtido na proxima requisicao que precisar dele.
+     */
+    invalidarTokenCsrf();
 
     /*
      * Só limpa o estado depois que o backend

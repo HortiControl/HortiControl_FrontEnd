@@ -1,4 +1,4 @@
-import { useGerenciamentoPedidosPageState } from "../hooks/useGerenciamentoPedidosPageState";
+import { useGerenciamentoPedidosPageState } from "../hooks/GerenciamentoPedidos/useGerenciamentoPedidosPageState";
 import { PageHeader } from "../components/PageHeader";
 import { ContentCard } from "../components/ContentCard";
 import { PagamentoModal } from "../components/Mercados/PagamentoModal";

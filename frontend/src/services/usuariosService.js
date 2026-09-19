@@ -1,5 +1,9 @@
 import api from "../provider/api";
 
+export function criarUsuario(dados) {
+  return api.post("/usuarios", dados).then((response) => response.data);
+}
+
 export function atualizarPerfil(dados) {
   return api
     .put("/usuarios/me/perfil", dados)

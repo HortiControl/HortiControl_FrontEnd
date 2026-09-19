@@ -1,4 +1,4 @@
-import { useProdutosPageState } from "../hooks/useProdutosPageState";
+import { useProdutosPageState } from "../hooks/Produtos/useProdutosPageState";
 import { PageHeader } from "../components/PageHeader";
 import { ContentCard } from "../components/ContentCard";
 import { BuscaEReajustePrecos } from "../components/Produtos/BuscaEReajustePrecos";

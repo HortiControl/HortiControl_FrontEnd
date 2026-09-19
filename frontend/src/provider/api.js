@@ -215,4 +215,16 @@ api.interceptors.response.use(
   }
 );
 
+/*
+ * Invalida o token CSRF em memória.
+ *
+ * Deve ser chamada sempre que a sessão do backend for trocada
+ * (login/logout), pois o backend costuma regenerar a sessão nesses
+ * momentos, invalidando o token CSRF obtido antes dessa troca.
+ */
+export function invalidarTokenCsrf() {
+  csrfAtual = null;
+  requisicaoCsrf = null;
+}
+
 export default api;

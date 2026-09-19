@@ -5,10 +5,10 @@ import {
   excluirPedido,
   removerItemPedido,
   registrarPagamento,
-} from "../services/pedidosService";
-import { formatarPedidoGerenciamento } from "../utils/pedidoGerenciamentoMappers";
-import { useLockBodyScroll } from "./useLockBodyScroll";
-import { useNotification } from "../components/notifications/NotificationContext";
+} from "../../services/pedidosService";
+import { formatarPedidoGerenciamento } from "../../utils/GerenciamentoPedidos/pedidoGerenciamentoMappers";
+import { useLockBodyScroll } from "../useLockBodyScroll";
+import { useNotification } from "../../components/notifications/NotificationContext";
 
 /** Orquestra estado e regra de negócio da tela de Gerenciamento de Pedidos. */
 export function useGerenciamentoPedidosPageState() {

@@ -1,4 +1,4 @@
-import api from "../provider/api";
+import api from "../../provider/api";
 
 export function buscarResultados(periodo) {
   return api

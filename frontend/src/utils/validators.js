@@ -18,6 +18,24 @@ export function validarTelefone(telefone) {
   return null;
 }
 
+export function validarTelefoneCadastro(telefone) {
+  const telefoneLimpo = String(telefone || "").trim();
+
+  if (!telefoneLimpo) {
+    return null;
+  }
+
+  if (!/^\d+$/.test(telefoneLimpo)) {
+    return "O telefone deve conter apenas números.";
+  }
+
+  if (telefoneLimpo.length < 10 || telefoneLimpo.length > 11) {
+    return "O telefone deve ter 10 ou 11 dígitos.";
+  }
+
+  return null;
+}
+
 export function validarEmail(email) {
   if (!email.trim()) {
     return "Digite um e-mail.";
@@ -38,18 +56,22 @@ export function validarEmail(email) {
   return null;
 }
 
+export function validarSenhaForte(senha) {
+  if (senha.length < 5) {
+    return "A senha deve ter no mínimo 5 caracteres.";
+  }
+
+  if (!/^[a-zA-Z0-9]+$/.test(senha)) {
+    return "A senha não pode conter caracteres especiais.";
+  }
+
+  return null;
+}
+
 export function validarNovaSenha(novaSenha, confirmacao) {
   if (novaSenha !== confirmacao) {
     return "A nova senha e a confirmação não batem.";
   }
 
-  if (novaSenha.length < 5) {
-    return "A senha deve ter no mínimo 5 caracteres.";
-  }
-
-  if (!/^[a-zA-Z0-9]+$/.test(novaSenha)) {
-    return "A senha não pode conter caracteres especiais.";
-  }
-
-  return null;
+  return validarSenhaForte(novaSenha);
 }

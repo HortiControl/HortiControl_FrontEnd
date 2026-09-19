@@ -5,9 +5,9 @@ import {
   atualizarProduto,
   excluirProduto,
   reajustarPrecoGlobal,
-} from "../services/produtosService";
-import { formatarProdutoDaApi } from "../utils/produtoMappers";
-import { useNotification } from "../components/notifications/NotificationContext";
+} from "../../services/produtosService";
+import { formatarProdutoDaApi } from "../../utils/produtoMappers";
+import { useNotification } from "../../components/notifications/NotificationContext";
 
 const FORM_DATA_INICIAL = {
   preco: "",

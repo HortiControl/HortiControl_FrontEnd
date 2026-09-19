@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { buscarEnderecoPorCep as buscarEnderecoPorCepService } from "../services/cepService";
-import { useNotification } from "../components/notifications/NotificationContext";
+import { buscarEnderecoPorCep as buscarEnderecoPorCepService } from "../../services/Mercados/cepService";
+import { useNotification } from "../../components/notifications/NotificationContext";
 
 /** Isola a busca de endereço via CEP (integração externa ViaCEP). */
 export function useEnderecoCep() {

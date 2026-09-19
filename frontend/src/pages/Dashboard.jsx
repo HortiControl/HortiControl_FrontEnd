@@ -1,4 +1,4 @@
-import { useDashboardPageState } from "../hooks/useDashboardPageState";
+import { useDashboardPageState } from "../hooks/Dashboard/useDashboardPageState";
 import { FiltroPeriodo } from "../components/Dashboard/FiltroPeriodo";
 import { KpiCardsSection } from "../components/Dashboard/KpiCardsSection";
 import { GraficoEvolucaoFaturamento } from "../components/Dashboard/GraficoEvolucaoFaturamento";
