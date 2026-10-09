@@ -8,6 +8,7 @@ import { PedidosFinalizadosLista } from "../components/GerenciamentoPedidos/Pedi
 import { DetalhesPedidoSection } from "../components/GerenciamentoPedidos/DetalhesPedidoSection";
 import { ExcluirPedidoModal } from "../components/GerenciamentoPedidos/ExcluirPedidoModal";
 import { ExcluirItemModal } from "../components/GerenciamentoPedidos/ExcluirItemModal";
+import { Pagination } from "../components/Pagination";
 
 export function GerenciamentoPedidos() {
   const {
@@ -19,6 +20,14 @@ export function GerenciamentoPedidos() {
     pedidosAtivosData,
     finalizadosData,
     tamanhoFinalizado,
+    paginaAtivos,
+    paginaFinalizados,
+    totalPaginasAtivos,
+    totalPaginasFinalizados,
+    carregandoAtivos,
+    carregandoFinalizados,
+    irParaPaginaAtivos,
+    irParaPaginaFinalizados,
 
     pedidoSelecionado,
     itemSelecionado,
@@ -68,6 +77,14 @@ export function GerenciamentoPedidos() {
                 title="Pedidos Ativos"
                 subtitle="Pedidos em andamento que precisam de atenção"
                 count={pedidosAtivosData.length}
+                footer={
+                  <Pagination
+                    currentPage={paginaAtivos}
+                    totalPages={totalPaginasAtivos}
+                    disabled={carregandoAtivos}
+                    onPageChange={irParaPaginaAtivos}
+                  />
+                }
               >
                 <PedidosAtivosLista
                   pedidos={pedidosAtivosData}
@@ -81,6 +98,14 @@ export function GerenciamentoPedidos() {
                 title="Pedidos Finalizados"
                 subtitle="Histórico de pedidos concluídos para consulta"
                 count={tamanhoFinalizado}
+                footer={
+                  <Pagination
+                    currentPage={paginaFinalizados}
+                    totalPages={totalPaginasFinalizados}
+                    disabled={carregandoFinalizados}
+                    onPageChange={irParaPaginaFinalizados}
+                  />
+                }
               >
                 <PedidosFinalizadosLista
                   pedidos={finalizadosData}

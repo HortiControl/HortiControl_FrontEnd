@@ -17,7 +17,7 @@ export function PedidosLista({
   onAbrirExclusao,
 }) {
   return (
-    <div className="w-full max-h-[calc(100vh-22rem)] overflow-y-auto pr-2 pb-4">
+    <div className="w-full max-h-[calc(100dvh-24rem)] overflow-y-auto pr-2 pb-4">
       {carregando && pedidos.length === 0 && (
         <p className="py-6 text-center text-sm text-gray-500">
           Carregando pedidos...

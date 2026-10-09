@@ -1,7 +1,34 @@
 import api from "../provider/api";
 
-export function listarMercados() {
-  return api.get("/mercados").then((response) => response.data);
+function normalizarPagina(data) {
+  const pagina = data && !Array.isArray(data) ? data : {};
+  const totalElements = pagina.totalElements ?? 0;
+  const size = pagina.size ?? 0;
+
+  return {
+    items: Array.isArray(data) ? data : pagina.content || [],
+    page: pagina.number ?? 0,
+    size,
+    totalElements,
+    totalPages: pagina.totalPages ?? (size ? Math.ceil(totalElements / size) : 0),
+    first: pagina.first ?? true,
+    last: pagina.last ?? true,
+  };
+}
+
+export function listarMercados(paginacao = null) {
+  const params = paginacao
+    ? {
+        page: paginacao.page ?? 0,
+        size: paginacao.size ?? 10,
+        sort: paginacao.sort,
+      }
+    : {};
+
+  return api.get("/mercados", { params }).then((response) => {
+    const pagina = normalizarPagina(response.data);
+    return paginacao ? pagina : pagina.items;
+  });
 }
 
 export function criarMercado(dados) {

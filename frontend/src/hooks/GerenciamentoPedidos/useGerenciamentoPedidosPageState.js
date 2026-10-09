@@ -10,6 +10,8 @@ import { formatarPedidoGerenciamento } from "../../utils/GerenciamentoPedidos/pe
 import { useLockBodyScroll } from "../useLockBodyScroll";
 import { useNotification } from "../../components/notifications/NotificationContext";
 
+const TAMANHO_PAGINA = 10;
+
 /** Orquestra estado e regra de negócio da tela de Gerenciamento de Pedidos. */
 export function useGerenciamentoPedidosPageState() {
   useLockBodyScroll();
@@ -26,54 +28,73 @@ export function useGerenciamentoPedidosPageState() {
   const [pedidosAtivosData, setPedidosAtivosData] = useState([]);
   const [finalizadosData, setFinalizadosData] = useState([]);
   const [tamanhoFinalizado, setTamanhoFinalizado] = useState(null);
+  const [paginaAtivos, setPaginaAtivos] = useState(0);
+  const [paginaFinalizados, setPaginaFinalizados] = useState(0);
+  const [totalPaginasAtivos, setTotalPaginasAtivos] = useState(0);
+  const [totalPaginasFinalizados, setTotalPaginasFinalizados] = useState(0);
+  const [carregandoAtivos, setCarregandoAtivos] = useState(false);
+  const [carregandoFinalizados, setCarregandoFinalizados] = useState(false);
   const [valorPago, setValorPago] = useState(0);
 
-  const carregarPedidosAtivos = useCallback(() => {
-    listarPedidosAtivos()
-      .then((data) => {
-        if (data.length === 0) {
-          setPedidosAtivosData([]);
-          return;
-        }
+  const carregarPagina = useCallback(
+    (tipo, pagina = 0) => {
+      const setCarregando = tipo === "ativos"
+        ? setCarregandoAtivos
+        : setCarregandoFinalizados;
+      setCarregando(true);
 
-        const pedidosAtivosFormatado = data
-          .map(formatarPedidoGerenciamento)
-          .sort((a, b) => b.id - a.id);
+      const requisicao = tipo === "ativos"
+        ? listarPedidosAtivos(undefined, { page: pagina, size: TAMANHO_PAGINA, sort: "dataSolicitacao,desc" })
+        : listarPedidosHistorico(undefined, { page: pagina, size: TAMANHO_PAGINA, sort: "dataSolicitacao,desc" });
 
-        setPedidosAtivosData(pedidosAtivosFormatado);
-      })
-      .catch((error) => {
-        console.error("Erro ao carregar pedidos ativos:", error);
-        notify.error("Não foi possível carregar os pedidos ativos.");
-      });
-  }, [notify]);
+      return requisicao
+        .then((data) => {
+          const pedidosFormatados = (data?.items || [])
+            .map(formatarPedidoGerenciamento)
+            .sort((a, b) => b.id - a.id);
+          if (tipo === "ativos") {
+            setPedidosAtivosData(pedidosFormatados);
+            setPaginaAtivos(data?.page ?? pagina);
+            setTotalPaginasAtivos(data?.totalPages ?? 0);
+          } else {
+            setFinalizadosData(pedidosFormatados);
+            setPaginaFinalizados(data?.page ?? pagina);
+            setTamanhoFinalizado(data?.totalElements ?? pedidosFormatados.length);
+            setTotalPaginasFinalizados(data?.totalPages ?? 0);
+          }
+        })
+        .catch((error) => {
+          console.error(`Erro ao carregar pedidos ${tipo}:`, error);
+          notify.error(
+            tipo === "ativos"
+              ? "Não foi possível carregar os pedidos ativos."
+              : "Não foi possível carregar o histórico de pedidos.",
+          );
+        })
+        .finally(() => {
+          setCarregando(false);
+        });
+    },
+    [notify],
+  );
 
-  const carregarPedidosFinalizados = useCallback(() => {
-    listarPedidosHistorico()
-      .then((data) => {
-        if (data.length === 0) {
-          setFinalizadosData([]);
-          setTamanhoFinalizado(0);
-          return;
-        }
+  const irParaPaginaAtivos = useCallback(
+    (pagina) => carregarPagina("ativos", pagina),
+    [carregarPagina],
+  );
 
-        const finalizadosFormatado = data
-          .map(formatarPedidoGerenciamento)
-          .sort((a, b) => b.id - a.id);
-
-        setFinalizadosData(finalizadosFormatado);
-        setTamanhoFinalizado(finalizadosFormatado.length);
-      })
-      .catch((error) => {
-        console.error("Erro ao carregar pedidos finalizados:", error);
-        notify.error("Não foi possível carregar o histórico de pedidos.");
-      });
-  }, [notify]);
+  const irParaPaginaFinalizados = useCallback(
+    (pagina) => carregarPagina("finalizados", pagina),
+    [carregarPagina],
+  );
 
   useEffect(() => {
-    carregarPedidosAtivos();
-    carregarPedidosFinalizados();
-  }, [carregarPedidosAtivos, carregarPedidosFinalizados]);
+    const carregamentoInicial = setTimeout(() => {
+      irParaPaginaAtivos(0);
+      irParaPaginaFinalizados(0);
+    }, 0);
+    return () => clearTimeout(carregamentoInicial);
+  }, [irParaPaginaAtivos, irParaPaginaFinalizados]);
 
   const abrirDetalhes = (pedido) => {
     setPedidoSelecionado(pedido);
@@ -121,8 +142,8 @@ export function useGerenciamentoPedidosPageState() {
 
       notify.success("Pedido excluído com sucesso.");
 
-      carregarPedidosAtivos();
-      carregarPedidosFinalizados();
+      irParaPaginaAtivos(paginaAtivos);
+      irParaPaginaFinalizados(paginaFinalizados);
       fecharModal();
     } catch (error) {
       console.error("Erro ao excluir pedido:", error);
@@ -158,8 +179,8 @@ export function useGerenciamentoPedidosPageState() {
         notify.success("Item removido com sucesso.");
       }
 
-      carregarPedidosAtivos();
-      carregarPedidosFinalizados();
+      irParaPaginaAtivos(paginaAtivos);
+      irParaPaginaFinalizados(paginaFinalizados);
       fecharModal();
     } catch (error) {
       console.error("Erro ao remover item:", error);
@@ -190,8 +211,8 @@ export function useGerenciamentoPedidosPageState() {
         notify.success("Pagamento registrado com sucesso.");
       }
 
-      carregarPedidosAtivos();
-      carregarPedidosFinalizados();
+      irParaPaginaAtivos(paginaAtivos);
+      irParaPaginaFinalizados(paginaFinalizados);
       fecharModal();
       setValorPago(0);
     } catch (error) {
@@ -214,6 +235,14 @@ export function useGerenciamentoPedidosPageState() {
     pedidosAtivosData,
     finalizadosData,
     tamanhoFinalizado,
+    carregandoAtivos,
+    carregandoFinalizados,
+    paginaAtivos,
+    paginaFinalizados,
+    totalPaginasAtivos,
+    totalPaginasFinalizados,
+    irParaPaginaAtivos,
+    irParaPaginaFinalizados,
 
     pedidoSelecionado,
     itemSelecionado,

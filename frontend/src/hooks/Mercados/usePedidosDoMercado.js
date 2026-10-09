@@ -9,34 +9,57 @@ import {
 import { formatarPedidoDaApi } from "../../utils/mercadoMappers";
 import { useNotification } from "../../components/notifications/NotificationContext";
 
+const TAMANHO_PAGINA = 10;
+
 /** Regra de negócio dos pedidos (ativos/finalizados) de um cliente. */
 export function usePedidosDoMercado(mercadoId) {
   const notify = useNotification();
   const [pedidosPorMercado, setPedidosPorMercado] = useState({});
+  const [paginacaoPorMercado, setPaginacaoPorMercado] = useState({});
   const [carregandoPedidos, setCarregandoPedidos] = useState(false);
   const [abaPedidosAtiva, setAbaPedidosAtiva] = useState("ativos");
   const [pedidosSelecionados, setPedidosSelecionados] = useState([]);
 
-  const carregarPedidos = useCallback(
-    (idAlvo) => {
+  const carregarPagina = useCallback(
+    (idAlvo, tipo, pagina = 0) => {
       setCarregandoPedidos(true);
 
-      return Promise.all([
-        listarPedidosAtivos(idAlvo),
-        listarPedidosHistorico(idAlvo),
-      ])
-        .then(([ativos, historico]) => {
-          // 204 (sem conteúdo) chega com data vazio/não-array
-          const listaAtivos = Array.isArray(ativos) ? ativos : [];
-          const listaHistorico = Array.isArray(historico) ? historico : [];
+      const listar = tipo === "ativos" ? listarPedidosAtivos : listarPedidosHistorico;
 
-          const pedidosFormatados = [...listaAtivos, ...listaHistorico]
+      return listar(idAlvo, {
+        page: pagina,
+        size: TAMANHO_PAGINA,
+        sort: "dataSolicitacao,desc",
+      })
+        .then((data) => {
+          const pedidosFormatados = (data?.items || [])
             .map(formatarPedidoDaApi)
             .sort((a, b) => b.id - a.id);
+          setPedidosPorMercado((prev) => {
+            const pedidosAtuais = prev[idAlvo] || [];
+            const pedidosDaOutraAba = pedidosAtuais.filter(
+              (pedido) =>
+                (tipo === "ativos" && pedido.statusPedido !== "ATIVO") ||
+                (tipo === "historico" && pedido.statusPedido === "ATIVO"),
+            );
+            const pedidosAtualizados = [...pedidosDaOutraAba, ...pedidosFormatados];
 
-          setPedidosPorMercado((prev) => ({
+            return {
+              ...prev,
+              [idAlvo]: pedidosAtualizados.sort((a, b) => b.id - a.id),
+            };
+          });
+
+          setPaginacaoPorMercado((prev) => ({
             ...prev,
-            [idAlvo]: pedidosFormatados,
+            [idAlvo]: {
+              ...(prev[idAlvo] || {}),
+              [tipo]: {
+                page: data?.page ?? pagina,
+                totalElements: data?.totalElements ?? pedidosFormatados.length,
+                totalPages: data?.totalPages ?? 0,
+              },
+            },
           }));
 
           return pedidosFormatados;
@@ -46,9 +69,30 @@ export function usePedidosDoMercado(mercadoId) {
           notify.error("Não foi possível carregar os pedidos deste cliente.");
           return [];
         })
-        .finally(() => setCarregandoPedidos(false));
+        .finally(() => {
+          setCarregandoPedidos(false);
+        });
     },
     [notify],
+  );
+
+  const carregarPedidos = useCallback(
+    (idAlvo) => {
+      return Promise.all([
+        carregarPagina(idAlvo, "ativos"),
+        carregarPagina(idAlvo, "historico"),
+      ]).then(([ativos, historico]) => [...ativos, ...historico]);
+    },
+    [carregarPagina],
+  );
+
+  const irParaPaginaPedidos = useCallback(
+    (pagina) => {
+      if (!mercadoId) return Promise.resolve([]);
+      const tipo = abaPedidosAtiva === "ativos" ? "ativos" : "historico";
+      return carregarPagina(mercadoId, tipo, pagina);
+    },
+    [abaPedidosAtiva, carregarPagina, mercadoId],
   );
 
   useEffect(() => {
@@ -245,6 +289,15 @@ export function usePedidosDoMercado(mercadoId) {
   return {
     pedidosDaAba,
     carregandoPedidos,
+    paginaPedidos:
+      paginacaoPorMercado[mercadoId]?.[
+        abaPedidosAtiva === "ativos" ? "ativos" : "historico"
+      ]?.page ?? 0,
+    totalPaginasPedidos:
+      paginacaoPorMercado[mercadoId]?.[
+        abaPedidosAtiva === "ativos" ? "ativos" : "historico"
+      ]?.totalPages ?? 0,
+    irParaPaginaPedidos,
     abaPedidosAtiva,
     selecionarAba,
     pedidosSelecionados,

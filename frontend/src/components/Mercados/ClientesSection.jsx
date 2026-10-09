@@ -2,6 +2,7 @@ import { PageHeader } from "../PageHeader";
 import { ContentCard } from "../ContentCard";
 import { FiltroTipoCliente } from "./FiltroTipoCliente";
 import { ClientesLista } from "./ClientesLista";
+import { Pagination } from "../Pagination";
 
 export function ClientesSection({
   mercados,
@@ -12,6 +13,10 @@ export function ClientesSection({
   onEditar,
   onVerEndereco,
   onExcluir,
+  paginaMercados,
+  totalPaginasMercados,
+  carregandoMercados,
+  onMudarPaginaMercados,
 }) {
   return (
     <div className="animate-in fade-in duration-300 flex flex-col flex-1 min-h-0 pb-4 overflow-hidden">
@@ -31,6 +36,14 @@ export function ClientesSection({
           subtitle="Selecione um Cliente para ver seus pedidos"
           filters={
             <FiltroTipoCliente filtroAtivo={filtroAtivo} onFiltrar={onFiltrar} />
+          }
+          footer={
+            <Pagination
+              currentPage={paginaMercados}
+              totalPages={totalPaginasMercados}
+              disabled={carregandoMercados}
+              onPageChange={onMudarPaginaMercados}
+            />
           }
         >
           <ClientesLista

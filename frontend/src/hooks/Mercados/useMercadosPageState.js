@@ -184,11 +184,18 @@ export function useMercadosPageState() {
     mercadosFiltrados: mercados.mercadosFiltrados,
     filtroAtivo: mercados.filtroAtivo,
     onFiltrarPorTipo: mercados.setFiltroAtivo,
+    paginaMercados: mercados.paginaMercados,
+    totalPaginasMercados: mercados.totalPaginasMercados,
+    carregandoMercados: mercados.carregandoMercados,
+    irParaPaginaMercados: mercados.irParaPaginaMercados,
 
     // pedidos do cliente em foco
     mercadoEmFoco,
     pedidosDaAba: pedidos.pedidosDaAba,
     carregandoPedidos: pedidos.carregandoPedidos,
+    paginaPedidos: pedidos.paginaPedidos,
+    totalPaginasPedidos: pedidos.totalPaginasPedidos,
+    irParaPaginaPedidos: pedidos.irParaPaginaPedidos,
     abaPedidosAtiva: pedidos.abaPedidosAtiva,
     selecionarAba: pedidos.selecionarAba,
     pedidosSelecionados: pedidos.pedidosSelecionados,

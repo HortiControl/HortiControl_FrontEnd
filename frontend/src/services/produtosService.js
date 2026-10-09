@@ -1,11 +1,44 @@
 import api from "../provider/api";
 
-export function listarProdutos(filtroNome = "") {
-  const url = filtroNome
-    ? `/produtos/busca?nome=${filtroNome}`
-    : "/produtos";
+function normalizarPagina(data) {
+  const pagina = data && !Array.isArray(data) ? data : {};
+  const totalElements = pagina.totalElements ?? 0;
+  const size = pagina.size ?? 0;
 
-  return api.get(url).then((response) => response.data);
+  return {
+    items: Array.isArray(data) ? data : pagina.content || [],
+    page: pagina.number ?? 0,
+    size,
+    totalElements,
+    totalPages: pagina.totalPages ?? (size ? Math.ceil(totalElements / size) : 0),
+    first: pagina.first ?? true,
+    last: pagina.last ?? true,
+  };
+}
+
+function obterParametrosPaginacao(paginacao) {
+  if (!paginacao) return {};
+
+  return {
+    page: paginacao.page ?? 0,
+    size: paginacao.size ?? 10,
+    sort: paginacao.sort,
+  };
+}
+
+function extrairResposta(response, paginacao) {
+  const pagina = normalizarPagina(response.data);
+  return paginacao ? pagina : pagina.items;
+}
+
+export function listarProdutos(filtroNome = "", paginacao = null) {
+  const url = filtroNome ? "/produtos/busca" : "/produtos";
+  const params = {
+    ...(filtroNome ? { nome: filtroNome } : {}),
+    ...obterParametrosPaginacao(paginacao),
+  };
+
+  return api.get(url, { params }).then((response) => extrairResposta(response, paginacao));
 }
 
 export function criarProduto(dados) {
@@ -24,10 +57,14 @@ export function reajustarPrecoGlobal(novoPreco) {
   return api.patch(`/produtos/reajuste-global?novoPreco=${novoPreco}`, {});
 }
 
-export function listarProdutosPreLavados() {
-  return api.get("/produtos/pre-lavados").then((response) => response.data);
+export function listarProdutosPreLavados(paginacao = null) {
+  return api
+    .get("/produtos/pre-lavados", { params: obterParametrosPaginacao(paginacao) })
+    .then((response) => extrairResposta(response, paginacao));
 }
 
-export function listarProdutosNaoLavados() {
-  return api.get("/produtos/nao-lavados").then((response) => response.data);
+export function listarProdutosNaoLavados(paginacao = null) {
+  return api
+    .get("/produtos/nao-lavados", { params: obterParametrosPaginacao(paginacao) })
+    .then((response) => extrairResposta(response, paginacao));
 }

@@ -7,6 +7,7 @@ import { ProdutosLista } from "../components/Produtos/ProdutosLista";
 import { ProdutoFormModal } from "../components/Produtos/ProdutoFormModal";
 import { ExcluirProdutoModal } from "../components/Produtos/ExcluirProdutoModal";
 import { ReajustarPrecoModal } from "../components/Produtos/ReajustarPrecoModal";
+import { Pagination } from "../components/Pagination";
 
 export function Produtos() {
   const {
@@ -25,6 +26,10 @@ export function Produtos() {
     handleSalvar,
     handleAtualizarGlobal,
     handleExcluir,
+    paginaProdutos,
+    totalPaginasProdutos,
+    carregandoProdutos,
+    irParaPaginaProdutos,
   } = useProdutosPageState();
 
   return (
@@ -48,6 +53,14 @@ export function Produtos() {
         }
         filters={
           <FiltroTipoProduto filtroAtivo={filtroAtivo} onFiltrar={onFiltrarPorTipo} />
+        }
+        footer={
+          <Pagination
+            currentPage={paginaProdutos}
+            totalPages={totalPaginasProdutos}
+            disabled={carregandoProdutos}
+            onPageChange={irParaPaginaProdutos}
+          />
         }
       >
         <ProdutosLista

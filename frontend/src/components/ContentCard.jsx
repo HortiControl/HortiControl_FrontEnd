@@ -1,4 +1,4 @@
-export function ContentCard({ title, subtitle, count, filters, children }) {
+export function ContentCard({ title, subtitle, count, filters, footer, children }) {
   return (
     <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm sm:mt-6">
       <div className="flex flex-col justify-between gap-4 border-b border-gray-100 p-4 sm:flex-row sm:items-end sm:gap-5 sm:p-6">
@@ -20,6 +20,7 @@ export function ContentCard({ title, subtitle, count, filters, children }) {
       <div className="overflow-x-auto px-1 sm:px-0">
         {children}
       </div>
+      {footer}
     </div>
   );
 }

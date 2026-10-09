@@ -4,6 +4,7 @@ import { ContentCard } from "../ContentCard";
 import { TrilhaNavegacao } from "./TrilhaNavegacao";
 import { AbasPedidos } from "./AbasPedidos";
 import { PedidosLista } from "./PedidosLista";
+import { Pagination } from "../Pagination";
 
 export function PedidosDoMercadoSection({
   mercadoEmFoco,
@@ -21,6 +22,10 @@ export function PedidosDoMercadoSection({
   onAbrirPagamento,
   onAbrirExclusao,
   onExportar,
+  paginaPedidos,
+  totalPaginasPedidos,
+  carregandoPedidos,
+  onMudarPaginaPedidos,
 }) {
   return (
     <div className="animate-in fade-in duration-300 flex flex-col flex-1 min-h-0 pb-4 overflow-hidden">
@@ -58,6 +63,14 @@ export function PedidosDoMercadoSection({
               : "Histórico de pedidos finalizados para consulta"
           }
           count={pedidos.length}
+          footer={
+            <Pagination
+              currentPage={paginaPedidos}
+              totalPages={totalPaginasPedidos}
+              disabled={carregandoPedidos}
+              onPageChange={onMudarPaginaPedidos}
+            />
+          }
         >
           <PedidosLista
             pedidos={pedidos}

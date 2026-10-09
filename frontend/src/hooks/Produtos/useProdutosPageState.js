@@ -17,12 +17,16 @@ const FORM_DATA_INICIAL = {
 };
 
 const BUSCA_DEBOUNCE_MS = 400;
+const TAMANHO_PAGINA = 10;
 
 /** Orquestra estado e regra de negócio da tela de Produtos. */
 export function useProdutosPageState() {
   const notify = useNotification();
 
   const [produtosData, setProdutosData] = useState([]);
+  const [paginaProdutos, setPaginaProdutos] = useState(0);
+  const [totalPaginasProdutos, setTotalPaginasProdutos] = useState(0);
+  const [carregandoProdutos, setCarregandoProdutos] = useState(false);
   const [busca, setBusca] = useState("");
   const [filtroAtivo, setFiltroAtivo] = useState("TODOS");
 
@@ -32,32 +36,42 @@ export function useProdutosPageState() {
   const [valorGlobal, setValorGlobal] = useState(0);
 
   const carregarProdutos = useCallback(
-    (filtro = "") => {
-      listarProdutos(filtro)
+    (filtro = "", pagina = 0) => {
+      setCarregandoProdutos(true);
+      return listarProdutos(filtro, {
+        page: pagina,
+        size: TAMANHO_PAGINA,
+        sort: "nome",
+      })
         .then((data) => {
-          if (!data || data.length === 0) {
-            setProdutosData([]);
-            return;
-          }
-
-          const produtosFormatados = data
+          const produtosFormatados = (data?.items || [])
             .map(formatarProdutoDaApi)
             .sort((a, b) => a.nome.localeCompare(b.nome));
 
           setProdutosData(produtosFormatados);
+          setPaginaProdutos(data?.page ?? pagina);
+          setTotalPaginasProdutos(data?.totalPages ?? 0);
         })
         .catch((error) => {
           console.error("Erro ao carregar produtos: ", error);
           notify.error("Não foi possível carregar os produtos neste momento.");
+        })
+        .finally(() => {
+          setCarregandoProdutos(false);
         });
     },
     [notify],
   );
 
+  const irParaPaginaProdutos = useCallback(
+    (pagina) => carregarProdutos(busca, pagina),
+    [busca, carregarProdutos],
+  );
+
   useEffect(() => {
     if (busca.trim() === "") {
-      carregarProdutos();
-      return;
+      const carregamentoInicial = setTimeout(() => carregarProdutos(), 0);
+      return () => clearTimeout(carregamentoInicial);
     }
 
     const delayDeBusca = setTimeout(() => {
@@ -190,5 +204,9 @@ export function useProdutosPageState() {
     handleSalvar,
     handleAtualizarGlobal,
     handleExcluir,
+    carregandoProdutos,
+    paginaProdutos,
+    totalPaginasProdutos,
+    irParaPaginaProdutos,
   };
 }

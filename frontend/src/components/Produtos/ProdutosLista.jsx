@@ -3,14 +3,18 @@ import { Badge } from "../Badge";
 import { Table } from "../Table";
 import { formatarMoeda } from "../../utils/formatters";
 
-export function ProdutosLista({ produtos, onEditar, onExcluir }) {
+export function ProdutosLista({
+  produtos,
+  onEditar,
+  onExcluir,
+}) {
   return (
-    <div className="max-h-[calc(100vh-18rem)] overflow-y-auto pr-2">
+    <div className="max-h-[calc(100dvh-24rem)] overflow-y-auto pr-2">
       <div className="space-y-3 md:hidden">
         {produtos.map((produto) => (
           <article
             key={produto.id}
-            className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+            className="animate-in fade-in slide-in-from-bottom-2 duration-500 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -59,7 +63,7 @@ export function ProdutosLista({ produtos, onEditar, onExcluir }) {
           {produtos.map((produto) => (
             <tr
               key={produto.id}
-              className="border-b border-gray-100 transition-colors hover:bg-gray-50"
+              className="animate-in fade-in slide-in-from-bottom-2 duration-500 border-b border-gray-100 transition-colors hover:bg-gray-50"
             >
               <td className="px-6 py-4 font-medium text-gray-800">
                 {produto.nome}

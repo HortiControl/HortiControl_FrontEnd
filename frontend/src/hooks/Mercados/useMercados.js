@@ -8,31 +8,56 @@ import {
 import { formatarMercadoDaApi } from "../../utils/mercadoMappers";
 import { useNotification } from "../../components/notifications/NotificationContext";
 
+const TAMANHO_PAGINA = 10;
+
 /** Regra de negócio da listagem/CRUD de clientes (mercados). */
 export function useMercados() {
   const notify = useNotification();
   const [mercadosData, setMercadosData] = useState([]);
   const [filtroAtivo, setFiltroAtivo] = useState("TODOS");
+  const [paginaMercados, setPaginaMercados] = useState(0);
+  const [totalPaginasMercados, setTotalPaginasMercados] = useState(0);
+  const [carregandoMercados, setCarregandoMercados] = useState(false);
 
-  const carregarMercados = useCallback(() => {
-    listarMercados()
-      .then((data) => {
-        const mercadosFormatados = (data || [])
+  const carregarMercados = useCallback(
+    (pagina = 0) => {
+      setCarregandoMercados(true);
+      return listarMercados({
+        page: pagina,
+        size: TAMANHO_PAGINA,
+        sort: "nome",
+      })
+        .then((data) => {
+          const mercadosFormatados = (data?.items || [])
           .map(formatarMercadoDaApi)
           .sort((a, b) => a.nome.localeCompare(b.nome));
-        setMercadosData(mercadosFormatados);
-      })
-      .catch((error) => {
-        console.error("Erro ao carregar clientes:", error);
-        setMercadosData([]);
-        notify.error(
-          "Não foi possível carregar os clientes. Tente novamente mais tarde.",
-        );
-      });
-  }, [notify]);
+
+          setMercadosData(mercadosFormatados);
+          setPaginaMercados(data?.page ?? pagina);
+          setTotalPaginasMercados(data?.totalPages ?? 0);
+        })
+        .catch((error) => {
+          console.error("Erro ao carregar clientes:", error);
+          setMercadosData([]);
+          notify.error(
+            "Não foi possível carregar os clientes. Tente novamente mais tarde.",
+          );
+        })
+        .finally(() => {
+          setCarregandoMercados(false);
+        });
+    },
+    [notify],
+  );
+
+  const irParaPaginaMercados = useCallback(
+    (pagina) => carregarMercados(pagina),
+    [carregarMercados],
+  );
 
   useEffect(() => {
-    carregarMercados();
+    const carregamentoInicial = setTimeout(() => carregarMercados(), 0);
+    return () => clearTimeout(carregamentoInicial);
   }, [carregarMercados]);
 
   const salvarMercado = async (dados, mercadoId = null) => {
@@ -87,5 +112,9 @@ export function useMercados() {
     setFiltroAtivo,
     salvarMercado,
     removerMercado,
+    carregandoMercados,
+    paginaMercados,
+    totalPaginasMercados,
+    irParaPaginaMercados,
   };
 }

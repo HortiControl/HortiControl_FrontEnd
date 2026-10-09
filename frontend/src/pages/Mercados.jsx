@@ -20,6 +20,10 @@ export function Mercados() {
     mercadosFiltrados,
     filtroAtivo,
     onFiltrarPorTipo,
+    paginaMercados,
+    totalPaginasMercados,
+    carregandoMercados,
+    irParaPaginaMercados,
 
     mercadoEmFoco,
     pedidosDaAba,
@@ -28,6 +32,9 @@ export function Mercados() {
     selecionarAba,
     pedidosSelecionados,
     todosPedidosSelecionados,
+    paginaPedidos,
+    totalPaginasPedidos,
+    irParaPaginaPedidos,
     alternarSelecaoPedido,
     alternarSelecaoTodosPedidos,
     handleExportarPedidos,
@@ -66,6 +73,10 @@ export function Mercados() {
           onEditar={(mercado) => abrirModal("edit", mercado)}
           onVerEndereco={(mercado) => abrirModal("viewAddress", mercado)}
           onExcluir={(mercado) => abrirModal("delete", mercado)}
+          paginaMercados={paginaMercados}
+          totalPaginasMercados={totalPaginasMercados}
+          carregandoMercados={carregandoMercados}
+          onMudarPaginaMercados={irParaPaginaMercados}
         />
       )}
 
@@ -86,6 +97,10 @@ export function Mercados() {
           onAbrirPagamento={(pedido) => abrirModal("pagamento", pedido)}
           onAbrirExclusao={(pedido) => abrirModal("deletePedido", pedido)}
           onExportar={handleExportarPedidos}
+          paginaPedidos={paginaPedidos}
+          totalPaginasPedidos={totalPaginasPedidos}
+          carregandoPedidos={carregandoPedidos}
+          onMudarPaginaPedidos={irParaPaginaPedidos}
         />
       )}
 
