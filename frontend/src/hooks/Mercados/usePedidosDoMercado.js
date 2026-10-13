@@ -6,6 +6,7 @@ import {
   registrarPagamento,
   removerItemPedido,
 } from "../../services/pedidosService";
+import { exportarPedidosPdf } from "../../services/exportacaoService";
 import { formatarPedidoDaApi } from "../../utils/mercadoMappers";
 import { useNotification } from "../../components/notifications/NotificationContext";
 
@@ -19,6 +20,7 @@ export function usePedidosDoMercado(mercadoId) {
   const [carregandoPedidos, setCarregandoPedidos] = useState(false);
   const [abaPedidosAtiva, setAbaPedidosAtiva] = useState("ativos");
   const [pedidosSelecionados, setPedidosSelecionados] = useState([]);
+  const [exportandoPedidos, setExportandoPedidos] = useState(false);
 
   const carregarPagina = useCallback(
     (idAlvo, tipo, pagina = 0) => {
@@ -242,8 +244,8 @@ export function usePedidosDoMercado(mercadoId) {
     }
   };
 
-  const handleExportarPedidos = () => {
-    if (!mercadoId) return;
+  const handleExportarPedidos = async () => {
+    if (!mercadoId || exportandoPedidos) return;
 
     if (pedidosDaAba.length === 0) {
       notify.warning(
@@ -264,26 +266,28 @@ export function usePedidosDoMercado(mercadoId) {
       return;
     }
 
-    const payloadExportacao = {
-      mercadoId,
-      tipo: abaPedidosAtiva,
-      idsPedidos: pedidosParaExportar.map((pedido) => pedido.id),
-    };
+    setExportandoPedidos(true);
+    notify.info("Gerando o PDF, isso pode levar alguns segundos...");
 
-    console.log("Payload mock de exportação PDF:", payloadExportacao);
+    try {
+      await exportarPedidosPdf({
+        escopo: abaPedidosAtiva === "ativos" ? "ATIVOS" : "HISTORICO",
+        mercadoId,
+        // Só manda os ids quando o usuário marcou algum; sem isso o
+        // microsserviço traz todos os pedidos da aba.
+        pedidoIds:
+          pedidosSelecionados.length > 0
+            ? pedidosParaExportar.map((pedido) => pedido.id)
+            : undefined,
+      });
 
-    if (pedidosSelecionados.length > 0) {
-      notify.success(
-        `Exportação iniciada para ${pedidosParaExportar.length} pedido(s).`,
-      );
-      return;
+      notify.success("PDF gerado com sucesso.");
+    } catch (error) {
+      console.error("Erro ao exportar pedidos:", error);
+      notify.error(error.message || "Não foi possível gerar o PDF.");
+    } finally {
+      setExportandoPedidos(false);
     }
-
-    notify.success(
-      `Exportação iniciada para todos os pedidos ${
-        abaPedidosAtiva === "ativos" ? "ativos" : "finalizados"
-      }.`,
-    );
   };
 
   return {
@@ -308,5 +312,6 @@ export function usePedidosDoMercado(mercadoId) {
     handleRegistrarPagamento,
     handleRemoverItemPedido,
     handleExportarPedidos,
+    exportandoPedidos,
   };
 }

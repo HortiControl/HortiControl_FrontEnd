@@ -43,6 +43,8 @@ export function GerenciamentoPedidos() {
     handleExcluir,
     handleRemoverItem,
     handlePagarValor,
+    handleImprimirPedido,
+    imprimindo,
   } = useGerenciamentoPedidosPageState();
 
   return (
@@ -54,6 +56,8 @@ export function GerenciamentoPedidos() {
           onVoltarParaLista={voltarParaLista}
           mostrarAcoesItem={abaAtiva === "ativos"}
           onExcluirItem={abrirModalItem}
+          onImprimir={handleImprimirPedido}
+          imprimindo={imprimindo}
         />
       ) : (
         <div className="animate-in fade-in duration-300 flex flex-col flex-1 min-h-0 pb-4 overflow-hidden">

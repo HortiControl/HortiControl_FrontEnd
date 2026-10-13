@@ -38,6 +38,7 @@ export function Mercados() {
     alternarSelecaoPedido,
     alternarSelecaoTodosPedidos,
     handleExportarPedidos,
+    exportandoPedidos,
 
     pedidoSelecionado,
 
@@ -97,6 +98,7 @@ export function Mercados() {
           onAbrirPagamento={(pedido) => abrirModal("pagamento", pedido)}
           onAbrirExclusao={(pedido) => abrirModal("deletePedido", pedido)}
           onExportar={handleExportarPedidos}
+          exportando={exportandoPedidos}
           paginaPedidos={paginaPedidos}
           totalPaginasPedidos={totalPaginasPedidos}
           carregandoPedidos={carregandoPedidos}

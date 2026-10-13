@@ -7,6 +7,7 @@ import {
   registrarPagamento,
 } from "../../services/pedidosService";
 import { formatarPedidoGerenciamento } from "../../utils/GerenciamentoPedidos/pedidoGerenciamentoMappers";
+import { exportarPedidosPdf } from "../../services/exportacaoService";
 import { useLockBodyScroll } from "../useLockBodyScroll";
 import { useNotification } from "../../components/notifications/NotificationContext";
 
@@ -35,6 +36,7 @@ export function useGerenciamentoPedidosPageState() {
   const [carregandoAtivos, setCarregandoAtivos] = useState(false);
   const [carregandoFinalizados, setCarregandoFinalizados] = useState(false);
   const [valorPago, setValorPago] = useState(0);
+  const [imprimindo, setImprimindo] = useState(false);
 
   const carregarPagina = useCallback(
     (tipo, pagina = 0) => {
@@ -223,6 +225,27 @@ export function useGerenciamentoPedidosPageState() {
     }
   };
 
+  const handleImprimirPedido = async () => {
+    if (!pedidoSelecionado || imprimindo) return;
+
+    setImprimindo(true);
+    notify.info("Gerando o PDF, isso pode levar alguns segundos...");
+
+    try {
+      await exportarPedidosPdf({
+        escopo: abaAtiva === "ativos" ? "ATIVOS" : "HISTORICO",
+        pedidoIds: [pedidoSelecionado.id],
+      });
+
+      notify.success("PDF gerado com sucesso.");
+    } catch (error) {
+      console.error("Erro ao imprimir pedido:", error);
+      notify.error(error.message || "Não foi possível gerar o PDF.");
+    } finally {
+      setImprimindo(false);
+    }
+  };
+
   const trilhaNavegacao =
     viewMode === "lista" ? "Pedidos" : "Pedidos > Itens do Pedido";
 
@@ -258,5 +281,7 @@ export function useGerenciamentoPedidosPageState() {
     handleExcluir,
     handleRemoverItem,
     handlePagarValor,
+    handleImprimirPedido,
+    imprimindo,
   };
 }

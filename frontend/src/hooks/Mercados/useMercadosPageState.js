@@ -203,6 +203,7 @@ export function useMercadosPageState() {
     alternarSelecaoPedido: pedidos.alternarSelecaoPedido,
     alternarSelecaoTodosPedidos: pedidos.alternarSelecaoTodosPedidos,
     handleExportarPedidos: pedidos.handleExportarPedidos,
+    exportandoPedidos: pedidos.exportandoPedidos,
 
     // itens do pedido selecionado
     pedidoSelecionado,

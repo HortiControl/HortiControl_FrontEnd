@@ -22,6 +22,7 @@ export function PedidosDoMercadoSection({
   onAbrirPagamento,
   onAbrirExclusao,
   onExportar,
+  exportando,
   paginaPedidos,
   totalPaginasPedidos,
   carregandoPedidos,
@@ -44,11 +45,18 @@ export function PedidosDoMercadoSection({
             Visualize e gerencie os pedidos do cliente
           </p>
         </div>
-        <Button variant="primary" onClick={onExportar} className="w-full sm:w-auto">
+        <Button
+          variant="primary"
+          onClick={onExportar}
+          disabled={exportando}
+          className="w-full sm:w-auto disabled:opacity-60"
+        >
           <Download size={16} />
-          {pedidosSelecionados.length > 0
-            ? `Exportar (${pedidosSelecionados.length} selecionado${pedidosSelecionados.length > 1 ? "s" : ""})`
-            : "Exportar todos"}
+          {exportando
+            ? "Gerando PDF..."
+            : pedidosSelecionados.length > 0
+              ? `Exportar (${pedidosSelecionados.length} selecionado${pedidosSelecionados.length > 1 ? "s" : ""})`
+              : "Exportar todos"}
         </Button>
       </div>
 

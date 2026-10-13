@@ -11,6 +11,8 @@ export function DetalhesPedidoSection({
   onVoltarParaLista,
   mostrarAcoesItem,
   onExcluirItem,
+  onImprimir,
+  imprimindo,
 }) {
   return (
     <div className="animate-in fade-in duration-300 flex flex-col flex-1 min-h-0 pb-4 overflow-hidden">
@@ -29,8 +31,14 @@ export function DetalhesPedidoSection({
             Data de Solicitação - {pedido.data}
           </p>
         </div>
-        <Button variant="primary" icon={Printer}>
-          Imprimir
+        <Button
+          variant="primary"
+          icon={Printer}
+          onClick={onImprimir}
+          disabled={imprimindo}
+          className="disabled:opacity-60"
+        >
+          {imprimindo ? "Gerando PDF..." : "Imprimir"}
         </Button>
       </div>
 
