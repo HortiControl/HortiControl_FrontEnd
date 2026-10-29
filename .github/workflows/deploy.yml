@@ -21,8 +21,11 @@ jobs:
 
       - name: Build e Push da imagem
         run: |
-          docker build -t brucilao/horticontrol-frontend:latest .
+          docker build --build-arg VITE_API_URL=http://3.215.146.171 -t brucilao/horticontrol-frontend:latest .
           docker push brucilao/horticontrol-frontend:latest
+          
+          # docker build -t brucilao/horticontrol-frontend:latest .
+          # docker push brucilao/horticontrol-frontend:latest
 
       - name: Deploy via Bastion
         uses: appleboy/ssh-action@v1
