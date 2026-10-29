@@ -31,5 +31,15 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/projeto && docker compose pull frontend && docker compose up -d frontend nginx
+            # 1. Para e remove o container antigo se ele já existir
+            docker stop horticontrol-frontend || true
+            docker rm horticontrol-frontend || true
+            
+            # 2. Baixa a versão mais recente que você acabou de buildar
+            docker pull brucilao/horticontrol-frontend:latest
+            
+            # 3. Roda o container mapeando a porta 8084 da EC2 para a porta 80 interna do container
+            docker run -d --name horticontrol-frontend -p 8084:80 --restart always brucilao/horticontrol-frontend:latest
+            
+            # cd ~/projeto && docker compose pull frontend && docker compose up -d frontend nginx
 
