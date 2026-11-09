@@ -1,8 +1,10 @@
 import axios from "axios";
 
+
 const apiExport = axios.create({
     // baseURL: "https://horticontrol-export.onrender.com"
-    baseURL: "http://localhost:8081",
+    //   baseURL: "http://localhost:8081",
+    baseURL: import.meta.env.VITE_EXPORT_API_URL || "",
     withCredentials: true,
 });
 

@@ -25,6 +25,7 @@ export default defineConfig({
     // O api.js lança erro se VITE_API_URL não existir, então definimos aqui.
     env: {
       VITE_API_URL: '',
+      VITE_EXPORT_API_URL: '',
     },
  
     coverage: {
