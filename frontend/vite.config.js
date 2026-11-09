@@ -24,7 +24,7 @@ export default defineConfig({
     // Variáveis de ambiente só para os testes.
     // O api.js lança erro se VITE_API_URL não existir, então definimos aqui.
     env: {
-      VITE_API_URL: 'http://localhost:8080',
+      VITE_API_URL: '',
     },
  
     coverage: {
